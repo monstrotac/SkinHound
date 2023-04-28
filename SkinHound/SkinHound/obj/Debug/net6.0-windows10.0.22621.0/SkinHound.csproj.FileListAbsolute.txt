@@ -1,8 +1,3 @@
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound.csproj.AssemblyReference.cache
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\MainWindow.g.cs
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\App.g.cs
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound_MarkupCompile.cache
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound_MarkupCompile.lref
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\SkinHound.exe
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\SkinHound.deps.json
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\SkinHound.runtimeconfig.json
@@ -12,6 +7,11 @@ J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\Newtonsoft.Json.dll
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\Microsoft.Windows.SDK.NET.dll
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\WinRT.Runtime.dll
+J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound.csproj.AssemblyReference.cache
+J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\MainWindow.g.cs
+J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\App.g.cs
+J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound_MarkupCompile.cache
+J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound_MarkupCompile.lref
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\MainWindow.baml
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound.g.resources
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound.GeneratedMSBuildEditorConfig.editorconfig

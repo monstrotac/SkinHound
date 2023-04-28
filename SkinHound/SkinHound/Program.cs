@@ -16,7 +16,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.IO;
 
-namespace SkinportAnalyzer
+namespace SkinHound
 {
     internal class Program
     {
@@ -282,7 +282,7 @@ namespace SkinportAnalyzer
             userConfiguration = JsonConvert.DeserializeObject<SkinportAnalyzerConfiguration>(File.ReadAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinportAnalyzer\\config.json"));
         }
         //Main
-        static void ApiMain(string[] args)
+        public static void ApiMain()
         {
             //We start by acquiring the configs
             GetConfig();
@@ -306,11 +306,11 @@ namespace SkinportAnalyzer
             client.BaseAddress = new Uri("https://api.skinport.com/v1/");
             //Launch the timer.
             int timeInterval = 1000 * 60 * userConfiguration.Minutes_Between_Queries;
-            Timer timer = new Timer(handleProcess, null, 0, timeInterval);
-            while (true)
-            {
-                RunPriceChecker();
-            }
+            //Timer timer = new Timer(handleProcess, null, 0, timeInterval);
+            //while (true)
+            //{
+                //RunPriceChecker();
+            //}
         }
         //This method is used to run manual price checks on items, it is incredibly useful to sell items fast at a decent price.
         private async static void RunPriceChecker()

@@ -22,7 +22,9 @@ namespace SkinHound
     {
         public MainWindow()
         {
+
             InitializeComponent();
+            Program.ApiMain();
         }
     }
 }

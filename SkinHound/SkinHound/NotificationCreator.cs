@@ -4,7 +4,7 @@ using System.IO;
 using System.Media;
 using System.Threading.Tasks;
 
-namespace SkinportAnalyzer
+namespace SkinHound
 {
     enum NotificationType
     {
