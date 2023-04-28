@@ -26,5 +26,10 @@ namespace SkinHound
             InitializeComponent();
             Program.ApiMain();
         }
+
+        private void DealClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
