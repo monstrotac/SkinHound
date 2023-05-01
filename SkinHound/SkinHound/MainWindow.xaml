@@ -5,35 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SkinHound"
         mc:Ignorable="d"
-        Title="SkinHound" MinHeight="450" MinWidth="450" Height="450" Width="450">
-    <Window.Resources>
-        <ControlTemplate x:Key="dealTemplate">
-            <!-- Area where the items on deal are inserted/created -->
-            <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" MinHeight="200" MinWidth="415" MaxHeight="200" MaxWidth="415">
-                <Grid x:Name="DealXGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MaxWidth="150" MinWidth="150"/>
-                        <ColumnDefinition MinWidth="275"/>
-                    </Grid.ColumnDefinitions>
-                    <!-- Items -->
-                    <Button Name="button_x" Click="DealClicked" Grid.Column="0" MinHeight="200" MaxHeight="200">
-                        <StackPanel VerticalAlignment="Top">
-                            <Image Source="resources\Notifications\GoldenNotification.jpg" HorizontalAlignment="Center" VerticalAlignment="Top" MinHeight="125" MaxHeight="125" MinWidth="125" MaxWidth="125"/>
-                            <TextBlock TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" MinHeight="70" MaxHeight="70" MinWidth="150">
-                                                    M4A4 Poseidon Factory New dawdasd dawdaddadwa dwa jkj wadkjakw j awdkj dads
-                            </TextBlock>
-                        </StackPanel>
-                    </Button>
-                    <StackPanel Margin="2.5" Grid.Column="1">
-                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top">Button 1</TextBlock>
-                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Button 2</TextBlock>
-                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Bottom">Button 3</TextBlock>
-                    </StackPanel>
-                </Grid>
-            </Border>
-            <!-- End of the Deal Area -->
-        </ControlTemplate>
-    </Window.Resources>
+        Title="SkinHound" MinHeight="260" MinWidth="410" Height="260" Width="410">
     <Grid>
         <Grid>
             <TabControl>
@@ -45,52 +17,23 @@
                         </StackPanel>
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
-                    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Margin="-1,0,1,0">
-                        <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Left" VerticalAlignment="Top" ItemHeight="200" ItemWidth="415">
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled">
+                        <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Left" VerticalAlignment="Top" ItemHeight="216" ItemWidth="384">
                             <!-- Area where the items on deal are inserted/created -->
-                            <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" MinHeight="200" MinWidth="415" MaxHeight="200" MaxWidth="415">
-                                <Grid x:Name="DealXGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
+                            <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
+                                <Grid x:Name="DealXGrid" Grid.Column="0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition MaxWidth="150" MinWidth="150"/>
-                                        <ColumnDefinition MinWidth="275"/>
+                                        <ColumnDefinition MaxWidth="128" MinWidth="128"/>
+                                        <ColumnDefinition MinWidth="256" MaxWidth="256"/>
                                     </Grid.ColumnDefinitions>
                                     <!-- Items -->
-                                    <Button Name="button_x" Click="DealClicked" Grid.Column="0" MinHeight="200" MaxHeight="200">
-                                        <StackPanel VerticalAlignment="Top">
-                                            <Image Source="resources\Notifications\GoldenNotification.jpg" HorizontalAlignment="Center" VerticalAlignment="Top" MinHeight="125" MaxHeight="125" MinWidth="125" MaxWidth="125"/>
-                                            <TextBlock TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" MinHeight="70" MaxHeight="70" MinWidth="150">
-                                                    M4A4 Poseidon Factory New dawdasd dawdaddadwa dwa jkj wadkjakw j awdkj dads 
-                                            </TextBlock>
+                                    <Button Name="DealButtonX" Click="DealClicked" Grid.Column="0">
+                                        <StackPanel VerticalAlignment="Top" MaxHeight="216" MinHeight="216">
+                                            <Image Source="resources\Notifications\GoldenNotification.jpg" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                            <TextBlock x:Name="DealXItemName" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                                         </StackPanel>
                                     </Button>
-                                    <StackPanel Margin="2.5" Grid.Column="1">
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top">Button 1</TextBlock>
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Button 2</TextBlock>
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Bottom">Button 3</TextBlock>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                            <!-- End of the Deal Area-->
-                            <!-- Area where the items on deal are inserted/created -->
-                            <Border Background="GhostWhite" BorderBrush="Gainsboro" BorderThickness="1">
-                                <Grid x:Name="DealXGrd" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition MaxWidth="140" MinWidth="135"/>
-                                        <ColumnDefinition MinWidth="275"/>
-                                    </Grid.ColumnDefinitions>
-                                    <!-- Items -->
-                                    <Border Background="GhostWhite" BorderBrush="Gainsboro" BorderThickness="1" Grid.Column="0">
-
-                                        <Button HorizontalAlignment="Left" Name="button_" VerticalAlignment="Center" Click="DealClicked">
-                                            <StackPanel>
-                                                <Image Source="resources\Notifications\GoldenNotification.jpg"></Image>
-                                                <TextBlock TextAlignment="Center" TextDecorations="Underline" TextWrapping="Wrap">
-                                                    M4A4 Poseidon Factory New
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </Button>
-                                    </Border>
-                                    <StackPanel Margin="2.5" Grid.Column="1">
+                                    <StackPanel Grid.Column="1" >
                                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top">Button 1</TextBlock>
                                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Button 2</TextBlock>
                                         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Bottom">Button 3</TextBlock>

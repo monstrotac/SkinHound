@@ -23,7 +23,6 @@ namespace SkinHound
         //Private Methods
         private SkinportApiFactory skinportApiFactory;
         private WrapPanel dealsGrid;
-        private ControlTemplate dealTemplate;
 
         public MainWindow()
         {
@@ -31,7 +30,6 @@ namespace SkinHound
             InitializeComponent();
             //Initialize the methods linked to components of the application.
             dealsGrid = (WrapPanel)FindName("DealsGrid");
-            dealTemplate = (ControlTemplate)FindResource("dealTemplate");
             DealsGridHandler();
         }
         private async void DealsGridHandler()
@@ -62,9 +60,16 @@ namespace SkinHound
             {
                 ItemDeal curDeal = new ItemDeal();
                 ((Grid)curDeal.FindName("DealXGrid")).Name = $"Deal{productQueue.Count}Grid";
-                ((Button)curDeal.FindName("DealButton_x")).Name = $"DealButton_{productQueue.Count}";
+                Button itemButton = ((Button)curDeal.FindName("DealButtonX")); 
+                itemButton.Name = $"DealButton{productQueue.Count}";
+                TextBlock itemName = ((TextBlock)curDeal.FindName("DealXItemName"));  
+                itemName.Name = $"Deal{productQueue.Count}ItemName";
+
                 Product curProduct = productQueue.Dequeue();
+                itemName.Text = curProduct.Market_Hash_Name;
+                itemButton.Tag = curProduct.Item_Page;
                 dealsGrid.Children.Add(curDeal);
+
                 return await ShowDeals(productQueue);
             }
             else

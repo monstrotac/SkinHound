@@ -5,29 +5,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SkinHound"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <!-- Area where the items on deal are inserted/created -->
-        <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" MinHeight="200" MinWidth="425" MaxHeight="200" MaxWidth="425">
-            <Grid x:Name="DealXGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MaxWidth="150" MinWidth="150"/>
-                    <ColumnDefinition MinWidth="273"/>
-                </Grid.ColumnDefinitions>
-                <!-- Items -->
-                <Button Name="DealButton_x" Click="DealClicked" Grid.Column="0" MinHeight="200" MaxHeight="200">
-                    <StackPanel VerticalAlignment="Top">
-                        <Image Source="resources\Notifications\GoldenNotification.jpg" HorizontalAlignment="Center" VerticalAlignment="Top" MinHeight="125" MaxHeight="125" MinWidth="125" MaxWidth="125"/>
-                        <TextBlock TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" MinHeight="70" MaxHeight="70" MinWidth="150" Text="M4A1-S Printstream Factory New"/>
-                    </StackPanel>
-                </Button>
-                <StackPanel Margin="10" Grid.Column="1">
-                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top">Button 1</TextBlock>
-                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Button 2</TextBlock>
-                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Bottom">Button 3</TextBlock>
+             d:DesignHeight="450" d:DesignWidth="450">
+    <!-- Area where the items on deal are inserted/created -->
+    <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
+        <Grid x:Name="DealXGrid" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MaxWidth="128" MinWidth="128"/>
+                <ColumnDefinition MinWidth="256" MaxWidth="256"/>
+            </Grid.ColumnDefinitions>
+            <!-- Items -->
+            <Button Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
+                <StackPanel VerticalAlignment="Top" MaxHeight="216" MinHeight="216">
+                    <Image Source="resources\Notifications\GoldenNotification.jpg" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="DealXItemName" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                 </StackPanel>
-            </Grid>
-        </Border>
-        <!-- End of the Deal Area-->
-    </Grid>
+            </Button>
+            <StackPanel Grid.Column="1" >
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top">Button 1</TextBlock>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Button 2</TextBlock>
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Bottom">Button 3</TextBlock>
+            </StackPanel>
+        </Grid>
+    </Border>
+    <!-- End of the Deal Area-->
 </UserControl>

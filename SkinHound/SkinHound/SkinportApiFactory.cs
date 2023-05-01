@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.IO;
 using System.Windows.Shapes;
+using System.Runtime.InteropServices;
 
 namespace SkinHound
 {
@@ -63,9 +64,11 @@ namespace SkinHound
                 // Obtain the arguments from the notification
                 ToastArguments.Parse(toastArgs.Argument).TryGetValue("Link", out link);
                 //We attempt to start a browser to item.
-                var webSurfer = new ProcessStartInfo("chrome.exe");
-                webSurfer.Arguments = link;
-                Process.Start(webSurfer);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    link = link.Replace("&", "^&");
+                    Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
+                }
             };
             // Update port # in the following line.
             client.DefaultRequestHeaders.Accept.Clear();
