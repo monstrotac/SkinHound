@@ -1,6 +1,6 @@
-﻿/*
+/*
  *  SKINPORTANALYZER.EXE
- *  CREATED BY SIMON-OLIVIER "BOBCALVERY" LACHANCE-GAGNÉ
+ *  CREATED BY SIMON-OLIVIER "BOBCALVERY" LACHANCE-GAGN�
  *  THIS SOFTWARE WAS CREATED UNDER THE USAGE OF THE MIT LICENSE
  *  QC,CANADA NOVEMBER 2022
 */
@@ -15,6 +15,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using System.Diagnostics;
 using System.Linq;
 using System.IO;
+using System.Windows.Shapes;
 
 namespace SkinHound
 {
@@ -47,6 +48,7 @@ namespace SkinHound
         private static HttpClient client = new HttpClient();
         //We keep a copy of the current product list in memory for price checking.
         private static List<Product> productListInMemory = new List<Product>();
+        private static MarketHistory marketHistoryInMemory;
 
         //Main
         public SkinportApiFactory()
@@ -81,22 +83,22 @@ namespace SkinHound
         }
 
         //Shows the content of the product.
-        private static async Task FilterProduct(Product product, List<Product> filteredList)
+        private static async Task<Product> FilterProduct(Product product)
         {
             //These variables are used to determine what type of notification we will be sending.
             bool shouldSendNotification = false, notificationIsFromDesired = false;
             NotificationType notificationType = NotificationType.REGULAR;
-            //We force tĥe product to update its percentage off to make sure it is up to date and already calculated.
+            //We force the product to update its percentage off to make sure it is up to date and already calculated.
             product.UpdatePercentageOff();
             //At this point we discover what we're dealing with and if we should share it with the user or not.
             if (product.Percentage_Off == 100 || product.Suggested_Price < userConfiguration.Minimum_Worth_Value || product.Market_Hash_Name.Contains("Case Hardened") || product.Market_Hash_Name.Contains("Doppler") || product.Market_Hash_Name.Contains("Marble Fade"))
-                return;
+                return null;
             //Before anything happens, we start by verfying if it's a desired weapon.
             if (VerifyIfDesired(product.Market_Hash_Name) && product.Percentage_Off > userConfiguration.Desired_Weapons_Min_Discount_Threshold)
             {
                 //Now that it is relevant, we acquire details about the last sales of the products.
                 ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
-                double recommendedDiscount = await productMarketHistory.GetRecommendedResellDiscount(product);
+                
                 switch (product.Percentage_Off)
                 {
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
@@ -140,8 +142,9 @@ namespace SkinHound
             else if (product.Percentage_Off >= userConfiguration.Good_Discount_Threshold)
             {
                 //Now that it is relevant, we acquire details about the last sales of the products.
+                if (marketHistoryInMemory == null)
+                    await AcquireMarketHistory();
                 ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
-                double recommendedDiscount = await productMarketHistory.GetRecommendedResellDiscount(product);
                 switch (product.Percentage_Off)
                 {
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
@@ -158,6 +161,7 @@ namespace SkinHound
                         notificationType = NotificationType.REGULAR;
                         break;
                 }
+                product.recommendedResellPrice = 2;
                 //Console.WriteLine($"- Great Deal -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
                 //Financial information about the item in perticular.
                 /*Console.WriteLine($"\t- Reselling information -" +
@@ -174,14 +178,32 @@ namespace SkinHound
                     $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
                     $"\n\t\t{new string('*', 50)}");*/
             }
-            //We finish off by sending a notification if the deal was determined as good enough.
+            //We finish off by sending a notification if the deal was determined good enough.
             if (shouldSendNotification)
             {
                 //We notify our notification manager to take care of the notification process.
                 await notificationManager.SendNotification(product, notificationType, notificationIsFromDesired);
+                return product;
             }
-            return;
+            //If we get here, the deal wasn't good enough.
+            return null;
         }
+
+        private async Task AcquireMarketHistory()
+        {
+            //This is used to handle null values.
+            JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            //The list that we will eventually return.
+            List<Product> productList = new List<Product>();
+            string products;
+            HttpResponseMessage response = await client.GetAsync(path);
+            if (response.IsSuccessStatusCode)
+            {
+                products = await response.Content.ReadAsStringAsync();
+                productList = JsonConvert.DeserializeObject<List<Product>>(products, settings);
+            }
+        }
+
         //Returns the multiplier needed to know how much skinport will take.
         private static double GetSkinPortCut(Product product)
         {
@@ -204,8 +226,6 @@ namespace SkinHound
         //Gets the global product list which has little details to it.
         public static async Task<List<Product>> GetGlobalProductList(string path)
         {
-            //This is used to handle null values.
-
             //The list that we will eventually return.
             List<Product> productList = new List<Product>();
             string products;
@@ -239,12 +259,22 @@ namespace SkinHound
         {
             try
             {
+                //This is used to handle null values.
+                JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 //We query for a Global product list.
                 List<Product> globalProductList = await GetGlobalProductList("/v1/items?currency=CAD");
                 //We sort the list in order to have the most expensive outputs at the end.
                 globalProductList.Sort((x, y) => x.Suggested_Price.CompareTo(y.Suggested_Price));
                 //We send the product list into the memory var
                 productListInMemory = globalProductList;
+                List<Product> filteredList = new List<Product>();
+                foreach (Product product in productListInMemory)
+                {
+                    //Here we verify that item in the list isn't null because our function returns null when the item in question is not desired instead of wasting time.
+                    Product tempProduct = await FilterProduct(product);
+                    if(tempProduct != null)
+                        filteredList.Add(tempProduct);
+                }
                 return globalProductList;
             }
             catch (Exception e)
@@ -285,7 +315,7 @@ namespace SkinHound
         }
 
         //This method is used to run manual price checks on items, it is incredibly useful to sell items fast at a decent price.
-        private async static void RunPriceChecker()
+        /*private async static void RunPriceChecker()
         {
             string skinName = Console.ReadLine();
             if (productListInMemory.Count > 0)
@@ -309,8 +339,9 @@ namespace SkinHound
             Console.ForegroundColor = ConsoleColor.White;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.Write("Enter a skin name to price check it: ");
-        }
-        private static async Task<bool> PriceCheck(Product product, string skinName, bool productAlreadyFound)
+        }*/
+
+        /*private static async Task<bool> PriceCheck(Product product, string skinName, bool productAlreadyFound)
         {
             //We make sure that the product's discount percentage is up to date.
             product.UpdatePercentageOff();
@@ -337,7 +368,7 @@ namespace SkinHound
                 $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
                 $"\n\t\t{new string('*', 50)}");
             return true;
-        }
+        }*/
         //Executes when the program exits.
         static void OnProcessExit(object sender, EventArgs e)
         {
