@@ -21,6 +21,10 @@ namespace SkinHound
         public int Created_At { get; set; }
         public int Updated_At { get; set; }
         public float Percentage_Off { get; set; }
+        public ProductMarketHistory productMarketHistory { get; set; }
+        public double recommendedResellPrice { get; set; }
+        public double profitMoneyOnResellPrice { get; set; }
+        public double profitPercentageOnResellPrice { get; set; }
         public Product(string market_Hash_Name, string currency, decimal suggested_Price, string item_Page, string market_Page, decimal min_Price, decimal max_Price, decimal mean_Price, decimal median_Price, int quantity, int created_At, int updated_At)
         {
             Market_Hash_Name = market_Hash_Name;
