@@ -38,7 +38,5 @@ J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\resources\Notifications\RegularNotification.wav
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound_Content.g.cs
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\Themes\Generic.baml
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\UserControl1.g.cs
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\UserControl1.baml
-J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\DealTemplate.g.cs
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\ItemDeal.g.cs
+J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\ItemDeal.baml

@@ -36,35 +36,39 @@ namespace SkinHound
         }
         private async void DealsGridHandler()
         {
-            RefreshDeals();
+            await RefreshDeals();
         }
-        private async void RefreshDeals()
+        private async Task RefreshDeals()
         {
             RemoveDeals();
             Queue<Product> deals = new Queue<Product>();
-            foreach (var element in await skinportApiFactory.AcquireProductList())
+            List<Product> list = await skinportApiFactory.AcquireProductList();
+            if(list != null)
             {
-                deals.Enqueue(element);
+                foreach (var element in list)
+                {
+                    deals.Enqueue(element);
+                }
+                await ShowDeals(deals);
             }
-            await ShowDeals(deals);
         }
         private async void RemoveDeals()
         {
             dealsGrid.Children.Clear();
         }
-        private async Task ShowDeals(Queue<Product> productList)
+        private async Task<Queue<Product>> ShowDeals(Queue<Product> productQueue)
         {
-            if(productList == null || productList.Count > 0)
+            if (productQueue == null || productQueue.Count > 0)
             {
-                while(productList.Count > 0)
-                {
-                    ControlTemplate template = dealTemplate;
-                    dealTemplate.VisualTree.FirstChild.Name = $"Deal`{productList.Count}`Grid";
-                    Product curProduct = productList.Dequeue();
-                    dealsGrid.Children.Add(new UserControl1());
-                }
+                ItemDeal curDeal = new ItemDeal();
+                ((Grid)curDeal.FindName("DealXGrid")).Name = $"Deal{productQueue.Count}Grid";
+                ((Button)curDeal.FindName("DealButton_x")).Name = $"DealButton_{productQueue.Count}";
+                Product curProduct = productQueue.Dequeue();
+                dealsGrid.Children.Add(curDeal);
+                return await ShowDeals(productQueue);
             }
-                //DealsGrid.Children.Add();
+            else
+                return productQueue;
         }
         private void DealClicked(object sender, RoutedEventArgs e)
         {

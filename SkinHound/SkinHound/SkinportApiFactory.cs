@@ -188,20 +188,20 @@ namespace SkinHound
             //If we get here, the deal wasn't good enough.
             return null;
         }
-
-        private async Task AcquireMarketHistory()
+        //This function takes care of acquiring the data regarding the history of the Market, it should not be used too often since it doesn't need to be.
+        private static async Task AcquireMarketHistory()
         {
             //This is used to handle null values.
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             //The list that we will eventually return.
-            List<Product> productList = new List<Product>();
-            string products;
-            HttpResponseMessage response = await client.GetAsync(path);
+            string marketHistory;
+            HttpResponseMessage response = await client.GetAsync($"{SKINPORT_MARKET_HISTORY_PATH}");
             if (response.IsSuccessStatusCode)
             {
-                products = await response.Content.ReadAsStringAsync();
-                productList = JsonConvert.DeserializeObject<List<Product>>(products, settings);
+                marketHistory = await response.Content.ReadAsStringAsync();
+                marketHistoryInMemory = JsonConvert.DeserializeObject<MarketHistory>(marketHistory, settings);
             }
+            return;
         }
 
         //Returns the multiplier needed to know how much skinport will take.
@@ -237,22 +237,16 @@ namespace SkinHound
             }
             return productList;
         }
+        //This function is used to find a certain market hashname in the MarketHistoryInMemory.
         private static async Task<ProductMarketHistory> GetProductMarketHistory(string marketHashName)
         {
             //This is used to handle null values.
-            JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-            //The list that we will eventually return.
-            List<ProductMarketHistory> productMarketHistory = new List<ProductMarketHistory>();
-            string marketHistory;
-            HttpResponseMessage response = await client.GetAsync($"{SKINPORT_MARKET_HISTORY_PATH}");
-            if (response.IsSuccessStatusCode)
+            foreach(var history in marketHistoryInMemory.productsHistory)
             {
-                marketHistory = await response.Content.ReadAsStringAsync();
-                productMarketHistory = JsonConvert.DeserializeObject<List<ProductMarketHistory>>(marketHistory, settings);
+                if (marketHashName == history.Market_Hash_Name)
+                    return history;
             }
-            if (productMarketHistory.Count != 0)
-                return productMarketHistory.First();
-            else return null;
+            return null;
         }
         //Async task runner where the good shit happens.
         public async Task<List<Product>> AcquireProductList()
@@ -268,6 +262,7 @@ namespace SkinHound
                 //We send the product list into the memory var
                 productListInMemory = globalProductList;
                 List<Product> filteredList = new List<Product>();
+                return globalProductList.GetRange(0, 10);
                 foreach (Product product in productListInMemory)
                 {
                     //Here we verify that item in the list isn't null because our function returns null when the item in question is not desired instead of wasting time.
@@ -275,7 +270,7 @@ namespace SkinHound
                     if(tempProduct != null)
                         filteredList.Add(tempProduct);
                 }
-                return globalProductList;
+                return filteredList;
             }
             catch (Exception e)
             {
