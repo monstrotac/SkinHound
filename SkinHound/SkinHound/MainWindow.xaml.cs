@@ -20,16 +20,57 @@ namespace SkinHound
     /// </summary>
     public partial class MainWindow : Window
     {
+        //Private Methods
+        private SkinportApiFactory skinportApiFactory;
+        private WrapPanel dealsGrid;
+        private ControlTemplate dealTemplate;
+
         public MainWindow()
         {
-
+            skinportApiFactory = new SkinportApiFactory();
             InitializeComponent();
-            Program.ApiMain();
+            //Initialize the methods linked to components of the application.
+            dealsGrid = (WrapPanel)FindName("DealsGrid");
+            dealTemplate = (ControlTemplate)FindResource("dealTemplate");
+            DealsGridHandler();
         }
-
+        private async void DealsGridHandler()
+        {
+            RefreshDeals();
+        }
+        private async void RefreshDeals()
+        {
+            RemoveDeals();
+            Queue<Product> deals = new Queue<Product>();
+            foreach (var element in await skinportApiFactory.AcquireProductList())
+            {
+                deals.Enqueue(element);
+            }
+            await ShowDeals(deals);
+        }
+        private async void RemoveDeals()
+        {
+            dealsGrid.Children.Clear();
+        }
+        private async Task ShowDeals(Queue<Product> productList)
+        {
+            if(productList == null || productList.Count > 0)
+            {
+                while(productList.Count > 0)
+                {
+                    ControlTemplate template = dealTemplate;
+                    dealTemplate.VisualTree.FirstChild.Name = $"Deal`{productList.Count}`Grid";
+                    Product curProduct = productList.Dequeue();
+                    dealsGrid.Children.Add(new UserControl1());
+                }
+            }
+                //DealsGrid.Children.Add();
+        }
         private void DealClicked(object sender, RoutedEventArgs e)
         {
 
         }
+
+
     }
 }

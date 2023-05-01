@@ -9,67 +9,77 @@ namespace SkinHound
     public class ProductMarketHistory
     {
         private const double DESIRED_PROFIT_PERCENTAGE = 0.05;
-        public List<Sale> Sales { get; set; }
+        public string Market_Hash_Name { get; set; }
+        public string Currency { get; set; }
+        public string Version { get; set; }
+        public string Market_page { get; set; }
+        public string Item_page { get; set; }
+        public Last90Days Last_90_days { get; set; }
         public Last30days Last_30_days { get; set; }
         public Last7Days Last_7_days { get; set; }
-        public async Task<double> GetRecommendedResellDiscount(Product product)
+        public Last24Hours Last_24_hours { get; set; }
+        public async Task<double> GetLongTermPercentageProfit(Product product)
         {
-            if (Last_30_days.Avg == 0)
-                return 0.0;
-            else
+            try
             {
-                try
-                {
-                    double calculatedPercentage = await GetMedian() / (double)product.Suggested_Price;
-                    double marketValueEstimate = 0;
-                    if (Last_30_days.Avg != 0 && Last_7_days.Avg != 0)
-                        marketValueEstimate = (double)Last_30_days.Avg / (double)Last_7_days.Avg / 10;
-                    calculatedPercentage = 1 - calculatedPercentage + marketValueEstimate - DESIRED_PROFIT_PERCENTAGE;
-                    calculatedPercentage *= 100;
-                    return Math.Round(calculatedPercentage, 1); ;
-                }
-                catch (Exception e)
-                {
-                    return 0.0;
-                }
+                double marketValueEstimate = (1- await GetLongMovingMedian() / (double)product.Suggested_Price) * 100;
+                return Math.Round(marketValueEstimate, 1); ;
+            }
+            catch (Exception e)
+            {
+                return 0.0;
             }
         }
-        public async Task<double> GetMedian()
+        public async Task<double> GetImmediateResellDiscount(Product product)
         {
-            DeclusterSales();
-            if (Sales.Count == 0)
-                return 0.0;
-            Sales.Sort((x, y) => x.Price.CompareTo(y.Price));
-            if (Sales.Count % 2 == 0)
-                return Math.Round(((double)Sales.ElementAt(Sales.Count / 2).Price + (double)Sales.ElementAt(Sales.Count / 2 - 1).Price) / 2, 2);
-            else return (double)Sales.ElementAt(Sales.Count / 2).Price;
+            try
+            {
+                double marketValueEstimatePercentage = 1 - await GetShortMovingMedian() / (double)product.Suggested_Price;
+                double calculatedPercentage = (marketValueEstimatePercentage - DESIRED_PROFIT_PERCENTAGE) * 100;
+                return Math.Round(calculatedPercentage, 1); ;
+            }
+            catch (Exception e)
+            {
+                    return 0.0;
+            }
         }
-        public void DeclusterSales(int x = 0)
+        public async Task<double> GetLongMovingMedian()
         {
-            if (Sales.Count > x)
-                if (Sales.ElementAt(x).Wear_Value < 0.85 || Sales.ElementAt(x).Wear_Value > 0.02)
-                {
-                    DeclusterSales(x + 1);
-                }
-                else
-                {
-                    Sales.RemoveAt(x);
-                    DeclusterSales(x);
-                }
-            else return;
+            if (Last_90_days.Volume == 0 || Last_30_days.Volume == 0)
+                return 0.0;
+            if (Last_90_days.Median != 0 && Last_30_days.Median != 0)
+            { 
+                double movingMedian = ((double)Last_90_days.Median * 2) / 3 + (double)Last_30_days.Median / 3; 
+                return Math.Round(movingMedian, 2); 
+            }
+            return 0.0;
+        }
+        public async Task<double> GetShortMovingMedian()
+        {
+            if (Last_7_days.Volume == 0 || Last_30_days.Volume == 0)
+                return 0.0;
+            if (Last_7_days.Median != 0 && Last_30_days.Median != 0)
+            {
+                double movingMedian = ((double)Last_30_days.Median * 3) / 4 + (double)Last_7_days.Median / 4;
+                return Math.Round(movingMedian, 2);
+            }
+            return 0.0;
         }
     }
-    public class Sale
+    public class Last24Hours
     {
-        public decimal Price { get; set; }
-        public float Wear_Value { get; set; }
-        public int Sold_At { get; set; }
+        public decimal Min { get; set; }
+        public decimal Max { get; set; }
+        public decimal Avg { get; set; }
+        public decimal Median { get; set; }
+        public int Volume { get; set; }
     }
     public class Last30days
     {
         public decimal Min { get; set; }
         public decimal Max { get; set; }
         public decimal Avg { get; set; }
+        public decimal Median { get; set; }
         public int Volume { get; set; }
     }
     public class Last7Days
@@ -77,6 +87,17 @@ namespace SkinHound
         public decimal Min { get; set; }
         public decimal Max { get; set; }
         public decimal Avg { get; set; }
+
+        public decimal Median { get; set; }
+        public int Volume { get; set; }
+    }
+    public class Last90Days
+    {
+        public decimal Min { get; set; }
+        public decimal Max { get; set; }
+        public decimal Avg { get; set; }
+
+        public decimal Median { get; set; }
         public int Volume { get; set; }
     }
 }

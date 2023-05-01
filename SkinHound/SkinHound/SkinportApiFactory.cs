@@ -18,7 +18,7 @@ using System.IO;
 
 namespace SkinHound
 {
-    internal class Program
+    public class SkinportApiFactory
     {
         //The default content for the config file, in case it does not already exist.
         const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
@@ -39,7 +39,7 @@ namespace SkinHound
         //This setting is created publicly to avoid repetition, it is used to avoid null values.
         private static JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
         //The following const is a path to make our life easier.
-        public const string SKINPORT_MARKET_HISTORY_PATH = "/v1/sales/history?currency=CAD&limit=30";
+        public const string SKINPORT_MARKET_HISTORY_PATH = "/v1/sales/history?currency=CAD&app_id=730";
         //For safety measures, we store our token info in the environement variables of the system, in order for the software to work for you, you'll have to create variables with the same name with your tokens as their value.
         private const string SKINPORT_TOKEN_CLIENT_ENV_VAR = "skinport_tk_id";
         private const string SKINPORT_TOKEN_SECRET_ENV_VAR = "skinport_tk_secret";
@@ -48,9 +48,40 @@ namespace SkinHound
         //We keep a copy of the current product list in memory for price checking.
         private static List<Product> productListInMemory = new List<Product>();
 
+        //Main
+        public SkinportApiFactory()
+        {
+            //We start by acquiring the configs
+            GetConfig();
+            // Listen to notification activation
+            ToastNotificationManagerCompat.OnActivated += toastArgs =>
+            {
+                //The default link.
+                string link = "https://skinport.com/";
+                // Obtain the arguments from the notification
+                ToastArguments.Parse(toastArgs.Argument).TryGetValue("Link", out link);
+                //We attempt to start a browser to item.
+                var webSurfer = new ProcessStartInfo("chrome.exe");
+                webSurfer.Arguments = link;
+                Process.Start(webSurfer);
+            };
+            // Update port # in the following line.
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            string authHeader = Base64Encode($"{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_CLIENT_ENV_VAR)}:{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_SECRET_ENV_VAR)}");
+            client.DefaultRequestHeaders.Add("Authorization", "Basic " + authHeader);
+            client.BaseAddress = new Uri("https://api.skinport.com/v1/");
+            //Launch the timer.
+            int timeInterval = 1000 * 60 * userConfiguration.Minutes_Between_Queries;
+            //Timer timer = new Timer(handleProcess, null, 0, timeInterval);
+            //while (true)
+            //{
+            //RunPriceChecker();
+            //}
+        }
 
         //Shows the content of the product.
-        private static async Task ShowProduct(Product product)
+        private static async Task FilterProduct(Product product, List<Product> filteredList)
         {
             //These variables are used to determine what type of notification we will be sending.
             bool shouldSendNotification = false, notificationIsFromDesired = false;
@@ -69,21 +100,15 @@ namespace SkinHound
                 switch (product.Percentage_Off)
                 {
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
-                        Console.ForegroundColor = ConsoleColor.Magenta;
-                        Console.BackgroundColor = ConsoleColor.Black;
                         notificationIsFromDesired = true; shouldSendNotification = true;
                         notificationType = NotificationType.INCREDIBLE;
                         break;
                     case var _ when product.Percentage_Off >= userConfiguration.Great_Discount_Threshold:
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                        Console.BackgroundColor = ConsoleColor.Black;
                         notificationIsFromDesired = true; shouldSendNotification = true;
                         notificationType = NotificationType.GOLDEN;
                         break;
 
                     case var _ when product.Percentage_Off >= userConfiguration.Good_Discount_Threshold:
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.BackgroundColor = ConsoleColor.Black;
                         notificationIsFromDesired = true; shouldSendNotification = true;
                         notificationType = NotificationType.REGULAR;
                         break;
@@ -93,13 +118,11 @@ namespace SkinHound
                             shouldSendNotification = true;
                             notificationType = NotificationType.DEFAULT;
                         }
-                        Console.ForegroundColor = ConsoleColor.DarkCyan;
-                        Console.BackgroundColor = ConsoleColor.Black;
                         break;
                 }
-                Console.WriteLine($"- Desired Item -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
+                //Console.WriteLine($"- Desired Item -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
                 //Financial information about the item in perticular.
-                Console.WriteLine($"\t- Reselling information -" +
+                /*Console.WriteLine($"\t- Reselling information -" +
                     $"\n\t\t{new string('*', 50)}" +
                     $"\n\t\tAVG sold for (Last 7 days): {productMarketHistory.Last_7_days.Avg}$" +
                     $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
@@ -112,6 +135,7 @@ namespace SkinHound
                     $"\n\t\tProfit % on resell: {Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%" +
                     $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
                     $"\n\t\t{new string('*', 50)}");
+                */
             }
             else if (product.Percentage_Off >= userConfiguration.Good_Discount_Threshold)
             {
@@ -121,28 +145,22 @@ namespace SkinHound
                 switch (product.Percentage_Off)
                 {
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.BackgroundColor = ConsoleColor.Black;
                         shouldSendNotification = true;
                         notificationType = NotificationType.INCREDIBLE;
                         break;
                     case var _ when product.Percentage_Off >= userConfiguration.Great_Discount_Threshold:
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.BackgroundColor = ConsoleColor.Black;
                         shouldSendNotification = true;
                         notificationType = NotificationType.GOLDEN;
                         break;
                     default:
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.BackgroundColor = ConsoleColor.Black;
                         //To receive notifications for all the products listed in the application, including regular deals uncomment the lines bellow.
                         shouldSendNotification = true;
                         notificationType = NotificationType.REGULAR;
                         break;
                 }
-                Console.WriteLine($"- Great Deal -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
+                //Console.WriteLine($"- Great Deal -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
                 //Financial information about the item in perticular.
-                Console.WriteLine($"\t- Reselling information -" +
+                /*Console.WriteLine($"\t- Reselling information -" +
                     $"\n\t\t{new string('*', 50)}" +
                     $"\n\t\tAVG sold for (Last 7 days): {productMarketHistory.Last_7_days.Avg}$" +
                     $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
@@ -154,7 +172,7 @@ namespace SkinHound
                     $"\n\t\tRecommended resell price: {((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$" +
                     $"\n\t\tProfit % on resell: {Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%" +
                     $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
-                    $"\n\t\t{new string('*', 50)}");
+                    $"\n\t\t{new string('*', 50)}");*/
             }
             //We finish off by sending a notification if the deal was determined as good enough.
             if (shouldSendNotification)
@@ -184,7 +202,7 @@ namespace SkinHound
             return false;
         }
         //Gets the global product list which has little details to it.
-        private static async Task<List<Product>> GetGlobalProductList(string path)
+        public static async Task<List<Product>> GetGlobalProductList(string path)
         {
             //This is used to handle null values.
 
@@ -206,7 +224,7 @@ namespace SkinHound
             //The list that we will eventually return.
             List<ProductMarketHistory> productMarketHistory = new List<ProductMarketHistory>();
             string marketHistory;
-            HttpResponseMessage response = await client.GetAsync($"{SKINPORT_MARKET_HISTORY_PATH}&market_hash_name={marketHashName}");
+            HttpResponseMessage response = await client.GetAsync($"{SKINPORT_MARKET_HISTORY_PATH}");
             if (response.IsSuccessStatusCode)
             {
                 marketHistory = await response.Content.ReadAsStringAsync();
@@ -217,44 +235,28 @@ namespace SkinHound
             else return null;
         }
         //Async task runner where the good shit happens.
-        private static async Task RunAsync()
+        public async Task<List<Product>> AcquireProductList()
         {
             try
             {
-                //We clear the console and put a message announcing that we are updating the entries.
-                Console.Clear();
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.BackgroundColor = ConsoleColor.Black;
-                Console.WriteLine("Updating entries...");
+                //We query for a Global product list.
                 List<Product> globalProductList = await GetGlobalProductList("/v1/items?currency=CAD");
                 //We sort the list in order to have the most expensive outputs at the end.
                 globalProductList.Sort((x, y) => x.Suggested_Price.CompareTo(y.Suggested_Price));
                 //We send the product list into the memory var
                 productListInMemory = globalProductList;
-                //We clear the console once again before showing the result of our last request.
-                Console.Clear();
-                Console.WriteLine($"\r\n░██████╗██╗░░██╗██╗███╗░░██╗██████╗░░█████╗░██████╗░████████╗\r\n██╔════╝██║░██╔╝██║████╗░██║██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝\r\n╚█████╗░█████═╝░██║██╔██╗██║██████╔╝██║░░██║██████╔╝░░░██║░░░\r\n░╚═══██╗██╔═██╗░██║██║╚████║██╔═══╝░██║░░██║██╔══██╗░░░██║░░░\r\n██████╔╝██║░╚██╗██║██║░╚███║██║░░░░░╚█████╔╝██║░░██║░░░██║░░░\r\n╚═════╝░╚═╝░░╚═╝╚═╝╚═╝░░╚══╝╚═╝░░░░░░╚════╝░╚═╝░░╚═╝░░░╚═╝░░░\r\n\r\n░█████╗░███╗░░██╗░█████╗░██╗░░░░░██╗░░░██╗███████╗███████╗██████╗░\r\n██╔══██╗████╗░██║██╔══██╗██║░░░░░╚██╗░██╔╝╚════██║██╔════╝██╔══██╗\r\n███████║██╔██╗██║███████║██║░░░░░░╚████╔╝░░░███╔═╝█████╗░░██████╔╝\r\n██╔══██║██║╚████║██╔══██║██║░░░░░░░╚██╔╝░░██╔══╝░░██╔══╝░░██╔══██╗\r\n██║░░██║██║░╚███║██║░░██║███████╗░░░██║░░░███████╗███████╗██║░░██║\r\n╚═╝░░╚═╝╚═╝░░╚══╝╚═╝░░╚═╝╚══════╝░░░╚═╝░░░╚══════╝╚══════╝╚═╝░░╚═╝\n");
-                Console.WriteLine($"{new String('-', 30)} Last updated: {DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss tt")} {new String('-', 31)}");
-
-                foreach (Product product in globalProductList)
-                {
-                    //Filter and show all of the products which meet our designated requirements.
-                    await ShowProduct(product);
-                }
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.BackgroundColor = ConsoleColor.Black;
-                Console.WriteLine(new String('-', 100));
-                Console.Write("Enter a skin name to price check it: ");
+                return globalProductList;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                return null;
             }
         }
         //Handler of the good shit takes care of repeating the process every X minutes.
         private static void handleProcess(object state)
         {
-            RunAsync().GetAwaiter().GetResult();
+            //RunAsync().GetAwaiter().GetResult();
         }
         //Base64 utilities.
         public static string Base64Encode(string plainText)
@@ -281,37 +283,7 @@ namespace SkinHound
             }
             userConfiguration = JsonConvert.DeserializeObject<SkinportAnalyzerConfiguration>(File.ReadAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinportAnalyzer\\config.json"));
         }
-        //Main
-        public static void ApiMain()
-        {
-            //We start by acquiring the configs
-            GetConfig();
-            // Listen to notification activation
-            ToastNotificationManagerCompat.OnActivated += toastArgs =>
-            {
-                //The default link.
-                string link = "https://skinport.com/";
-                // Obtain the arguments from the notification
-                ToastArguments.Parse(toastArgs.Argument).TryGetValue("Link", out link);
-                //We attempt to start a browser to item.
-                var webSurfer = new ProcessStartInfo("chrome.exe");
-                webSurfer.Arguments = link;
-                Process.Start(webSurfer);
-            };
-            // Update port # in the following line.
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            string authHeader = Base64Encode($"{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_CLIENT_ENV_VAR)}:{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_SECRET_ENV_VAR)}");
-            client.DefaultRequestHeaders.Add("Authorization", "Basic " + authHeader);
-            client.BaseAddress = new Uri("https://api.skinport.com/v1/");
-            //Launch the timer.
-            int timeInterval = 1000 * 60 * userConfiguration.Minutes_Between_Queries;
-            //Timer timer = new Timer(handleProcess, null, 0, timeInterval);
-            //while (true)
-            //{
-                //RunPriceChecker();
-            //}
-        }
+
         //This method is used to run manual price checks on items, it is incredibly useful to sell items fast at a decent price.
         private async static void RunPriceChecker()
         {
@@ -357,7 +329,7 @@ namespace SkinHound
                 $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
                 $"\n\t\tAVG sold for (Last 30 days): {productMarketHistory.Last_30_days.Avg}$" +
                 $"\n\t\tVolume sold (Last 30 days): {productMarketHistory.Last_30_days.Volume}" +
-                $"\n\t\tMEDIAN sold for ({productMarketHistory.Sales.Count} Last sales): {(await productMarketHistory.GetMedian()).ToString("0.00")}$" +
+                $"\n\t\tMEDIAN sold for ({productMarketHistory.Sales.Count} Last sales): {(await productMarketHistory.GetLongMovingMedian()).ToString("0.00")}$" +
                 $"\n\t\t{new string('*', 50)}" +
                 $"\n\t\tRecommended discount % on resell: {recommendedDiscount}%" +
                 $"\n\t\tRecommended resell price: {((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$" +
