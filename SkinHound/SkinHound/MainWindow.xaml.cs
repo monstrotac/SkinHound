@@ -29,6 +29,7 @@ namespace SkinHound
         private SkinportApiFactory skinportApiFactory;
         private Buff163ApiFactory buff163ApiFactory;
         private bool buffCookieFunctionnal = false;
+        private Timer refreshProcess;
         //Components
         private WrapPanel dealsGrid;
         private Image loadingGif;
@@ -65,9 +66,13 @@ namespace SkinHound
             dealScroll = (ScrollViewer)FindName("DealScrollBar");
             //We start the timer which will automate the deals and refresh them on X configured basis.
             int timeInterval = 1000 * 60 * configuration.Minutes_Between_Queries;
-            Timer timer = new Timer(DealsGridHandler, null, 0, timeInterval);
+            refreshProcess = new Timer(DealsGridHandler, null, 0, timeInterval);
         }
-        private void DealsGridHandler(object state)
+        public void ChangeRefreshIntervals(int dueTime, int period)
+        {
+            refreshProcess.Change(dueTime, period);
+        }
+        private void DealsGridHandler(object? state)
         {
             RefreshDeals().GetAwaiter().GetResult();
         }

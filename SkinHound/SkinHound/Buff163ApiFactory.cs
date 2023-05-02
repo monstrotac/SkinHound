@@ -63,11 +63,17 @@ namespace SkinHound
                 buffMarketHistory = JsonConvert.DeserializeObject<BuffMarketHistory>(marketHistory, settings);
             }
             else return null;
-            foreach (BuffItem bItem in buffMarketHistory.Data.Items)
-            {
-                if (bItem.Market_Hash_Name.Contains(name))
-                    return bItem;
+            try {
+                if(buffMarketHistory != null)
+                    foreach (BuffItem bItem in buffMarketHistory.Data.Items)
+                    {
+                        if (bItem.Market_Hash_Name == name)
+                            return bItem;
+                    }
+            } catch(Exception e) {
+
             }
+
             return null;
         }
         public BuffMarketHistory GetBuffMarketHistory()
