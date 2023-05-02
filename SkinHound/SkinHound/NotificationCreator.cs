@@ -15,8 +15,8 @@ namespace SkinHound
     }
     public class NotificationCreator
     {
-        private const string IMG_RES_PATH = "\\resources\\images\\";
-        private const string WAV_RES_PATH = "\\resources\\sounds\\";
+        private const string IMG_RES_PATH = "\\resources\\Notifications\\";
+        private const string WAV_RES_PATH = "\\resources\\Notifications\\";
         public async Task CreateDefaultDesiredNotification(Product product)
         {
             //We create the sound player to play the notification sound.
