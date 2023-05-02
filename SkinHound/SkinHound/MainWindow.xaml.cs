@@ -170,6 +170,8 @@ namespace SkinHound
                             else
                                 itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
                         }
+                        else
+                            itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
                     }
                     else
                     {

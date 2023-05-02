@@ -64,7 +64,7 @@ namespace SkinHound
             }
             else return null;
             try {
-                if(buffMarketHistory != null)
+                if(buffMarketHistory.Data != null)
                     foreach (BuffItem bItem in buffMarketHistory.Data.Items)
                     {
                         if (bItem.Market_Hash_Name == name)

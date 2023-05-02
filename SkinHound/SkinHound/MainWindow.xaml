@@ -14,8 +14,8 @@
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Tracker" Foreground="Green" />
-                            <Image x:Name="LoadingIcon" gif:ImageBehavior.AnimatedSource="resources/images/Loading.gif" Width="14" Visibility="Visible" Margin="3"/>
+                            <TextBlock FontSize="16" Text="Tracker" Foreground="Green" />
+                            <Image x:Name="LoadingIcon" gif:ImageBehavior.AnimatedSource="resources/images/Loading.gif" Width="18" Visibility="Visible" Margin="4"/>
                         </StackPanel>
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
@@ -96,16 +96,14 @@
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/WpfTutorialSamples;component/Images/bullet_red.png" />
-                            <TextBlock Text="Price Check" Foreground="Green" />
+                            <TextBlock FontSize="16" Text="Price Check" Foreground="Green" />
                         </StackPanel>
                     </TabItem.Header>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/WpfTutorialSamples;component/Images/bullet_green.png" />
-                            <TextBlock Text="Settings" Foreground="Black" />
+                            <TextBlock FontSize="16" Text="Settings" Foreground="Black" />
                         </StackPanel>
                     </TabItem.Header>
                 </TabItem>
