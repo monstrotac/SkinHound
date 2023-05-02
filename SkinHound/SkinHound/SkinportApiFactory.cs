@@ -163,22 +163,6 @@ namespace SkinHound
                         }
                         break;
                 }
-                //Console.WriteLine($"- Desired Item -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
-                //Financial information about the item in perticular.
-                /*Console.WriteLine($"\t- Reselling information -" +
-                    $"\n\t\t{new string('*', 50)}" +
-                    $"\n\t\tAVG sold for (Last 7 days): {productMarketHistory.Last_7_days.Avg}$" +
-                    $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
-                    $"\n\t\tAVG sold for (Last 30 days): {productMarketHistory.Last_30_days.Avg}$" +
-                    $"\n\t\tVolume sold (Last 30 days): {productMarketHistory.Last_30_days.Volume}" +
-                    $"\n\t\tMEDIAN sold for ({productMarketHistory.Sales.Count} Last sales): {(await productMarketHistory.GetMedian()).ToString("0.00")}$" +
-                    $"\n\t\t{new string('*', 50)}" +
-                    $"\n\t\tRecommended discount % on resell: {recommendedDiscount}%" +
-                    $"\n\t\tRecommended resell price: {((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$" +
-                    $"\n\t\tProfit % on resell: {Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%" +
-                    $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
-                    $"\n\t\t{new string('*', 50)}");
-                */
             }
             else if (product.Percentage_Off >= userConfiguration.Good_Discount_Threshold)
             {
@@ -205,22 +189,7 @@ namespace SkinHound
                         product.imagePath = "resources/images/RegularNotification.png";
                         break;
                 }
-            //Console.WriteLine($"- Great Deal -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
-            //Financial information about the item in perticular.
-            /*Console.WriteLine($"\t- Reselling information -" +
-                $"\n\t\t{new string('*', 50)}" +
-                $"\n\t\tAVG sold for (Last 7 days): {productMarketHistory.Last_7_days.Avg}$" +
-                $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
-                $"\n\t\tAVG sold for (Last 30 days): {productMarketHistory.Last_30_days.Avg}$" +
-                $"\n\t\tVolume sold (Last 30 days): {productMarketHistory.Last_30_days.Volume}" +
-                $"\n\t\tMEDIAN sold for ({productMarketHistory.Sales.Count} Last sales): {(await productMarketHistory.GetMedian()).ToString("0.00")}$" +
-                $"\n\t\t{new string('*', 50)}" +
-                $"\n\t\tRecommended discount % on resell: {recommendedDiscount}%" +
-                $"\n\t\tRecommended resell price: {((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$" +
-                $"\n\t\tProfit % on resell: {Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%" +
-                $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
-                $"\n\t\t{new string('*', 50)}");*/
-        }
+            }
             //We finish off by sending a notification and by returning the deal if it was determined good enough.
             if (VerificationsPassed)
             {

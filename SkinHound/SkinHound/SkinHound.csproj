@@ -13,6 +13,7 @@
     <None Remove="resources\images\GoldenNotification.png" />
     <None Remove="resources\images\IncredibleDesiredNotification.png" />
     <None Remove="resources\images\IncredibleNotification.png" />
+    <None Remove="resources\images\Loading.gif" />
     <None Remove="resources\images\RegularDesiredNotification.png" />
     <None Remove="resources\images\RegularNotification.png" />
     <None Remove="resources\SkinHound.ico" />
@@ -76,6 +77,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="resources\images\Loading.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

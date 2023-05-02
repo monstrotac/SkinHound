@@ -22,7 +22,9 @@ namespace SkinHound
         {
             try
             {
-                double marketValueEstimate = (1- await GetLongMovingMedian() / 2 / (double)product.Suggested_Price) * 100;
+                double movingMedian = await GetLongMovingMedian();
+                //Although 4 might seem like a random value, it isn't. We are calculating what the 4th month profit/loss should be.
+                double marketValueEstimate = (1- movingMedian / (double)product.Suggested_Price)/4 * 100;
                 return Math.Round(marketValueEstimate, 1); ;
             }
             catch (Exception e)

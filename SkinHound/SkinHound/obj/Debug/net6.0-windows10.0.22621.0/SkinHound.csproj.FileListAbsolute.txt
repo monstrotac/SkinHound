@@ -43,3 +43,4 @@ J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\resources\sounds\RegularNotification.wav
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\obj\Debug\net6.0-windows10.0.22621.0\SkinHound_Content.g.cs
 J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\resources\SkinHound.ico
+J:\Core file locations\Desktop\SkinportAnalyzer\Application\SkinHound\SkinHound\bin\Debug\net6.0-windows10.0.22621.0\resources\images\Loading.gif
