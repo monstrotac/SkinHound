@@ -71,7 +71,7 @@ namespace SkinHound
                 itemName.Text = curProduct.Market_Hash_Name;
                 itemButton.Tag = curProduct.Item_Page;
                 //Here we have to initiate a new image in order to assign a new ImageSource
-                itemImage.Source = new BitmapImage(new Uri($"pack://application:,,,{curProduct.imagePath}", UriKind.RelativeOrAbsolute));
+                itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
                 dealsGrid.Children.Add(curDeal);
 
                 return await ShowDeals(productQueue);

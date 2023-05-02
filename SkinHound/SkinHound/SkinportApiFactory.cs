@@ -152,24 +152,24 @@ namespace SkinHound
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
                         notificationIsFromDesired = true; shouldSendNotification = true;
                         notificationType = NotificationType.INCREDIBLE;
-                        product.imagePath = "resources\\image\\IncredibleDesiredNotification.Png";
+                        product.imagePath = "resources/images/IncredibleDesiredNotification.png";
                         break;
                     case var _ when product.Percentage_Off >= userConfiguration.Great_Discount_Threshold:
                         notificationIsFromDesired = true; shouldSendNotification = true;
                         notificationType = NotificationType.GOLDEN;
-                        product.imagePath = "resources\\image\\GoldenDesiredNotification.Png";
+                        product.imagePath = "resources/images/GoldenDesiredNotification.png";
                         break;
-
                     case var _ when product.Percentage_Off >= userConfiguration.Good_Discount_Threshold:
                         notificationIsFromDesired = true; shouldSendNotification = true;
                         notificationType = NotificationType.REGULAR;
-                        product.imagePath = "resources\\image\\RegularDesiredNotification.Png";
+                        product.imagePath = "resources/images/RegularDesiredNotification.png";
                         break;
                     default:
                         if (userConfiguration.Notify_On_All_Desired_Weapons)
                         {
                             shouldSendNotification = true;
                             notificationType = NotificationType.DEFAULT;
+                            product.imagePath = "resources/images/DefaultDesiredNotification.png";
                         }
                         break;
                 }
@@ -199,18 +199,18 @@ namespace SkinHound
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
                         shouldSendNotification = true;
                         notificationType = NotificationType.INCREDIBLE;
-                        product.imagePath = "resources\\image\\IncredibleNotification.Png";
+                        product.imagePath = "resources/images/IncredibleNotification.png";
                         break;
                     case var _ when product.Percentage_Off >= userConfiguration.Great_Discount_Threshold:
                         shouldSendNotification = true;
                         notificationType = NotificationType.GOLDEN;
-                        product.imagePath = "resources\\image\\GoldenNotification.Png";
+                        product.imagePath = "resources/images/GoldenNotification.png";
                         break;
                     default:
                         //To receive notifications for all the products listed in the application, including regular deals uncomment the lines bellow.
                         shouldSendNotification = true;
                         notificationType = NotificationType.REGULAR;
-                        product.imagePath = "resources\\image\\RegularNotification.Png";
+                        product.imagePath = "resources/images/RegularNotification.png";
                         break;
                 }
                 product.recommendedResellPrice = 2;
