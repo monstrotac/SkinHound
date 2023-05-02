@@ -143,7 +143,15 @@
           }
         }
       },
-      "System.ValueTuple/4.5.0": {}
+      "System.ValueTuple/4.5.0": {},
+      "WpfAnimatedGif/2.0.2": {
+        "runtime": {
+          "lib/netcoreapp3.0/WpfAnimatedGif.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.2.0"
+          }
+        }
+      }
     }
   },
   "libraries": {
@@ -216,6 +224,13 @@
       "sha512": "sha512-okurQJO6NRE/apDIP23ajJ0hpiNmJ+f0BwOlB/cSqTLQlw5upkf+5+96+iG2Jw40G1fCVCyPz/FhIABUjMR+RQ==",
       "path": "system.valuetuple/4.5.0",
       "hashPath": "system.valuetuple.4.5.0.nupkg.sha512"
+    },
+    "WpfAnimatedGif/2.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-B0j9SqtThyHVTiOPvu6yR+39Te0g3o+7Jjb+qEm7+Iz1HRqbE5/4QV+ntHWOYYBPOUFr9x1mdzGl/EzWP+nKiA==",
+      "path": "wpfanimatedgif/2.0.2",
+      "hashPath": "wpfanimatedgif.2.0.2.nupkg.sha512"
     }
   }
 }

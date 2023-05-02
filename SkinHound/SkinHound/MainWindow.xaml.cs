@@ -32,6 +32,7 @@ namespace SkinHound
         //Components
         private WrapPanel dealsGrid;
         private Image loadingGif;
+        private ScrollViewer dealScroll;
         //The default content for the config file, in case it does not already exist.
         private const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
@@ -61,19 +62,19 @@ namespace SkinHound
             //Initialize the methods linked to components of the application.
             dealsGrid = (WrapPanel)FindName("DealsGrid");
             loadingGif = (Image)FindName("LoadingIcon");
+            dealScroll = (ScrollViewer)FindName("DealScrollBar");
             //We start the timer which will automate the deals and refresh them on X configured basis.
             int timeInterval = 1000 * 60 * configuration.Minutes_Between_Queries;
             Timer timer = new Timer(DealsGridHandler, null, 0, timeInterval);
         }
         private void DealsGridHandler(object state)
         {
-            this.Dispatcher.Invoke(() => { loadingGif.IsEnabled = true; });
             RefreshDeals().GetAwaiter().GetResult();
-            this.Dispatcher.Invoke(() => { loadingGif.IsEnabled = false; });
         }
         private async Task RefreshDeals()
         {
-            RemoveDeals();
+            this.Dispatcher.Invoke(() => { loadingGif.Visibility = Visibility.Visible; });
+            await RemoveDeals();
             Queue<Product> deals = new Queue<Product>();
             List<Product> list = await skinportApiFactory.AcquireProductList();
             if(list != null)
@@ -83,11 +84,15 @@ namespace SkinHound
                     deals.Enqueue(element);
                 }
                 await ShowDeals(deals);
+
             }
+            this.Dispatcher.Invoke(() => { loadingGif.Visibility = Visibility.Hidden; });
+            return;
         }
-        private async void RemoveDeals()
+        private async Task RemoveDeals()
         {
             this.Dispatcher.Invoke(() => { dealsGrid.Children.Clear(); });
+            return;
         }
         //This Task takes care of updating the deals for the user and formats them with the values which have been placed inside of it.
         private async Task<Queue<Product>> ShowDeals(Queue<Product> productQueue)
@@ -97,7 +102,7 @@ namespace SkinHound
                 BuffMarketHistory buffMarketHistory = buff163ApiFactory.GetBuffMarketHistory();
                 if (productQueue == null || productQueue.Count > 0)
                 {
-                    ItemDeal curDeal = new ItemDeal();
+                    ItemDeal curDeal = new ItemDeal(dealScroll);
                     //In this section we rename everything and keep them as a variable to give them a new value later on.
                     ((Grid)curDeal.FindName("DealXGrid")).Name = $"Deal{productQueue.Count}Grid";
                     Button itemButton = ((Button)curDeal.FindName("DealButtonX"));
@@ -205,6 +210,10 @@ namespace SkinHound
         {
             skinportApiFactory.SetConfig(configuration);
             buff163ApiFactory.SetConfig(configuration);
+        }
+
+        private void DealScrollBar_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
         }
     }
 }

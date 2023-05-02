@@ -17,10 +17,10 @@
             <Button Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
                 <StackPanel VerticalAlignment="Top" MaxHeight="270" MinHeight="270">
                     <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="DealXItemName" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
+                    <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                 </StackPanel>
             </Button>
-            <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1">
+            <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" PreviewMouseDown="ScrollViewer_PreviewMouseDown" MouseLeave="ScrollViewer_MouseLeave">
                 <StackPanel Grid.Column="1" >
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
                     <DockPanel>
@@ -28,7 +28,7 @@
                         <TextBlock x:Name="DealXSkinportDiscount" FontSize="14" HorizontalAlignment="Left"  VerticalAlignment="Center">0%</TextBlock>
                     </DockPanel>
                     <DockPanel>
-                        <Label HorizontalAlignment="Center" FontSize="14" VerticalAlignment="Center">Discount:</Label>
+                        <Label HorizontalAlignment="Center" FontSize="14" VerticalAlignment="Center">Price:</Label>
                         <TextBlock x:Name="DealXSkinportPrice" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
                     <DockPanel>

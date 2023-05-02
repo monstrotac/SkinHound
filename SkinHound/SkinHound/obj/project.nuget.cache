@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "2s0kYxHteiVtV5zlnAJSdoaKg17Ce08nwC+u20PwHePWoo7Ws+fJhxJRAZQ6CM6UTmu3RyG+yWmxL11ecwQKdw==",
+  "dgSpecHash": "xB4CenoqgJnxBZ7ReThXVh6KMP8+Yyy9wvSWCcfnh8dB7UnnE//V/1VXmp3H7ng+Dq8J7o6LCI3hI+NU0Gy04Q==",
   "success": true,
   "projectFilePath": "J:\\Core file locations\\Desktop\\SkinportAnalyzer\\Application\\SkinHound\\SkinHound\\SkinHound.csproj",
   "expectedPackageFiles": [
@@ -14,6 +14,7 @@
     "C:\\Users\\Calvery\\.nuget\\packages\\system.security.accesscontrol\\4.7.0\\system.security.accesscontrol.4.7.0.nupkg.sha512",
     "C:\\Users\\Calvery\\.nuget\\packages\\system.security.principal.windows\\4.7.0\\system.security.principal.windows.4.7.0.nupkg.sha512",
     "C:\\Users\\Calvery\\.nuget\\packages\\system.valuetuple\\4.5.0\\system.valuetuple.4.5.0.nupkg.sha512",
+    "C:\\Users\\Calvery\\.nuget\\packages\\wpfanimatedgif\\2.0.2\\wpfanimatedgif.2.0.2.nupkg.sha512",
     "C:\\Users\\Calvery\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.22621.26\\microsoft.windows.sdk.net.ref.10.0.22621.26.nupkg.sha512"
   ],
   "logs": []

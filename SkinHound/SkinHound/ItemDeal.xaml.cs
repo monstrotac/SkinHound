@@ -25,9 +25,11 @@ namespace SkinHound
     /// </summary>
     public partial class ItemDeal : UserControl
     {
-        public ItemDeal()
+        private ScrollViewer dealScrollBar;
+        public ItemDeal(ScrollViewer dealScroll)
         {
             InitializeComponent();
+            dealScrollBar = dealScroll;
         }
 
         private void DealClicked(object sender, RoutedEventArgs e)
@@ -42,6 +44,28 @@ namespace SkinHound
                 link = link.Replace("&", "^&");
                 Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
             }
+        }
+        private bool _scrolling = true;
+        private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (this._scrolling)
+            {
+                Dispatcher.Invoke(() => {
+                    dealScrollBar.ScrollToVerticalOffset(dealScrollBar.VerticalOffset - e.Delta);
+                });
+                e.Handled = true;
+            }
+        }
+        private void ScrollViewer_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this._scrolling = false;
+            e.Handled = true;
+        }
+
+        private void ScrollViewer_MouseLeave(object sender, MouseEventArgs e)
+        {
+            this._scrolling = true;
+            e.Handled = true;
         }
     }
 }

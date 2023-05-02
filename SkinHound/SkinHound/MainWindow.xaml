@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SkinHound"
         mc:Ignorable="d"
         Title="SkinHound" MinHeight="325" MinWidth="505" Height="325" Width="505">
@@ -13,11 +14,11 @@
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Tracker" Foreground="Green" />
-                            <Image x:Name="LoadingIcon" Source="resources/images/Loading.gif" Width="10" IsEnabled="False"/>
+                            <Image x:Name="LoadingIcon" gif:ImageBehavior.AnimatedSource="resources/images/Loading.gif" Width="14" Visibility="Visible" Margin="3"/>
                         </StackPanel>
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
-                    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer x:Name="DealScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" PreviewMouseWheel="DealScrollBar_PreviewMouseWheel" CanContentScroll="True">
                         <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="270" ItemWidth="480">
                             <!-- Area where the items on deal are inserted/created -->
                             <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
@@ -30,7 +31,7 @@
                                     <Button Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
                                         <StackPanel VerticalAlignment="Top" MaxHeight="270" MinHeight="270">
                                             <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                                            <TextBlock x:Name="DealXItemName" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
+                                            <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                                         </StackPanel>
                                     </Button>
                                     <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1">
@@ -41,7 +42,7 @@
                                                 <TextBlock x:Name="DealXSkinportDiscount" FontSize="14" HorizontalAlignment="Left"  VerticalAlignment="Center">0%</TextBlock>
                                             </DockPanel>
                                             <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontSize="14" VerticalAlignment="Center">Discount:</Label>
+                                                <Label HorizontalAlignment="Center" FontSize="14" VerticalAlignment="Center">Price:</Label>
                                                 <TextBlock x:Name="DealXSkinportPrice" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                                             </DockPanel>
                                             <DockPanel>
