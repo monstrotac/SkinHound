@@ -15,7 +15,7 @@
     <None Remove="resources\images\IncredibleNotification.png" />
     <None Remove="resources\images\RegularDesiredNotification.png" />
     <None Remove="resources\images\RegularNotification.png" />
-    <None Remove="resources\SkinportAnalyzer.ico" />
+    <None Remove="resources\SkinHound.ico" />
     <None Remove="resources\sounds\DefaultDesiredNotification.wav" />
     <None Remove="resources\sounds\GoldenDesiredNotification.wav" />
     <None Remove="resources\sounds\GoldenNotification.wav" />
@@ -47,7 +47,7 @@
     <Content Include="resources\images\RegularNotification.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="resources\SkinportAnalyzer.ico">
+    <Content Include="resources\SkinHound.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="resources\sounds\DefaultDesiredNotification.wav">

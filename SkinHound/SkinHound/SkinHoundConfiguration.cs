@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SkinHound
 {
-    public class SkinportAnalyzerConfiguration
+    public class SkinHoundConfiguration
     {
         //The list of desired weapons, which will bypass the default discount.
         public List<string> Desired_Weapons { get; set; }
@@ -24,5 +24,8 @@ namespace SkinHound
         public int Minutes_Between_Queries { get; set; }
         //Having this set to true will make it so that you will receive notifications for all desired weapons above or equal the Desired_Weapons_Min_Discount_Threshold.
         public bool Notify_On_All_Desired_Weapons { get; set; }
+        //Inspect element -> Network -> Domain: Buff.163.com -> Request Headers -> Cookies
+        public string Buff_Cookie { get; set; }
+        public bool Notifications_Enabled { get; set; }
     }
 }

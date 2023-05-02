@@ -22,22 +22,10 @@ namespace SkinHound
 {
     public class SkinportApiFactory
     {
-        //The default content for the config file, in case it does not already exist.
-        const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
-          "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
-          "\n\t\"good_discount_threshold\": 25.0," +
-          "\n\t\"great_discount_threshold\": 30.0," +
-          "\n\t\"outstanding_discount_threshold\": 35.0," +
-          "\n\t\"minimum_worth_value\": 3.00," +
-          "\n\t\"minutes_between_queries\": 2," +
-          "\n\t\"desired_weapons\":[" +
-          "\n\t]," +
-          "\n\t\"notify_on_all_desired_weapons\":true" +
-          "\n}";
         //The notification manager takes care of recording the history of what we have already been notified of and sends the notifications to his NotificationCreator
         private static NotificationManager notificationManager = new NotificationManager();
         //Our configuration info which we acquire from config.json
-        public static SkinportAnalyzerConfiguration userConfiguration;
+        public static SkinHoundConfiguration userConfiguration;
         //This setting is created publicly to avoid repetition, it is used to avoid null values.
         private static JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
         //The following const is a path to make our life easier.
@@ -52,10 +40,10 @@ namespace SkinHound
         private static List<ProductMarketHistory> marketHistoryInMemory;
 
         //Main
-        public SkinportApiFactory()
+        public SkinportApiFactory(SkinHoundConfiguration skinHoundConfiguration)
         {
-            //We start by acquiring the configs
-            GetConfig();
+            //We start by setting our configuration
+            userConfiguration = skinHoundConfiguration;
             // Listen to notification activation
             ToastNotificationManagerCompat.OnActivated += toastArgs =>
             {
@@ -73,7 +61,7 @@ namespace SkinHound
             // Update port # in the following line.
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            string authHeader = Base64Encode($"{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_CLIENT_ENV_VAR)}:{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_SECRET_ENV_VAR)}");
+            string authHeader = Utils.Base64Encode($"{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_CLIENT_ENV_VAR)}:{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_SECRET_ENV_VAR)}");
             client.DefaultRequestHeaders.Add("Authorization", "Basic " + authHeader);
             client.BaseAddress = new Uri("https://api.skinport.com/v1/");
             //Launch the timer.
@@ -128,7 +116,7 @@ namespace SkinHound
         private static async Task<Product> FilterProduct(Product product)
         {
             //These variables are used to determine what type of notification we will be sending.
-            bool shouldSendNotification = false, notificationIsFromDesired = false;
+            bool VerificationsPassed = false, notificationIsFromDesired = false;
             NotificationType notificationType = NotificationType.REGULAR;
             //Before anything, we check if the current Suggested_Price corresponds to what we're looking for.
             if (product.Suggested_Price <= userConfiguration.Minimum_Worth_Value)
@@ -141,33 +129,35 @@ namespace SkinHound
                 return null;
             if (marketHistoryInMemory == null)
                 await AcquireMarketHistory();
+            double recommendedDiscount = 0;
             //Before anything happens, we start by verfying if it's a desired weapon.
             if (VerifyIfDesired(product.Market_Hash_Name) && product.Percentage_Off > userConfiguration.Desired_Weapons_Min_Discount_Threshold)
             {
                 ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
+                product.productMarketHistory = productMarketHistory;
+                recommendedDiscount = await productMarketHistory.GetImmediateResellDiscount(product);
                 //Now that it is relevant, we acquire details about the last sales of the products.
-                
                 switch (product.Percentage_Off)
                 {
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
-                        notificationIsFromDesired = true; shouldSendNotification = true;
+                        notificationIsFromDesired = true; VerificationsPassed = true;
                         notificationType = NotificationType.INCREDIBLE;
                         product.imagePath = "resources/images/IncredibleDesiredNotification.png";
                         break;
                     case var _ when product.Percentage_Off >= userConfiguration.Great_Discount_Threshold:
-                        notificationIsFromDesired = true; shouldSendNotification = true;
+                        notificationIsFromDesired = true; VerificationsPassed = true;
                         notificationType = NotificationType.GOLDEN;
                         product.imagePath = "resources/images/GoldenDesiredNotification.png";
                         break;
                     case var _ when product.Percentage_Off >= userConfiguration.Good_Discount_Threshold:
-                        notificationIsFromDesired = true; shouldSendNotification = true;
+                        notificationIsFromDesired = true; VerificationsPassed = true;
                         notificationType = NotificationType.REGULAR;
                         product.imagePath = "resources/images/RegularDesiredNotification.png";
                         break;
                     default:
                         if (userConfiguration.Notify_On_All_Desired_Weapons)
                         {
-                            shouldSendNotification = true;
+                            VerificationsPassed = true;
                             notificationType = NotificationType.DEFAULT;
                             product.imagePath = "resources/images/DefaultDesiredNotification.png";
                         }
@@ -194,49 +184,57 @@ namespace SkinHound
             {
                 //Now that it is relevant, we acquire details about the last sales of the products.
                 ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
+                product.productMarketHistory = productMarketHistory;
+                recommendedDiscount = await productMarketHistory.GetImmediateResellDiscount(product);
                 switch (product.Percentage_Off)
                 {
                     case var _ when product.Percentage_Off >= userConfiguration.Outstanding_Discount_Threshold:
-                        shouldSendNotification = true;
+                        VerificationsPassed = true;
                         notificationType = NotificationType.INCREDIBLE;
                         product.imagePath = "resources/images/IncredibleNotification.png";
                         break;
                     case var _ when product.Percentage_Off >= userConfiguration.Great_Discount_Threshold:
-                        shouldSendNotification = true;
+                        VerificationsPassed = true;
                         notificationType = NotificationType.GOLDEN;
                         product.imagePath = "resources/images/GoldenNotification.png";
                         break;
                     default:
                         //To receive notifications for all the products listed in the application, including regular deals uncomment the lines bellow.
-                        shouldSendNotification = true;
+                        VerificationsPassed = true;
                         notificationType = NotificationType.REGULAR;
                         product.imagePath = "resources/images/RegularNotification.png";
                         break;
                 }
-                product.recommendedResellPrice = 2;
-                //Console.WriteLine($"- Great Deal -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
-                //Financial information about the item in perticular.
-                /*Console.WriteLine($"\t- Reselling information -" +
-                    $"\n\t\t{new string('*', 50)}" +
-                    $"\n\t\tAVG sold for (Last 7 days): {productMarketHistory.Last_7_days.Avg}$" +
-                    $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
-                    $"\n\t\tAVG sold for (Last 30 days): {productMarketHistory.Last_30_days.Avg}$" +
-                    $"\n\t\tVolume sold (Last 30 days): {productMarketHistory.Last_30_days.Volume}" +
-                    $"\n\t\tMEDIAN sold for ({productMarketHistory.Sales.Count} Last sales): {(await productMarketHistory.GetMedian()).ToString("0.00")}$" +
-                    $"\n\t\t{new string('*', 50)}" +
-                    $"\n\t\tRecommended discount % on resell: {recommendedDiscount}%" +
-                    $"\n\t\tRecommended resell price: {((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$" +
-                    $"\n\t\tProfit % on resell: {Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%" +
-                    $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
-                    $"\n\t\t{new string('*', 50)}");*/
-            }
-            //We finish off by sending a notification if the deal was determined good enough.
-            if (shouldSendNotification)
+            //Console.WriteLine($"- Great Deal -\n{product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
+            //Financial information about the item in perticular.
+            /*Console.WriteLine($"\t- Reselling information -" +
+                $"\n\t\t{new string('*', 50)}" +
+                $"\n\t\tAVG sold for (Last 7 days): {productMarketHistory.Last_7_days.Avg}$" +
+                $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
+                $"\n\t\tAVG sold for (Last 30 days): {productMarketHistory.Last_30_days.Avg}$" +
+                $"\n\t\tVolume sold (Last 30 days): {productMarketHistory.Last_30_days.Volume}" +
+                $"\n\t\tMEDIAN sold for ({productMarketHistory.Sales.Count} Last sales): {(await productMarketHistory.GetMedian()).ToString("0.00")}$" +
+                $"\n\t\t{new string('*', 50)}" +
+                $"\n\t\tRecommended discount % on resell: {recommendedDiscount}%" +
+                $"\n\t\tRecommended resell price: {((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$" +
+                $"\n\t\tProfit % on resell: {Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%" +
+                $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
+                $"\n\t\t{new string('*', 50)}");*/
+        }
+            //We finish off by sending a notification and by returning the deal if it was determined good enough.
+            if (VerificationsPassed)
             {
+                //We assign everything in the product
+                product.recommendedDiscount = $"{recommendedDiscount}%";
+                product.recommendedResellPrice = $"{((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$";
+                product.profitPercentageOnResellPrice = $"{Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%";
+                product.profitMoneyOnResellPrice = $"{((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$";
                 //We notify our notification manager to take care of the notification process.
-                await notificationManager.SendNotification(product, notificationType, notificationIsFromDesired);
+                if (userConfiguration.Notifications_Enabled)
+                    await notificationManager.SendNotification(product, notificationType, notificationIsFromDesired);
                 return product;
             }
+
             //If we get here, the deal wasn't good enough.
             return null;
         }
@@ -294,30 +292,10 @@ namespace SkinHound
         {
             //RunAsync().GetAwaiter().GetResult();
         }
-        //Base64 utilities.
-        public static string Base64Encode(string plainText)
+        //This method sets the current config with the help of JSON
+        public async void SetConfig(SkinHoundConfiguration skinHoundConfig)
         {
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-            return System.Convert.ToBase64String(plainTextBytes);
-        }
-        public static string Base64Decode(string base64EncodedData)
-        {
-            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
-            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-        }
-        //This method gets the current user config via the help of config.json
-        public static void GetConfig()
-        {
-            //If the config file does not already exist on the machine, we create it.
-            if (!Directory.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinportAnalyzer"))
-                Directory.CreateDirectory($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinportAnalyzer");
-            if (!File.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinportAnalyzer\\config.json"))
-            {
-                var configFile = File.CreateText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinportAnalyzer\\config.json");
-                configFile.Write(DEFAULT_CONFIG_FILE_CONTENT);
-                configFile.Flush();
-            }
-            userConfiguration = JsonConvert.DeserializeObject<SkinportAnalyzerConfiguration>(File.ReadAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinportAnalyzer\\config.json"));
+            userConfiguration = skinHoundConfig;
         }
 
         //This method is used to run manual price checks on items, it is incredibly useful to sell items fast at a decent price.

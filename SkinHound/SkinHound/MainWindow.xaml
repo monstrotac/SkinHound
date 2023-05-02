@@ -27,17 +27,63 @@
                                         <ColumnDefinition MinWidth="256" MaxWidth="256"/>
                                     </Grid.ColumnDefinitions>
                                     <!-- Items -->
-                                    <Button Name="DealButtonX" Click="DealClicked" Grid.Column="0">
+                                    <Button Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
                                         <StackPanel VerticalAlignment="Top" MaxHeight="216" MinHeight="216">
-                                            <Image x:Name="DealXImage" Source="resources\images\GoldenNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                            <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                                             <TextBlock x:Name="DealXItemName" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                                         </StackPanel>
                                     </Button>
-                                    <StackPanel Grid.Column="1" >
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Top">Button 1</TextBlock>
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Button 2</TextBlock>
-                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Bottom">Button 3</TextBlock>
-                                    </StackPanel>
+                                    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1">
+                                        <StackPanel Grid.Column="1" >
+                                            <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="15">Skinport Information</Label>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Discount:</Label>
+                                                <TextBlock x:Name="DealXSkinportDiscount" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0%</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Discount:</Label>
+                                                <TextBlock x:Name="DealXSkinportPrice" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0$</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Volume Sold Last 30 Days:</Label>
+                                                <TextBlock x:Name="DealXSkinportVolumeSoldLast30Days" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Median Sold for Last 30 Days:</Label>
+                                                <TextBlock x:Name="DealXSkinportMedianSoldLast30Days" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0$</TextBlock>
+                                            </DockPanel>
+                                            <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="15">Buff163 Information</Label>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Starting At:</Label>
+                                                <TextBlock x:Name="DealXBuffStartingAt" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">NULL</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Highest Order:</Label>
+                                                <TextBlock x:Name="DealXBuffHighestOrder" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">NULL</TextBlock>
+                                            </DockPanel>
+                                            <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="15">SkinHound Data</Label>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Recommended Discount:</Label>
+                                                <TextBlock x:Name="DealXRecommendedDiscount" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0%</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Recommended Sale Price:</Label>
+                                                <TextBlock x:Name="DealXRecommendedSalePrice" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0$</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Profit % on Resale:</Label>
+                                                <TextBlock x:Name="DealXProfitPOnResale" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0%</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Profit $ on Resale:</Label>
+                                                <TextBlock x:Name="DealXProfitCOnResale" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0%</TextBlock>
+                                            </DockPanel>
+                                            <DockPanel>
+                                                <Label HorizontalAlignment="Center" FontSize="12" VerticalAlignment="Center">Long Term Investment Indicator:</Label>
+                                                <TextBlock x:Name="DealXLTII" HorizontalAlignment="Left" FontSize="10" VerticalAlignment="Center">0</TextBlock>
+                                            </DockPanel>
+                                        </StackPanel>
+                                    </ScrollViewer>
                                 </Grid>
                             </Border>
                             <!-- End of the Deal Area-->
