@@ -397,3 +397,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 SkinHound/SkinHound/obj/Debug/net6.0-windows10.0.22621.0/SkinHound_MarkupCompile.i.cache
+SkinHound/SkinHound/obj/Debug/net6.0-windows10.0.22621.0/MainWindow.g.i.cs
