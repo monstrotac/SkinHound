@@ -18,7 +18,7 @@
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
                     <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled">
-                        <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Left" VerticalAlignment="Top" ItemHeight="216" ItemWidth="384">
+                        <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="216" ItemWidth="384">
                             <!-- Area where the items on deal are inserted/created -->
                             <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
                                 <Grid x:Name="DealXGrid" Grid.Column="0">
@@ -29,7 +29,7 @@
                                     <!-- Items -->
                                     <Button Name="DealButtonX" Click="DealClicked" Grid.Column="0">
                                         <StackPanel VerticalAlignment="Top" MaxHeight="216" MinHeight="216">
-                                            <Image Source="resources\Notifications\GoldenNotification.jpg" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                                            <Image x:Name="DealXImage" Source="resources\images\GoldenNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                                             <TextBlock x:Name="DealXItemName" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                                         </StackPanel>
                                     </Button>

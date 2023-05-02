@@ -64,10 +64,14 @@ namespace SkinHound
                 itemButton.Name = $"DealButton{productQueue.Count}";
                 TextBlock itemName = ((TextBlock)curDeal.FindName("DealXItemName"));  
                 itemName.Name = $"Deal{productQueue.Count}ItemName";
+                Image itemImage = ((Image)curDeal.FindName("DealXImage"));
+                itemImage.Name = $"Deal{productQueue.Count}Image";
 
                 Product curProduct = productQueue.Dequeue();
                 itemName.Text = curProduct.Market_Hash_Name;
                 itemButton.Tag = curProduct.Item_Page;
+                //Here we have to initiate a new image in order to assign a new ImageSource
+                itemImage.Source = new BitmapImage(new Uri($"pack://application:,,,{curProduct.imagePath}", UriKind.RelativeOrAbsolute));
                 dealsGrid.Children.Add(curDeal);
 
                 return await ShowDeals(productQueue);
