@@ -8,6 +8,6 @@ namespace SkinHound
 {
     internal class MarketHistory
     {
-        public List<ProductMarketHistory> productsHistory { get; set; }
+        public List<ProductMarketHistory> value { get; set; }
     }
 }

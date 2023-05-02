@@ -25,9 +25,9 @@ namespace SkinHound
         //The default content for the config file, in case it does not already exist.
         const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
-          "\n\t\"good_discount_threshold\": 29.0," +
-          "\n\t\"great_discount_threshold\": 33.0," +
-          "\n\t\"outstanding_discount_threshold\": 39.0," +
+          "\n\t\"good_discount_threshold\": 25.0," +
+          "\n\t\"great_discount_threshold\": 30.0," +
+          "\n\t\"outstanding_discount_threshold\": 35.0," +
           "\n\t\"minimum_worth_value\": 1.00," +
           "\n\t\"minutes_between_queries\": 2," +
           "\n\t\"desired_weapons\":[" +
@@ -84,7 +84,35 @@ namespace SkinHound
             //RunPriceChecker();
             //}
         }
-
+        //Async task runner where everything is acquired, this method is called by the front end in order to acquire the data to show.
+        public async Task<List<Product>> AcquireProductList()
+        {
+            try
+            {
+                //This is used to handle null values.
+                JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                //We query for a Global product list.
+                List<Product> globalProductList = await GetGlobalProductList("/v1/items?currency=CAD");
+                //We sort the list in order to have the most expensive outputs at the end.
+                globalProductList.Sort((x, y) => x.Suggested_Price.CompareTo(y.Suggested_Price));
+                //We send the product list into the memory var
+                productListInMemory = globalProductList;
+                List<Product> filteredList = new List<Product>();
+                foreach (Product product in productListInMemory)
+                {
+                    //Here we verify that item in the list isn't null because our function returns null when the item in question is not desired instead of wasting time.
+                    Product tempProduct = await FilterProduct(product);
+                    if (tempProduct != null)
+                        filteredList.Add(tempProduct);
+                }
+                return filteredList;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
         //Shows the content of the product.
         private static async Task<Product> FilterProduct(Product product)
         {
@@ -96,11 +124,13 @@ namespace SkinHound
             //At this point we discover what we're dealing with and if we should share it with the user or not.
             if (product.Percentage_Off == 100 || product.Suggested_Price < userConfiguration.Minimum_Worth_Value || product.Market_Hash_Name.Contains("Case Hardened") || product.Market_Hash_Name.Contains("Doppler") || product.Market_Hash_Name.Contains("Marble Fade"))
                 return null;
+            if (marketHistoryInMemory == null)
+                await AcquireMarketHistory();
             //Before anything happens, we start by verfying if it's a desired weapon.
             if (VerifyIfDesired(product.Market_Hash_Name) && product.Percentage_Off > userConfiguration.Desired_Weapons_Min_Discount_Threshold)
             {
-                //Now that it is relevant, we acquire details about the last sales of the products.
                 ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
+                //Now that it is relevant, we acquire details about the last sales of the products.
                 
                 switch (product.Percentage_Off)
                 {
@@ -145,8 +175,6 @@ namespace SkinHound
             else if (product.Percentage_Off >= userConfiguration.Good_Discount_Threshold)
             {
                 //Now that it is relevant, we acquire details about the last sales of the products.
-                if (marketHistoryInMemory == null)
-                    await AcquireMarketHistory();
                 ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
                 switch (product.Percentage_Off)
                 {
@@ -244,42 +272,12 @@ namespace SkinHound
         private static async Task<ProductMarketHistory> GetProductMarketHistory(string marketHashName)
         {
             //This is used to handle null values.
-            foreach(var history in marketHistoryInMemory.productsHistory)
+            foreach(var history in marketHistoryInMemory.value)
             {
                 if (marketHashName == history.Market_Hash_Name)
                     return history;
             }
             return null;
-        }
-        //Async task runner where the good shit happens.
-        public async Task<List<Product>> AcquireProductList()
-        {
-            try
-            {
-                //This is used to handle null values.
-                JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                //We query for a Global product list.
-                List<Product> globalProductList = await GetGlobalProductList("/v1/items?currency=CAD");
-                //We sort the list in order to have the most expensive outputs at the end.
-                globalProductList.Sort((x, y) => x.Suggested_Price.CompareTo(y.Suggested_Price));
-                //We send the product list into the memory var
-                productListInMemory = globalProductList;
-                List<Product> filteredList = new List<Product>();
-                return globalProductList.GetRange(0, 10);
-                foreach (Product product in productListInMemory)
-                {
-                    //Here we verify that item in the list isn't null because our function returns null when the item in question is not desired instead of wasting time.
-                    Product tempProduct = await FilterProduct(product);
-                    if(tempProduct != null)
-                        filteredList.Add(tempProduct);
-                }
-                return filteredList;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
         }
         //Handler of the good shit takes care of repeating the process every X minutes.
         private static void handleProcess(object state)
