@@ -49,7 +49,7 @@ namespace SkinHound
         private static HttpClient client = new HttpClient();
         //We keep a copy of the current product list in memory for price checking.
         private static List<Product> productListInMemory = new List<Product>();
-        private static MarketHistory marketHistoryInMemory;
+        private static List<ProductMarketHistory> marketHistoryInMemory;
 
         //Main
         public SkinportApiFactory()
@@ -113,16 +113,31 @@ namespace SkinHound
                 return null;
             }
         }
-        //Shows the content of the product.
+        //This function is used to find a certain market hashname in the MarketHistoryInMemory.
+        private static async Task<ProductMarketHistory> GetProductMarketHistory(string marketHashName)
+        {
+            //This is used to handle null values.
+            foreach (var history in marketHistoryInMemory)
+            {
+                if (marketHashName == history.Market_Hash_Name)
+                    return history;
+            }
+            return null;
+        }
+        //Updates the content of the products and filters the list with the help of the users settings.
         private static async Task<Product> FilterProduct(Product product)
         {
             //These variables are used to determine what type of notification we will be sending.
             bool shouldSendNotification = false, notificationIsFromDesired = false;
             NotificationType notificationType = NotificationType.REGULAR;
+            //Before anything, we check if the current Suggested_Price corresponds to what we're looking for.
+            if (product.Suggested_Price <= userConfiguration.Minimum_Worth_Value)
+                return null;
             //We force the product to update its percentage off to make sure it is up to date and already calculated.
             product.UpdatePercentageOff();
+
             //At this point we discover what we're dealing with and if we should share it with the user or not.
-            if (product.Percentage_Off == 100 || product.Suggested_Price < userConfiguration.Minimum_Worth_Value || product.Market_Hash_Name.Contains("Case Hardened") || product.Market_Hash_Name.Contains("Doppler") || product.Market_Hash_Name.Contains("Marble Fade"))
+            if (product.Percentage_Off == 100 || product.Market_Hash_Name.Contains("Case Hardened") || product.Market_Hash_Name.Contains("Doppler") || product.Market_Hash_Name.Contains("Marble Fade"))
                 return null;
             if (marketHistoryInMemory == null)
                 await AcquireMarketHistory();
@@ -230,7 +245,7 @@ namespace SkinHound
             if (response.IsSuccessStatusCode)
             {
                 marketHistory = await response.Content.ReadAsStringAsync();
-                marketHistoryInMemory = JsonConvert.DeserializeObject<MarketHistory>(marketHistory, settings);
+                marketHistoryInMemory = JsonConvert.DeserializeObject<List<ProductMarketHistory>>(marketHistory, settings);
             }
             return;
         }
@@ -267,17 +282,6 @@ namespace SkinHound
                 productList = JsonConvert.DeserializeObject<List<Product>>(products, settings);
             }
             return productList;
-        }
-        //This function is used to find a certain market hashname in the MarketHistoryInMemory.
-        private static async Task<ProductMarketHistory> GetProductMarketHistory(string marketHashName)
-        {
-            //This is used to handle null values.
-            foreach(var history in marketHistoryInMemory.value)
-            {
-                if (marketHashName == history.Market_Hash_Name)
-                    return history;
-            }
-            return null;
         }
         //Handler of the good shit takes care of repeating the process every X minutes.
         private static void handleProcess(object state)
