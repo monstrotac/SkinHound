@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Usb;
 using Windows.Media.Protection.PlayReady;
-
+//TODO CALL FROM PRICEMPIRE OR ANOTHER SOURCE IN ORDER TO AVOID BANS FROM BUFF163 BECAUSE OF TOO MANY REQUESTS
 namespace SkinHound
 {
     class Buff163ApiFactory

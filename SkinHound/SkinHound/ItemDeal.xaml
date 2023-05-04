@@ -15,13 +15,13 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                 <ColumnDefinition MinWidth="320" MaxWidth="320"/>
             </Grid.ColumnDefinitions>
             <!-- Items -->
-            <Button Background="LightGreen" Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
+            <Button Background="#ccc601" Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
                 <StackPanel VerticalAlignment="Top" MaxHeight="270" MinHeight="270">
                     <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                     <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                 </StackPanel>
             </Button>
-            <ScrollViewer Background="MintCream" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" PreviewMouseDown="ScrollViewer_PreviewMouseDown" MouseLeave="ScrollViewer_MouseLeave">
+            <ScrollViewer Background="#b2b355" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" PreviewMouseDown="ScrollViewer_PreviewMouseDown" MouseLeave="ScrollViewer_MouseLeave">
                 <StackPanel Grid.Column="1" >
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
                     <DockPanel>

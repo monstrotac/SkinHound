@@ -7,10 +7,10 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SkinHound"
         mc:Ignorable="d"
-        Title="SkinHound" MinHeight="325" MinWidth="505" Height="325" Width="505">
+        Title="SkinHound" MinHeight="345" MinWidth="525" Height="345" Width="525">
     <Grid>
-        <Grid Background="DarkGray">
-            <TabControl Background="Black">
+        <Grid Background="#ebecee">
+            <TabControl Background="#a09f99">
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
@@ -29,13 +29,13 @@
                                         <ColumnDefinition MinWidth="320" MaxWidth="320"/>
                                     </Grid.ColumnDefinitions>
                                     <!-- Items -->
-                                    <Button Background="LightGreen" Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
+                                    <Button Background="#ccc601" Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
                                         <StackPanel VerticalAlignment="Top" MaxHeight="270" MinHeight="270">
                                             <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                                             <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                                         </StackPanel>
                                     </Button>
-                                    <ScrollViewer Background="MintCream" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1">
+                                    <ScrollViewer Background="#b2b355" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1">
                                         <StackPanel Grid.Column="1" >
                                             <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
                                             <DockPanel>
@@ -111,6 +111,15 @@
                             <TextBlock FontSize="16" Text="Settings" Foreground="Black" />
                         </StackPanel>
                     </TabItem.Header>
+                    <ScrollViewer Background="Black" x:Name="SettingsScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" PreviewMouseWheel="DealScrollBar_PreviewMouseWheel" CanContentScroll="True">
+                        <Border Background="LightGray" BorderBrush="Green" BorderThickness="1" Margin="1">
+                            <StackPanel x:Name="SettingsGrid" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                            <!-- Area where the items on deal are inserted/created -->
+                               <CheckBox></CheckBox>
+
+                            </StackPanel>
+                        </Border>
+                    </ScrollViewer>
                 </TabItem>
             </TabControl>
         </Grid>

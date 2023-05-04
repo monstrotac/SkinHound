@@ -64,13 +64,6 @@ namespace SkinHound
             string authHeader = Utils.Base64Encode($"{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_CLIENT_ENV_VAR)}:{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_SECRET_ENV_VAR)}");
             client.DefaultRequestHeaders.Add("Authorization", "Basic " + authHeader);
             client.BaseAddress = new Uri("https://api.skinport.com/v1/");
-            //Launch the timer.
-            int timeInterval = 1000 * 60 * userConfiguration.Minutes_Between_Queries;
-            //Timer timer = new Timer(handleProcess, null, 0, timeInterval);
-            //while (true)
-            //{
-            //RunPriceChecker();
-            //}
         }
         //Async task runner where everything is acquired, this method is called by the front end in order to acquire the data to show.
         public async Task<List<Product>> AcquireProductList()
@@ -83,10 +76,11 @@ namespace SkinHound
                 List<Product> globalProductList = await GetGlobalProductList("/v1/items?currency=CAD");
                 //We sort the list in order to have the most expensive outputs at the end.
                 globalProductList.Sort((x, y) => x.Suggested_Price.CompareTo(y.Suggested_Price));
-                //We send the product list into the memory var
-                productListInMemory = globalProductList;
+                //We send the product list into the memory var for price checking
+                if(productListInMemory.Count == 0)
+                    productListInMemory = globalProductList;
                 List<Product> filteredList = new List<Product>();
-                foreach (Product product in productListInMemory)
+                foreach (Product product in globalProductList)
                 {
                     //Here we verify that item in the list isn't null because our function returns null when the item in question is not desired instead of wasting time.
                     Product tempProduct = await FilterProduct(product);
