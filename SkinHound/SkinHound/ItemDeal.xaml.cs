@@ -50,9 +50,7 @@ namespace SkinHound
         {
             if (this._scrolling)
             {
-                Dispatcher.Invoke(() => {
-                    dealScrollBar.ScrollToVerticalOffset(dealScrollBar.VerticalOffset - e.Delta);
-                });
+                dealScrollBar.ScrollToVerticalOffset(dealScrollBar.VerticalOffset - e.Delta);
                 e.Handled = true;
             }
         }
