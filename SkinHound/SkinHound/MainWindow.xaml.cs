@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -32,9 +33,11 @@ namespace SkinHound
         private bool buffCookieFunctionnal = false;
         private Timer refreshProcess;
         private int timeIntervalBetweenQuerries;
+        //lock object for synchronization;
+        private static object _syncLock = new object();
         //Suggestion TextBox related fields
         private List<string> settingsSkinSuggestionList = new List<string>();
-        private List<string> desiredWeaponsList = new List<string>();
+        private ObservableCollection<string> desiredWeaponsList = new ObservableCollection<string>();
         //Components
         private WrapPanel dealsGrid;
         private Image loadingGif;
@@ -75,6 +78,7 @@ namespace SkinHound
             //We start the timer which will automate the deals and refresh them on X configured basis.
             timeIntervalBetweenQuerries = 1000 * 60 * configuration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
+
         }
         private void InitSettingsValue()
         {
@@ -90,9 +94,8 @@ namespace SkinHound
             SettingsMinutesBetweenQuerries.Text = configuration.Minutes_Between_Queries.ToString();
             //Deals section
             SettingsDesiredItemsList.ItemsSource = desiredWeaponsList;
+            BindingOperations.EnableCollectionSynchronization(desiredWeaponsList, _syncLock);
             //There's this dumb issue to if you don't refresh the list it simply won't show what's inside.
-            this.SettingsDesiredItemsList.Visibility = Visibility.Hidden;
-            this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
             SettingsDesiredDiscountThreshold.Text = configuration.Desired_Weapons_Min_Discount_Threshold.ToString();
             SettingsBuffCookie.Text = configuration.Buff_Cookie;
             SettingsGoodDiscountThreshold.Text = configuration.Good_Discount_Threshold.ToString();
@@ -339,7 +342,8 @@ namespace SkinHound
                 configFile.Flush();
             }
             configuration = JsonConvert.DeserializeObject<SkinHoundConfiguration>(File.ReadAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json"));
-            desiredWeaponsList = configuration.Desired_Weapons;
+            foreach (string name in configuration.Desired_Weapons)
+                desiredWeaponsList.Add(name);
         }
         //Sets the Configuration variable in all of the API factories
         private async void UpdateConfigurationInFactories()
@@ -490,15 +494,20 @@ namespace SkinHound
         private void SettingsDesiredAddButton_Click(object sender, RoutedEventArgs e)
         {
             this.SettingsDesiredItemsList.Visibility = Visibility.Hidden;
-            desiredWeaponsList.Add(SettingsSuggestingTextBox.Text);
-            this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
+            lock (_syncLock)
+            {
+                desiredWeaponsList.Add(SettingsSuggestingTextBox.Text);
+            }
             this.SettingsSuggestingTextBox.Text = "";
+            this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
         }
         private void SettingsDesiredRemoveButton_Click(object sender, RoutedEventArgs e)
         {
             this.SettingsDesiredItemsList.Visibility = Visibility.Hidden;
-            if (SettingsDesiredItemsList.HasItems != false && SettingsDesiredItemsList.SelectedIndex != -1)
-                desiredWeaponsList.RemoveAt(SettingsDesiredItemsList.SelectedIndex);
+            if (SettingsDesiredItemsList.HasItems != false && SettingsDesiredItemsList.SelectedIndex != -1) lock (_syncLock)
+                {
+                    desiredWeaponsList.RemoveAt(SettingsDesiredItemsList.SelectedIndex);
+                }
             this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
         }
     }

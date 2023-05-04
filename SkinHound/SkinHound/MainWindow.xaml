@@ -177,7 +177,8 @@
                                         <Button x:Name="SettingsDesiredAddButton" FontSize="16" FontWeight="DemiBold" Margin="10,5,10,0" Background="#ccc601" Click="SettingsDesiredAddButton_Click">Add to Desired</Button>
                                         <TextBox x:Name="SettingsSuggestingTextBox" FontSize="16" Margin="10,0,10,0" TextChanged="SettingsSuggestionTextBox_TextChanged"/>
                                         <Popup x:Name="SettingsSuggestionListPopup" Visibility="Collapsed" StaysOpen="False" Placement="Bottom">
-                                            <ListBox x:Name="SettingsSuggestionList" Visibility="Collapsed" SelectionChanged="SettingsSuggestionList_SelectionChanged" />
+                                            <ListBox x:Name="SettingsSuggestionList" Visibility="Collapsed" FontSize="14" SelectionChanged="SettingsSuggestionList_SelectionChanged">
+                                            </ListBox>
                                         </Popup>
                                         <ListBox x:Name="SettingsDesiredItemsList" Margin="10,0,10,0" Background="#F9F7B1" Visibility="Visible" HorizontalAlignment="Stretch">
                                             <ListBox.ItemTemplate>
