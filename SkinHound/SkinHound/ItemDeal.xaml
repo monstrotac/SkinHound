@@ -21,7 +21,7 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                     <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                 </StackPanel>
             </Button>
-            <ScrollViewer Background="#b2b355" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" PreviewMouseDown="ScrollViewer_PreviewMouseDown" MouseLeave="ScrollViewer_MouseLeave">
+            <ScrollViewer Background="#DDDDDD" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" PreviewMouseDown="ScrollViewer_PreviewMouseDown" MouseLeave="ScrollViewer_MouseLeave">
                 <StackPanel Grid.Column="1" >
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
                     <DockPanel>

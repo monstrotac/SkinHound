@@ -19,23 +19,24 @@
                         </StackPanel>
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
-                    <ScrollViewer Background="Black" x:Name="DealScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" PreviewMouseWheel="DealScrollBar_PreviewMouseWheel" CanContentScroll="True">
+                    <ScrollViewer Background="Black" x:Name="DealScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
                         <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="270" ItemWidth="480">
                             <!-- Area where the items on deal are inserted/created -->
                             <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
                                 <Grid x:Name="DealXGrid" Grid.Column="0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition MaxWidth="160" MinWidth="160"/>
-                                        <ColumnDefinition MinWidth="320" MaxWidth="320"/>
+                                        <ColumnDefinition MaxWidth="160" MinWidth="160" Width="160*"/>
+                                        <ColumnDefinition MinWidth="320" MaxWidth="320" Width="113*"/>
+                                        <ColumnDefinition Width="207*"/>
                                     </Grid.ColumnDefinitions>
                                     <!-- Items -->
-                                    <Button Background="#ccc601" Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
+                                    <Button Background="#ccc601" Name="DealButtonX" Grid.Column="0" Tag="https://skinport.com/">
                                         <StackPanel VerticalAlignment="Top" MaxHeight="270" MinHeight="270">
                                             <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                                             <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                                         </StackPanel>
                                     </Button>
-                                    <ScrollViewer Background="#b2b355" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1">
+                                    <ScrollViewer Background="#b2b355" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" Grid.ColumnSpan="2">
                                         <StackPanel Grid.Column="1" >
                                             <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
                                             <DockPanel>
@@ -111,12 +112,89 @@
                             <TextBlock FontSize="16" Text="Settings" Foreground="Black" />
                         </StackPanel>
                     </TabItem.Header>
-                    <ScrollViewer Background="Black" x:Name="SettingsScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" PreviewMouseWheel="DealScrollBar_PreviewMouseWheel" CanContentScroll="True">
-                        <Border Background="LightGray" BorderBrush="Green" BorderThickness="1" Margin="1">
-                            <StackPanel x:Name="SettingsGrid" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                            <!-- Area where the items on deal are inserted/created -->
-                               <CheckBox></CheckBox>
-
+                    <ScrollViewer Background="Black" x:Name="SettingsScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
+                        <Border Background="#a09f99" BorderBrush="Green" BorderThickness="1" Margin="1">
+                            <StackPanel x:Name="SettingsGrid" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,10,5">
+                                <!-- Settings Area -->
+                                <Label FontSize="34" FontWeight="Bold">General Settings</Label>
+                                <StackPanel>
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Skinport Client ID</TextBlock>
+                                    <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">(Can be found in your settings on Skinport)</TextBlock>
+                                    <PasswordBox x:Name="SettingsSkinportClientId" FontSize="18"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Skinport Client Secret</TextBlock>
+                                    <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">(Can be found in your settings on Skinport)</TextBlock>
+                                    <PasswordBox x:Name="SettingsSkinportClientSecret" FontSize="18"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">BUFF163 Cookie</TextBlock>
+                                    <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">(Inspect element -> Network -> Domain: Buff.163.com -> Request Headers -> Cookies)</TextBlock>
+                                    <TextBox x:Name="SettingsBuffCookie" FontSize="18"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Stretch">
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Minutes Between Querries</TextBlock>
+                                    <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">(Default: 2)</TextBlock>
+                                    <TextBox x:Name="SettingsMinutesBetweenQuerries" FontSize="18" PreviewTextInput="MinutesBetweenQuerriesValidationTextBox"/>
+                                </StackPanel>
+                                <Separator Background="Gray" Margin="0,5,0,5"></Separator>
+                                <Label FontSize="34" FontWeight="Bold">Notification Settings</Label>
+                                <DockPanel HorizontalAlignment="Left">
+                                    <CheckBox x:Name="SettingsNotificationsEnabled" FontSize="18" VerticalContentAlignment="Center" IsChecked="False">
+                                        <Label FontSize="22" FontWeight="DemiBold">Notifications Enabled</Label>
+                                    </CheckBox>
+                                </DockPanel>
+                                <DockPanel>
+                                    <CheckBox x:Name="SettingsNotifyOnAllDesiredWeapons" FontSize="18" VerticalContentAlignment="Center" IsChecked="False">
+                                        <Label FontSize="22" FontWeight="DemiBold">Notify on all Desired Weapons</Label>
+                                    </CheckBox>
+                                </DockPanel>
+                                <Separator Background="Gray" Margin="0,5,0,5"></Separator>
+                                <Label FontSize="34" FontWeight="Bold">Deals Settings</Label>
+                                <StackPanel VerticalAlignment="Stretch">
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Minimum Skin Worth</TextBlock>
+                                    <TextBox x:Name="SettingsMinWorthValue" FontSize="18" PreviewTextInput="NumberValidationTextBox"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Stretch">
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Good Discount Threshold (%)</TextBlock>
+                                    <TextBox x:Name="SettingsGoodDiscountThreshold" FontSize="18" PreviewTextInput="NumberValidationTextBox"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Stretch">
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Great Discount Threshold (%)</TextBlock>
+                                    <TextBox x:Name="SettingsGreatDiscountThreshold" FontSize="18" PreviewTextInput="NumberValidationTextBox"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Stretch">
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Outstanding Discount Threshold (%)</TextBlock>
+                                    <TextBox x:Name="SettingsOutstandingDiscountThreshold" FontSize="18" PreviewTextInput="NumberValidationTextBox"/>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Stretch">
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Desired Weapon Discount Threshold (%)</TextBlock>
+                                    <TextBox x:Name="SettingsDesiredDiscountThreshold" FontSize="18" PreviewTextInput="NumberValidationTextBox"/>
+                                </StackPanel>
+                                <Border Background="#C4C4C4" Margin="0,15,0, 20">
+                                    <StackPanel VerticalAlignment="Stretch">
+                                        <Label FontSize="20" FontWeight="Bold">Desired Weapons</Label>
+                                        <Button x:Name="SettingsDesiredAddButton" FontSize="16" FontWeight="DemiBold" Margin="10,5,10,0" Background="#ccc601" Click="SettingsDesiredAddButton_Click">Add to Desired</Button>
+                                        <TextBox x:Name="SettingsSuggestingTextBox" FontSize="16" Margin="10,0,10,0" TextChanged="SettingsSuggestionTextBox_TextChanged"/>
+                                        <Popup x:Name="SettingsSuggestionListPopup" Visibility="Collapsed" StaysOpen="False" Placement="Bottom">
+                                            <ListBox x:Name="SettingsSuggestionList" Visibility="Collapsed" SelectionChanged="SettingsSuggestionList_SelectionChanged" />
+                                        </Popup>
+                                        <ListBox x:Name="SettingsDesiredItemsList" Margin="10,0,10,0" Background="#F9F7B1" Visibility="Visible" HorizontalAlignment="Stretch">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <TextBlock FontSize="16" Text="{Binding}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <Button x:Name="SettingsDesiredRemoveButton" FontSize="16" FontWeight="DemiBold" Margin="10,0,10,10" Background="#ccc601" Click="SettingsDesiredRemoveButton_Click">Remove from Desired</Button>
+                                    </StackPanel>
+                                </Border>
+                                <TextBlock x:Name="SettingsErrorText" TextWrapping="WrapWithOverflow" FontSize="24" FontWeight="Black"></TextBlock>
+                                <Button x:Name="SaveSettingsButton" Content="Save Settings" Padding="5" FontSize="20" FontWeight="DemiBold" Background="#EEE601" Margin="5" Click="SaveSettings"/>
+                                <Button x:Name="ResetSettingsButton" Content="Reset Settings to Default" Padding="5" FontSize="20" FontWeight="DemiBold" Background="#EEE601" Margin="5" Click="ResetSettings"/>
+                                <!-- End of Settings Area -->
                             </StackPanel>
                         </Border>
                     </ScrollViewer>

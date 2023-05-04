@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,12 +25,16 @@ namespace SkinHound
     /// </summary>
     public partial class MainWindow : Window
     {
-        //Private Methods
+        //Private fields
         private SkinHoundConfiguration configuration;
         private SkinportApiFactory skinportApiFactory;
         private Buff163ApiFactory buff163ApiFactory;
         private bool buffCookieFunctionnal = false;
         private Timer refreshProcess;
+        private int timeIntervalBetweenQuerries;
+        //Suggestion TextBox related fields
+        private List<string> settingsSkinSuggestionList = new List<string>();
+        private List<string> desiredWeaponsList = new List<string>();
         //Components
         private WrapPanel dealsGrid;
         private Image loadingGif;
@@ -53,11 +58,14 @@ namespace SkinHound
         {
             //The very first step is to acquire the configuration from the file, if it exists.
             GetUserConfigFromFile();
+            //Then we proceed to Initialize our APIFactories followed by the components.
             skinportApiFactory = new SkinportApiFactory(configuration);
             buff163ApiFactory = new Buff163ApiFactory(configuration);
             InitializeComponent();
+            //We take a quick moment to Init the values of the settings.
+            InitSettingsValue();
             //We obtain Buff's Market History here since doing it constantly is not good practice for this one, and is not needed.
-            RefreshBuffMarketValue();            
+            RefreshBuffMarketValue();
             //We update the value of the rates for money conversion later on since everything the Buff163 API returns is in CNY
             Utils.UpdateRates();
             //Initialize the methods linked to components of the application.
@@ -65,16 +73,140 @@ namespace SkinHound
             loadingGif = (Image)FindName("LoadingIcon");
             dealScroll = (ScrollViewer)FindName("DealScrollBar");
             //We start the timer which will automate the deals and refresh them on X configured basis.
-            int timeInterval = 1000 * 60 * configuration.Minutes_Between_Queries;
-            refreshProcess = new Timer(DealsGridHandler, null, 0, timeInterval);
+            timeIntervalBetweenQuerries = 1000 * 60 * configuration.Minutes_Between_Queries;
+            refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
         }
-        public void ChangeRefreshIntervals(int dueTime, int period)
+        private void InitSettingsValue()
         {
-            refreshProcess.Change(dueTime, period);
+            //Notification section
+            SettingsNotificationsEnabled.IsChecked = configuration.Notifications_Enabled;
+            SettingsNotifyOnAllDesiredWeapons.IsChecked = configuration.Notify_On_All_Desired_Weapons;
+            //General section
+            if(Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR) != null)
+                SettingsSkinportClientId.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR);
+            if (Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR) != null)
+                SettingsSkinportClientSecret.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR);
+            SettingsMinWorthValue.Text = configuration.Minimum_Worth_Value.ToString();
+            SettingsMinutesBetweenQuerries.Text = configuration.Minutes_Between_Queries.ToString();
+            //Deals section
+            SettingsDesiredItemsList.ItemsSource = desiredWeaponsList;
+            //There's this dumb issue to if you don't refresh the list it simply won't show what's inside.
+            this.SettingsDesiredItemsList.Visibility = Visibility.Hidden;
+            this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
+            SettingsDesiredDiscountThreshold.Text = configuration.Desired_Weapons_Min_Discount_Threshold.ToString();
+            SettingsBuffCookie.Text = configuration.Buff_Cookie;
+            SettingsGoodDiscountThreshold.Text = configuration.Good_Discount_Threshold.ToString();
+            SettingsGreatDiscountThreshold.Text = configuration.Great_Discount_Threshold.ToString();
+            SettingsOutstandingDiscountThreshold.Text = configuration.Outstanding_Discount_Threshold.ToString();
+        }
+        private void SaveSettings(object sender, RoutedEventArgs e)
+        {
+            if (!HandleSavingErrors())
+                return;
+            //We update the Environment Variables, this data is stored in the environement for safety measures.
+            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password);
+            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password);
+            //We do a bunch of string editing.
+            string newSettings = "{" +
+                "\n\t\"desired_weapons_min_discount_threshold\": " + SettingsDesiredDiscountThreshold.Text + "," +
+                "\n\t\"good_discount_threshold\": " + SettingsGoodDiscountThreshold.Text + "," +
+                "\n\t\"great_discount_threshold\": " + SettingsGreatDiscountThreshold.Text + "," +
+                "\n\t\"outstanding_discount_threshold\": " + SettingsOutstandingDiscountThreshold.Text + "," +
+                "\n\t\"minimum_worth_value\": " + SettingsMinWorthValue.Text + "," +
+                "\n\t\"minutes_between_queries\": " + SettingsMinutesBetweenQuerries.Text + "," +
+                "\n\t\"desired_weapons\":[";
+            if(desiredWeaponsList.Count > 0)
+                for (int i = 0; i < desiredWeaponsList.Count; i++)
+                {
+                    newSettings += "\"" + desiredWeaponsList[i] + "\"";
+                    if (i != desiredWeaponsList.Count - 1)
+                        newSettings += ",";
+                }
+            newSettings += "\n\t]," +
+            "\n\t\"notify_on_all_desired_weapons\":"+SettingsNotifyOnAllDesiredWeapons.IsChecked.ToString().ToLower()+"," +
+            "\n\t\"notifications_enabled\":"+SettingsNotificationsEnabled.IsChecked.ToString().ToLower()+"," +
+            "\n\t\"buff_cookie\":\""+SettingsBuffCookie.Text+"\"" +
+            "\n}";
+            //We overwrite the current Config File with our new settings.
+            File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", newSettings);
+            configuration = JsonConvert.DeserializeObject<SkinHoundConfiguration>(newSettings);
+            //We check if the timer changed, if so we order an update
+            if (timeIntervalBetweenQuerries != int.Parse(SettingsMinutesBetweenQuerries.Text))
+                ChangeRefreshIntervals(int.Parse(SettingsMinutesBetweenQuerries.Text));
+            //We order an update on the API factories with our new config.
+            UpdateConfigurationInFactories();
+            //We Notify the user if the operation was a success.
+            SettingsErrorText.Text = "Settings saved.";
+        }
+        private void ResetSettings(object sender, RoutedEventArgs e)
+        {
+            //We overwrite the current Config File with the Default settings.
+            File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", DEFAULT_CONFIG_FILE_CONTENT);
+            configuration = JsonConvert.DeserializeObject<SkinHoundConfiguration>(DEFAULT_CONFIG_FILE_CONTENT);
+            //We check if the timer changed, if so we order an update
+            if (timeIntervalBetweenQuerries != 2)
+                ChangeRefreshIntervals(2);
+            //We order an update on the API factories with our new config.
+            UpdateConfigurationInFactories();
+            //Since we are resetting everything we reinit the settings Value
+            InitSettingsValue();
+        }
+        private bool HandleSavingErrors()
+        {
+            //We make sure that if any of the variables we have can't be parsed, it won't allow it.
+            double doubleTester;
+            int intTester;
+            if(!int.TryParse(SettingsMinutesBetweenQuerries.Text, out intTester) ||!double.TryParse(SettingsMinWorthValue.Text, out doubleTester)||!double.TryParse(SettingsGoodDiscountThreshold.Text, out doubleTester) ||!double.TryParse(SettingsGreatDiscountThreshold.Text, out doubleTester) ||!double.TryParse(SettingsOutstandingDiscountThreshold.Text, out doubleTester) || double.TryParse(SettingsDesiredDiscountThreshold.Text, out doubleTester))
+            if (SettingsMinutesBetweenQuerries.Text == "" || SettingsMinWorthValue.Text == "" || SettingsGoodDiscountThreshold.Text == "" || SettingsGreatDiscountThreshold.Text == "" || SettingsOutstandingDiscountThreshold.Text == "" || SettingsDesiredDiscountThreshold.Text == "")
+            {
+                SettingsErrorText.Text = "Error: One of these values is Invalid: MinWorth, MinutesBetweenQuerries, GoodDiscountThreshold, GreatDiscountThreshold, OutstandingDiscountThreshold, DesiredDiscountThreshold.";
+                return false;
+            }
+            //Error handling to make sure required values aren't null
+            if (SettingsMinutesBetweenQuerries.Text == "" || SettingsMinWorthValue.Text == "" || SettingsGoodDiscountThreshold.Text == "" || SettingsGreatDiscountThreshold.Text == "" || SettingsOutstandingDiscountThreshold.Text == "" || SettingsDesiredDiscountThreshold.Text == "")
+            {
+                SettingsErrorText.Text = "Error: These values can't be left empty: MinWorth, MinutesBetweenQuerries, GoodDiscountThreshold, GreatDiscountThreshold, OutstandingDiscountThreshold, DesiredDiscountThreshold.";
+                return false;
+            }
+            //Error handling to make sure discount thresholds are bigger in the following order: Good < Great < Outstanding
+            if (double.Parse(SettingsGoodDiscountThreshold.Text) > double.Parse(SettingsGreatDiscountThreshold.Text) || double.Parse(SettingsGoodDiscountThreshold.Text) > double.Parse(SettingsOutstandingDiscountThreshold.Text))
+            {
+                SettingsErrorText.Text = "Error: Good Discount Threshold must be smaller than Great Discount Threshold and Outstanding Discount Threshold.";
+                return false;
+            }
+            if (double.Parse(SettingsGreatDiscountThreshold.Text) > double.Parse(SettingsOutstandingDiscountThreshold.Text))
+            {
+                SettingsErrorText.Text = "Error: Great Discount Threshold must be smaller than Outstanding Discount Threshold.";
+                return false;
+            }
+            if (double.Parse(SettingsGoodDiscountThreshold.Text) < 15 || double.Parse(SettingsGreatDiscountThreshold.Text) < 15 || double.Parse(SettingsOutstandingDiscountThreshold.Text) < 15 || double.Parse(SettingsDesiredDiscountThreshold.Text) < 10)
+            {
+                SettingsErrorText.Text = "Error: Global Discount Thresholds must be equal or higher than 15% and Desired item Threshold must be equal or higher than 10%.";
+                return false;
+            }
+            //Error handling to make sure that the minutes between querries isn't lower than 1 to avoid the user getting timed out.
+            if (int.Parse(SettingsMinutesBetweenQuerries.Text) < 1)
+            {
+                SettingsErrorText.Text = "Error: Minutes between querries can't be lower than 1.";
+                return false;
+            }
+            return true;
+        }
+        private async void InitializeSuggestionLists()
+        {
+            settingsSkinSuggestionList = await skinportApiFactory.GetItemsNameList();
+        }
+        public void ChangeRefreshIntervals(int period)
+        {
+            timeIntervalBetweenQuerries = period * 60 * 1000;
+            refreshProcess.Change(60000, timeIntervalBetweenQuerries);
         }
         private void DealsGridHandler(object? state)
         {
             RefreshDeals().GetAwaiter().GetResult();
+            //We initialize the SuggetionLists if it's empty
+            if(settingsSkinSuggestionList.Count == 0)
+                InitializeSuggestionLists();
         }
         private async Task RefreshDeals()
         {
@@ -189,10 +321,6 @@ namespace SkinHound
             });
             return productQueue;
         }
-        private void DealClicked(object sender, RoutedEventArgs e)
-        {
-
-        }
         //Function used to refresh the Data from buff.
         private async void RefreshBuffMarketValue()
         {
@@ -211,6 +339,7 @@ namespace SkinHound
                 configFile.Flush();
             }
             configuration = JsonConvert.DeserializeObject<SkinHoundConfiguration>(File.ReadAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json"));
+            desiredWeaponsList = configuration.Desired_Weapons;
         }
         //Sets the Configuration variable in all of the API factories
         private async void UpdateConfigurationInFactories()
@@ -218,9 +347,159 @@ namespace SkinHound
             skinportApiFactory.SetConfig(configuration);
             buff163ApiFactory.SetConfig(configuration);
         }
-
-        private void DealScrollBar_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        //This method is used by all of the fields which accept a double value and is needed to prevent unwanted characters.
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
+            TextBox textBox = (TextBox)sender;
+            // Only allow numbers and at most one decimal point
+            Regex regex = new Regex("[^0-9.]");
+            // Check if the new text matches the pattern
+            string newText = textBox.Text.Insert(textBox.SelectionStart, e.Text);
+            if (regex.IsMatch(newText))
+            {
+                e.Handled = true;
+                return;
+            }
+            // Check if the new text has more than two decimal places
+            int decimalIndex = newText.IndexOf('.');
+            if (decimalIndex >= 0 && (newText.Length - decimalIndex > 3 || decimalIndex == 0))
+            {
+                e.Handled = true;
+                return;
+            }
+            // Check if the new text has a decimal point that is not at the beginning and is not preceded by another decimal point
+            if (e.Text == "." && (decimalIndex == 0 || newText.Split(".").Length-1 > 1))
+            {
+                e.Handled= true;
+                return;
+            }
+            //Make sure that we don't exceed the double Max Value to avoir breaking the app.
+            double value = 0;
+            bool ok = double.TryParse(newText, out value);
+            if (!double.TryParse(newText, out value))
+            {
+                e.Handled = true;
+                return;
+            }
+        }
+        //This method is used by the Minutes between querry field and is needed to prevent unwanted characters.
+        private void MinutesBetweenQuerriesValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+            // Only allow numbers and at most one decimal point
+            Regex regex = new Regex("[^0-9]");
+            // Check if the new text matches the pattern
+            string newText = textBox.Text.Insert(textBox.SelectionStart, e.Text);
+            if (regex.IsMatch(newText))
+            {
+                e.Handled = true;
+                return;
+            }
+            // Prevent the new Text from starting with 0
+            if (e.Text == "0" && newText.Length == 0)
+            {
+                e.Handled = true;
+                return;
+            }
+            //Make sure that we don't exceed the Integer Max Value to avoir breaking the app.
+            if (long.Parse(newText) > int.MaxValue)
+            {
+                e.Handled = true;
+                return;
+            }
+        }
+
+        private async void SettingsSuggestionTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            await UpdateSettingsSuggestionBox();
+        }
+        private async Task UpdateSettingsSuggestionBox()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(this.SettingsSuggestingTextBox.Text))
+                {
+                    this.CloseSettingsAutoSkinSuggestionBox();
+                    return;
+                }
+                this.OpenSettingsAutoSkinSuggestionBox();
+                var listToShow = this.settingsSkinSuggestionList.Where(text => text.ToLower().Contains(this.SettingsSuggestingTextBox.Text.ToLower())).ToList();
+                if (listToShow.Count > 10)
+                    listToShow = listToShow.GetRange(0, 10);
+                this.SettingsSuggestionList.ItemsSource = listToShow;
+                return;
+            }
+            catch (Exception ex)
+            {
+                // Info.  
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+                return;
+            }
+            
+        }
+        private void SettingsSuggestionList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                if (this.SettingsSuggestionList.SelectedIndex <= -1)
+                { 
+                    this.CloseSettingsAutoSkinSuggestionBox();
+                    return;
+                }  
+                this.CloseSettingsAutoSkinSuggestionBox();
+                this.SettingsSuggestingTextBox.Text = this.SettingsSuggestionList.SelectedItem.ToString();
+                this.SettingsSuggestionList.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                // Info.  
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+            }
+        }
+        private void CloseSettingsAutoSkinSuggestionBox()
+        {
+            try
+            {
+                this.SettingsSuggestionListPopup.Visibility = Visibility.Collapsed;
+                this.SettingsSuggestionListPopup.IsOpen = false;
+                this.SettingsSuggestionList.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+            }
+        }
+        private void OpenSettingsAutoSkinSuggestionBox()
+        {
+            try
+            {
+                this.SettingsSuggestionListPopup.Visibility = Visibility.Visible;
+                this.SettingsSuggestionListPopup.IsOpen = true;
+                this.SettingsSuggestionList.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+            }
+        }
+        //These two methods take care of removing and adding new items to the Desired weapons list when their corresponding button is clicked.
+        private void SettingsDesiredAddButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.SettingsDesiredItemsList.Visibility = Visibility.Hidden;
+            desiredWeaponsList.Add(SettingsSuggestingTextBox.Text);
+            this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
+            this.SettingsSuggestingTextBox.Text = "";
+        }
+        private void SettingsDesiredRemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.SettingsDesiredItemsList.Visibility = Visibility.Hidden;
+            if (SettingsDesiredItemsList.HasItems != false && SettingsDesiredItemsList.SelectedIndex != -1)
+                desiredWeaponsList.RemoveAt(SettingsDesiredItemsList.SelectedIndex);
+            this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
         }
     }
 }

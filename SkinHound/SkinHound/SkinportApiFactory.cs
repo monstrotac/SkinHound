@@ -31,8 +31,8 @@ namespace SkinHound
         //The following const is a path to make our life easier.
         public const string SKINPORT_MARKET_HISTORY_PATH = "/v1/sales/history?currency=CAD&app_id=730";
         //For safety measures, we store our token info in the environement variables of the system, in order for the software to work for you, you'll have to create variables with the same name with your tokens as their value.
-        private const string SKINPORT_TOKEN_CLIENT_ENV_VAR = "skinport_tk_id";
-        private const string SKINPORT_TOKEN_SECRET_ENV_VAR = "skinport_tk_secret";
+        public const string SKINPORT_TOKEN_CLIENT_ENV_VAR = "skinport_tk_id";
+        public const string SKINPORT_TOKEN_SECRET_ENV_VAR = "skinport_tk_secret";
         //Here we declare the client which allows us to make requests to the API.
         private static HttpClient client = new HttpClient();
         //We keep a copy of the current product list in memory for price checking.
@@ -64,6 +64,16 @@ namespace SkinHound
             string authHeader = Utils.Base64Encode($"{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_CLIENT_ENV_VAR)}:{Environment.GetEnvironmentVariable(SKINPORT_TOKEN_SECRET_ENV_VAR)}");
             client.DefaultRequestHeaders.Add("Authorization", "Basic " + authHeader);
             client.BaseAddress = new Uri("https://api.skinport.com/v1/");
+        }
+
+        public async Task<List<string>> GetItemsNameList()
+        {
+            List<string> itemsNameList = new List<string>();
+            foreach (Product product in productListInMemory)
+            {
+                itemsNameList.Add(product.Market_Hash_Name);
+            }
+            return itemsNameList;
         }
         //Async task runner where everything is acquired, this method is called by the front end in order to acquire the data to show.
         public async Task<List<Product>> AcquireProductList()
@@ -255,6 +265,7 @@ namespace SkinHound
         {
             //RunAsync().GetAwaiter().GetResult();
         }
+
         //This method sets the current config with the help of JSON
         public async void SetConfig(SkinHoundConfiguration skinHoundConfig)
         {
