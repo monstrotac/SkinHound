@@ -30,6 +30,7 @@ namespace SkinHound
         private SkinHoundConfiguration configuration;
         private SkinportApiFactory skinportApiFactory;
         private Buff163ApiFactory buff163ApiFactory;
+        private CSGOTradersPricesFactory csgoTradersPriceFactory;
         private bool buffCookieFunctionnal = false;
         private Timer refreshProcess;
         private int timeIntervalBetweenQuerries;
@@ -64,6 +65,7 @@ namespace SkinHound
             //Then we proceed to Initialize our APIFactories followed by the components.
             skinportApiFactory = new SkinportApiFactory(configuration);
             buff163ApiFactory = new Buff163ApiFactory(configuration);
+            csgoTradersPriceFactory = new CSGOTradersPricesFactory();
             InitializeComponent();
             //We take a quick moment to Init the values of the settings.
             InitSettingsValue();
@@ -265,6 +267,11 @@ namespace SkinHound
                     itemBuffStartingAt.Name = $"Deal{productQueue.Count}BuffStartingAt";
                     TextBlock itemBuffHighestOrder = ((TextBlock)curDeal.FindName("DealXBuffHighestOrder"));
                     itemBuffHighestOrder.Name = $"Deal{productQueue.Count}BuffHighestOrder";
+                    //Steam Variables
+                    TextBlock itemSteamLast7Days = ((TextBlock)curDeal.FindName("DealXSteamLast7Days"));
+                    itemSteamLast7Days.Name = $"Deal{productQueue.Count}SteamLast7Days";
+                    TextBlock itemSteamLast30Days = ((TextBlock)curDeal.FindName("DealXSteamLast30Days"));
+                    itemSteamLast30Days.Name = $"Deal{productQueue.Count}SteamLast30Days";
                     //SkinHound Variables
                     TextBlock itemRecommendedDiscount = ((TextBlock)curDeal.FindName("DealXRecommendedDiscount"));
                     itemRecommendedDiscount.Name = $"Deal{productQueue.Count}RecommendedDiscount";
@@ -275,20 +282,29 @@ namespace SkinHound
                     TextBlock itemProfitCOnResale = ((TextBlock)curDeal.FindName("DealXProfitCOnResale"));
                     itemProfitCOnResale.Name = $"Deal{productQueue.Count}ProfitCOnResale";
                     TextBlock itemLongTermInvestmentIndicator = ((TextBlock)curDeal.FindName("DealXLTII"));
-                    itemLongTermInvestmentIndicator.Name = $"Deal{productQueue.Count}LTII";
-                    //We Dequeue the product and start assigning its values in the front-end
+                    itemLongTermInvestmentIndicator.Name = $"Deal{productQueue.Count}LTII";                    
+                    TextBlock itemInvestmentValue = ((TextBlock)curDeal.FindName("DealXMovingAverage"));
+                    itemInvestmentValue.Name = $"Deal{productQueue.Count}MovingAverage";
+                    //We Dequeue the product, gather its global data and start assigning its values in the front-end
                     Product curProduct = productQueue.Dequeue();
+                    GlobalMarketDataObject curItemGlobalData = await csgoTradersPriceFactory.GetItemGlobalData(curProduct.Market_Hash_Name);
+                    //We begin initializing the values.
                     itemName.Text = curProduct.Market_Hash_Name;
                     itemButton.Tag = curProduct.Item_Page;
                     itemSkinportDiscount.Text = $"{curProduct.Percentage_Off}%";
-                    itemPrice.Text = $"{curProduct.Min_Price}$";
+                    itemPrice.Text = $"{curProduct.Min_Price.ToString("0.00")}$";
                     itemSkinportVolumeSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Volume}";
-                    itemSkinportMedianSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Median}$";
+                    itemSkinportMedianSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Median.ToString("0.00")}$";
+                    itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.usdToCadRate).ToString("0.00")}$";
+                    itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.usdToCadRate).ToString("0.00")}$";
+                    itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.usdToCadRate).ToString("0.00")}$";
+                    itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.usdToCadRate).ToString("0.00")}$";
                     itemRecommendedDiscount.Text = $"{curProduct.recommendedDiscount}";
                     itemRecommendedSalePrice.Text = $"{curProduct.recommendedResellPrice}";
                     itemProfitPOnResale.Text = $"{curProduct.profitPercentageOnResellPrice}";
                     itemProfitCOnResale.Text = $"{curProduct.profitMoneyOnResellPrice}";
                     itemLongTermInvestmentIndicator.Text = $"{await curProduct.productMarketHistory.GetLongTermPercentageProfit(curProduct)}%";
+                    itemInvestmentValue.Text = $"{await curProduct.productMarketHistory.GetLongMovingMedian()}$";
                     //We check if Buff is functionnal, in the case where it is, the image source and information changes
                     if (buffCookieFunctionnal)
                     {
@@ -296,9 +312,6 @@ namespace SkinHound
                         BuffItem buffItem = await buff163ApiFactory.GetItem(curProduct.Market_Hash_Name);
                         if (buffItem != null)
                         {
-                            //We assign the values of our previously declared TextBox
-                            itemBuffStartingAt.Text = $"{(buffItem.Sell_Min_Price / Utils.usdToCnyRate * Utils.usdToCadRate).ToString("0.00")}$";
-                            itemBuffHighestOrder.Text = $"{(buffItem.Buy_Max_Price / Utils.usdToCnyRate * Utils.usdToCadRate).ToString("0.00")}$";
                             //This section gives the item its actual image, if it can't be found it assigns a placeholder which represents the deal's type.
                             if (buffItem.Goods_Info != null)
                                 itemImage.Source = new BitmapImage(new Uri($"{buffItem.Goods_Info.Icon_Url}", UriKind.Absolute));
@@ -312,9 +325,6 @@ namespace SkinHound
                     {
                         //Here we have to initiate a new image in order to assign a new ImageSource
                         itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
-                        //We assign the values of our previously declared TextBox to Notify that Buff isn't connected.
-                        itemBuffStartingAt.Text = $"BUFF COOKIE REQUIRED";
-                        itemBuffHighestOrder.Text = $"BUFF COOKIE REQUIRED";
                     }
                     dealsGrid.Children.Add(curDeal);
                     return await ShowDeals(productQueue);
