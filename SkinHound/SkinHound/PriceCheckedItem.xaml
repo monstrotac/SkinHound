@@ -1,24 +1,24 @@
-﻿<UserControl x:Class="SkinHound.ItemDeal"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SkinHound"
-xmlns:gif="http://wpfanimatedgif.codeplex.com"
-             mc:Ignorable="d" 
-             d:DesignHeight="650" d:DesignWidth="450">
-    <!-- Area where the items on deal are inserted/created -->
-    <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="5">
-        <Grid x:Name="DealXGrid" Grid.Column="0">
+﻿<UserControl x:Class="SkinHound.PriceCheckedItem"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+          xmlns:local="clr-namespace:SkinHound"
+          xmlns:gif="http://wpfanimatedgif.codeplex.com"
+          mc:Ignorable="d" 
+          d:DesignHeight="650" d:DesignWidth="450">
+    <!-- Area where the price cheked items are inserted/created -->
+    <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
+        <Grid x:Name="PriceCheckedXGrid" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MaxWidth="160" MinWidth="160"/>
                 <ColumnDefinition MinWidth="320" MaxWidth="320"/>
             </Grid.ColumnDefinitions>
             <!-- Items -->
-            <Button Background="#ccc601" Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
-                <StackPanel VerticalAlignment="Top" MaxHeight="350" MinHeight="350">
-                    <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                    <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
+            <Button Background="#ccc601" Name="PriceCheckedButtonX" Click="PriceCheckedClicked" Grid.Column="0" Tag="https://skinport.com/">
+                <StackPanel VerticalAlignment="Top" MaxHeight="270" MinHeight="270">
+                    <Image x:Name="PriceCheckedXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <TextBlock x:Name="PriceCheckedXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                 </StackPanel>
             </Button>
             <ScrollViewer Background="#DDDDDD" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" PreviewMouseDown="ScrollViewer_PreviewMouseDown" MouseLeave="ScrollViewer_MouseLeave">
@@ -26,75 +26,75 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Discount:</Label>
-                        <TextBlock x:Name="DealXSkinportDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left"  VerticalAlignment="Center">0%</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXSkinportDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left"  VerticalAlignment="Center">0%</TextBlock>
                         <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Price:</Label>
-                        <TextBlock x:Name="DealXSkinportPrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXSkinportPrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                         <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Volume Sold Last 30 Days:</Label>
-                        <TextBlock x:Name="DealXSkinportVolumeSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXSkinportVolumeSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Median Sold for Last 30 Days:</Label>
-                        <TextBlock x:Name="DealXSkinportMedianSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXSkinportMedianSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
                     <Separator Background="#ccc601"/>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Buff163 Information</Label>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Starting At:</Label>
-                        <TextBlock x:Name="DealXBuffStartingAt" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">NULL</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXBuffStartingAt" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">NULL</TextBlock>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Highest Order:</Label>
-                        <TextBlock x:Name="DealXBuffHighestOrder" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">NULL</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXBuffHighestOrder" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">NULL</TextBlock>
                     </DockPanel>
                     <Separator Background="#ccc601"/>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Steam Market Data</Label>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Average Sold at Last 7 Days:</Label>
-                        <TextBlock x:Name="DealXSteamLast7Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXSteamLast7Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Average Sold at Last 30 Days:</Label>
-                        <TextBlock x:Name="DealXSteamLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXSteamLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
                     <Separator Background="#ccc601"/>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">SkinHound Data</Label>
                     <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Discount:</Label>
-                        <TextBlock x:Name="DealXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Instant Sale Discount:</Label>
+                        <TextBlock x:Name="PriceCheckedXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
                     </DockPanel>
                     <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Sale Price:</Label>
-                        <TextBlock x:Name="DealXRecommendedSalePrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Instant Sale Price:</Label>
+                        <TextBlock x:Name="PriceCheckedXRecommendedSalePrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                         <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit % on Resale:</Label>
-                        <TextBlock x:Name="DealXProfitPOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXProfitPOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center"  FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit $ on Resale:</Label>
-                        <TextBlock x:Name="DealXProfitCOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXProfitCOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
                         <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Long Term Investment Indicator:</Label>
-                        <TextBlock x:Name="DealXLTII" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXLTII" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
                         <Image gif:ImageBehavior.AnimatedSource="resources/images/Unique.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
                     </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Investment Value (MA):</Label>
-                        <TextBlock x:Name="DealXMovingAverage" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
+                        <TextBlock x:Name="PriceCheckedXMovingAverage" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
                         <Image gif:ImageBehavior.AnimatedSource="resources/images/Unique.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
                     </DockPanel>
                 </StackPanel>
             </ScrollViewer>
         </Grid>
     </Border>
-    <!-- End of the Deal Area-->
+    <!-- End of the Price Checked area Area-->
 </UserControl>

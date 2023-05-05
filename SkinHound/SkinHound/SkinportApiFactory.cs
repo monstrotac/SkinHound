@@ -299,38 +299,32 @@ namespace SkinHound
             Console.Write("Enter a skin name to price check it: ");
         }*/
 
-        /*private static async Task<bool> PriceCheck(Product product, string skinName, bool productAlreadyFound)
+        public async Task<Queue<Product>> PriceCheck(string skinName)
         {
-            //We make sure that the product's discount percentage is up to date.
-            product.UpdatePercentageOff();
-            //Before anything happens, we start by verfying if it's the skin we're searching for.
-            if (!product.Market_Hash_Name.Contains(skinName))
-                return productAlreadyFound;
+            //We create a list of products that we will eventually return
+            //this list can be of a maximum size of 20 for reasons of optimization at the moment.
+            Queue<Product> foundProducts = new Queue<Product>();
+            //We begin looking for the product in the memory.
+            foreach(Product productInMemory in productListInMemory)
+            {
+                if (productInMemory.Market_Hash_Name.Contains(skinName))
+                {
+                    //We create a new product object and begin assigning values to it, so that it is ready to be used.
+                    Product tempProduct = productInMemory;
+                    tempProduct.productMarketHistory = await GetProductMarketHistory(productInMemory.Market_Hash_Name);
+                    double recommendedDiscount = await tempProduct.productMarketHistory.GetInstantResellDiscount(tempProduct);
+                    tempProduct.recommendedDiscount = $"{recommendedDiscount}%";
+                    tempProduct.recommendedResellPrice = $"{((1 - recommendedDiscount / 100) * (double)tempProduct.Suggested_Price).ToString("0.00")}$";
+                    tempProduct.profitPercentageOnResellPrice = $"{Math.Round((((1 - (double)recommendedDiscount / 100) * (double)tempProduct.Suggested_Price * GetSkinPortCut(tempProduct) - (double)tempProduct.Min_Price) / (double)tempProduct.Min_Price * 100), 2)}%";
+                    tempProduct.profitMoneyOnResellPrice = $"{((1 - (double)recommendedDiscount / 100) * (double)tempProduct.Suggested_Price * GetSkinPortCut(tempProduct) - (double)tempProduct.Min_Price).ToString("0.00")}$";
+                    //We add the product to our list and we keep itterating. If the list contains 20 items we stop and return it.
+                    foundProducts.Enqueue(tempProduct);
+                    if (foundProducts.Count == 20)
+                        return foundProducts;
+                }
+            }
             //Now that it is relevant, we acquire details about the last sales of the products.
-            ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
-            double recommendedDiscount = await productMarketHistory.GetRecommendedResellDiscount(product);
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.WriteLine($"Item name: {product.Market_Hash_Name}\n\tDiscount: {product.Percentage_Off}%\n\tListed for: {product.Min_Price.ToString("0.00")}$\n\tSuggested price: {product.Suggested_Price.ToString("0.00")}$\n\tMarket page: {product.Item_Page}");
-            //Financial information about the item in perticular.
-            Console.WriteLine($"\n\t\t{new string('*', 50)}" +
-                $"\n\t\tAVG sold for (Last 7 days): {productMarketHistory.Last_7_days.Avg}$" +
-                $"\n\t\tVolume sold (Last 7 days): {productMarketHistory.Last_7_days.Volume}" +
-                $"\n\t\tAVG sold for (Last 30 days): {productMarketHistory.Last_30_days.Avg}$" +
-                $"\n\t\tVolume sold (Last 30 days): {productMarketHistory.Last_30_days.Volume}" +
-                $"\n\t\tMEDIAN sold for ({productMarketHistory.Sales.Count} Last sales): {(await productMarketHistory.GetLongMovingMedian()).ToString("0.00")}$" +
-                $"\n\t\t{new string('*', 50)}" +
-                $"\n\t\tRecommended discount % on resell: {recommendedDiscount}%" +
-                $"\n\t\tRecommended resell price: {((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$" +
-                $"\n\t\tProfit % on resell: {Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%" +
-                $"\n\t\tProfit $ on resell: {((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$" +
-                $"\n\t\t{new string('*', 50)}");
-            return true;
-        }*/
-        //Executes when the program exits.
-        static void OnProcessExit(object sender, EventArgs e)
-        {
-            Console.WriteLine("I'm out of here");
+            return foundProducts;
         }
     }
 }

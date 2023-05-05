@@ -55,6 +55,29 @@ namespace SkinHound
                 return 0.0;
             }
         }
+        public async Task<double> GetInstantResellDiscount(Product product)
+        {
+            try
+            {
+                double marketValueEstimatePercentage = 1 - await GetShortMovingMedian() / (double)product.Suggested_Price;
+                double calculatedPercentage = (marketValueEstimatePercentage) * 100;
+                if (Math.Round(calculatedPercentage, 1) == 95)
+                {
+                    marketValueEstimatePercentage = 1 - await GetLongMovingMedian() / (double)product.Suggested_Price;
+                    calculatedPercentage = (marketValueEstimatePercentage) * 100;
+                    if (calculatedPercentage == 95)
+                    {
+                        return 0.0;
+                    }
+                    return Math.Round(calculatedPercentage, 1);
+                }
+                return Math.Round(calculatedPercentage, 1);
+            }
+            catch (Exception e)
+            {
+                return 0.0;
+            }
+        }
         public async Task<double> GetLongMovingMedian()
         {
             if (Last_90_days.Volume == 0 || Last_30_days.Volume == 0)

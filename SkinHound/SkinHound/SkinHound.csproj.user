@@ -12,6 +12,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="PriceCheckedItem.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="ItemDeal.xaml">
       <SubType>Designer</SubType>
     </Page>

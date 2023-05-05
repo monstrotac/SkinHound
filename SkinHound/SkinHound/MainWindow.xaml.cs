@@ -37,7 +37,7 @@ namespace SkinHound
         //lock object for synchronization;
         private static object _syncLock = new object();
         //Suggestion TextBox related fields
-        private List<string> settingsSkinSuggestionList = new List<string>();
+        private List<string> skinNamesList = new List<string>();
         private ObservableCollection<string> desiredWeaponsList = new ObservableCollection<string>();
         //Components
         private WrapPanel dealsGrid;
@@ -199,7 +199,7 @@ namespace SkinHound
         }
         private async void InitializeSuggestionLists()
         {
-            settingsSkinSuggestionList = await skinportApiFactory.GetItemsNameList();
+            skinNamesList = await skinportApiFactory.GetItemsNameList();
         }
         public void ChangeRefreshIntervals(int period)
         {
@@ -210,7 +210,7 @@ namespace SkinHound
         {
             RefreshDeals().GetAwaiter().GetResult();
             //We initialize the SuggetionLists if it's empty
-            if(settingsSkinSuggestionList.Count == 0)
+            if(skinNamesList.Count == 0)
                 InitializeSuggestionLists();
         }
         private async Task RefreshDeals()
@@ -437,7 +437,7 @@ namespace SkinHound
                     return;
                 }
                 this.OpenSettingsAutoSkinSuggestionBox();
-                var listToShow = this.settingsSkinSuggestionList.Where(text => text.ToLower().Contains(this.SettingsSuggestingTextBox.Text.ToLower())).ToList();
+                var listToShow = this.skinNamesList.Where(text => text.ToLower().Contains(this.SettingsSuggestingTextBox.Text.ToLower())).ToList();
                 if (listToShow.Count > 10)
                     listToShow = listToShow.GetRange(0, 10);
                 this.SettingsSuggestionList.ItemsSource = listToShow;
@@ -519,6 +519,185 @@ namespace SkinHound
                     desiredWeaponsList.RemoveAt(SettingsDesiredItemsList.SelectedIndex);
                 }
             this.SettingsDesiredItemsList.Visibility = Visibility.Visible;
+        }
+        //These methods are essentially the same thing as the settings one, the only difference is that they are not used by the same elements of the Application.
+        //Instead of the settings, they are used in the PriceChecker.
+        private async void PriceCheckerSuggestionTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            await UpdatePriceCheckerSuggestionBox();
+        }
+        private async Task UpdatePriceCheckerSuggestionBox()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(this.PriceCheckerSuggestingTextBox.Text))
+                {
+                    this.ClosePriceCheckerAutoSkinSuggestionBox();
+                    return;
+                }
+                this.OpenPriceCheckerAutoSkinSuggestionBox();
+                var listToShow = this.skinNamesList.Where(text => text.ToLower().Contains(this.PriceCheckerSuggestingTextBox.Text.ToLower())).ToList();
+                if (listToShow.Count > 10)
+                    listToShow = listToShow.GetRange(0, 10);
+                this.PriceCheckerSuggestionList.ItemsSource = listToShow;
+                return;
+            }
+            catch (Exception ex)
+            {
+                // Info.  
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+                return;
+            }
+
+        }
+        private void PriceCheckerSuggestionList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                if (this.PriceCheckerSuggestionList.SelectedIndex <= -1)
+                {
+                    this.ClosePriceCheckerAutoSkinSuggestionBox();
+                    return;
+                }
+                this.ClosePriceCheckerAutoSkinSuggestionBox();
+                this.PriceCheckerSuggestingTextBox.Text = this.PriceCheckerSuggestionList.SelectedItem.ToString();
+                this.PriceCheckerSuggestionList.SelectedIndex = -1;
+            }
+            catch (Exception ex)
+            {
+                // Info.  
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+            }
+        }
+        private void ClosePriceCheckerAutoSkinSuggestionBox()
+        {
+            try
+            {
+                this.PriceCheckerSuggestionListPopup.Visibility = Visibility.Collapsed;
+                this.PriceCheckerSuggestionListPopup.IsOpen = false;
+                this.PriceCheckerSuggestionList.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+            }
+        }
+        private void OpenPriceCheckerAutoSkinSuggestionBox()
+        {
+            try
+            {
+                this.PriceCheckerSuggestionListPopup.Visibility = Visibility.Visible;
+                this.PriceCheckerSuggestionListPopup.IsOpen = true;
+                this.PriceCheckerSuggestionList.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.Write(ex);
+            }
+        }
+        //This method is called when the price check button is clicked.
+        private async void LaunchPriceCheck(object sender, RoutedEventArgs e)
+        {
+            //We initialize our display by setting everything to nothing.
+            PriceCheckerMessageBox.Text = "Enter a Skin Name to Price Check it";
+            PriceCheckGrid.Children.Clear();
+            //Then we make a request to our factory and find out soon enough if the Skin exists.
+            Queue<Product> productsToDisplay = await skinportApiFactory.PriceCheck(PriceCheckerSuggestingTextBox.Text);
+            if(productsToDisplay.Count == 0)
+            {
+                PriceCheckerMessageBox.Text = $"Couldn't find any skins with the name \"{PriceCheckerSuggestingTextBox.Text}\"";
+                return;
+            }
+            //At this point, we know it exists and order for it to show.
+            await DisplayPriceCheckedItems(productsToDisplay);
+        }
+        //This method does essentially the same thing as the one which displays our Deals except it is for the PriceChecks.
+        private async Task<Queue<Product>> DisplayPriceCheckedItems(Queue<Product> productQueue)
+        {
+            BuffMarketHistory buffMarketHistory = buff163ApiFactory.GetBuffMarketHistory();
+            if (productQueue == null || productQueue.Count > 0)
+            {
+                PriceCheckedItem curPriceCheckedProduct = new PriceCheckedItem(PriceCheckerScrollBar);
+                //In this section we rename everything and keep them as a variable to give them a new value later on.
+                ((Grid)curPriceCheckedProduct.FindName("PriceCheckedXGrid")).Name = $"PriceChecked{productQueue.Count}Grid";
+                Button itemButton = ((Button)curPriceCheckedProduct.FindName("PriceCheckedButtonX"));
+                itemButton.Name = $"PriceCheckedButton{productQueue.Count}";
+                TextBlock itemName = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXItemName"));
+                itemName.Name = $"PriceChecked{productQueue.Count}ItemName";
+                Image itemImage = ((Image)curPriceCheckedProduct.FindName("PriceCheckedXImage"));
+                itemImage.Name = $"PriceChecked{productQueue.Count}Image";
+                //Skinport Variables
+                TextBlock itemSkinportDiscount = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportDiscount"));
+                itemSkinportDiscount.Name = $"PriceChecked{productQueue.Count}SkinportDiscount";
+                TextBlock itemPrice = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportPrice"));
+                itemPrice.Name = $"PriceChecked{productQueue.Count}SkinportPrice";
+                TextBlock itemSkinportVolumeSold30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportVolumeSoldLast30Days"));
+                itemSkinportVolumeSold30Days.Name = $"PriceChecked{productQueue.Count}SkinportVolumeSoldLast30Days";
+                TextBlock itemSkinportMedianSold30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportMedianSoldLast30Days"));
+                itemSkinportMedianSold30Days.Name = $"PriceChecked{productQueue.Count}SkinportMedianSoldLast30Days";
+                //Buff163 Variables
+                TextBlock itemBuffStartingAt = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXBuffStartingAt"));
+                itemBuffStartingAt.Name = $"PriceChecked{productQueue.Count}BuffStartingAt";
+                TextBlock itemBuffHighestOrder = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXBuffHighestOrder"));
+                itemBuffHighestOrder.Name = $"PriceChecked{productQueue.Count}BuffHighestOrder";
+                //Steam Variables
+                TextBlock itemSteamLast7Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSteamLast7Days"));
+                itemSteamLast7Days.Name = $"PriceChecked{productQueue.Count}SteamLast7Days";
+                TextBlock itemSteamLast30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSteamLast30Days"));
+                itemSteamLast30Days.Name = $"PriceChecked{productQueue.Count}SteamLast30Days";
+                //SkinHound Variables
+                TextBlock itemRecommendedDiscount = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedDiscount"));
+                itemRecommendedDiscount.Name = $"PriceChecked{productQueue.Count}RecommendedDiscount";
+                TextBlock itemRecommendedSalePrice = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedSalePrice"));
+                itemRecommendedSalePrice.Name = $"PriceChecked{productQueue.Count}RecommendedSalePrice";
+                TextBlock itemProfitPOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitPOnResale"));
+                itemProfitPOnResale.Name = $"PriceChecked{productQueue.Count}ProfitPOnResale";
+                TextBlock itemProfitCOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitCOnResale"));
+                itemProfitCOnResale.Name = $"PriceChecked{productQueue.Count}ProfitCOnResale";
+                TextBlock itemLongTermInvestmentIndicator = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXLTII"));
+                itemLongTermInvestmentIndicator.Name = $"PriceChecked{productQueue.Count}LTII";
+                TextBlock itemInvestmentValue = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXMovingAverage"));
+                itemInvestmentValue.Name = $"PriceChecked{productQueue.Count}MovingAverage";
+                //We Dequeue the product, gather its global data and start assigning its values in the front-end
+                Product curProductObject = productQueue.Dequeue();
+                GlobalMarketDataObject curItemGlobalData = await csgoTradersPriceFactory.GetItemGlobalData(curProductObject.Market_Hash_Name);
+                //We begin initializing the values.
+                itemName.Text = curProductObject.Market_Hash_Name;
+                itemButton.Tag = curProductObject.Item_Page;
+                itemSkinportDiscount.Text = $"{curProductObject.Percentage_Off}%";
+                itemPrice.Text = $"{curProductObject.Min_Price.ToString("0.00")}$";
+                itemSkinportVolumeSold30Days.Text = $"{curProductObject.productMarketHistory.Last_30_days.Volume}";
+                itemSkinportMedianSold30Days.Text = $"{curProductObject.productMarketHistory.Last_30_days.Median.ToString("0.00")}$";
+                itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.usdToCadRate).ToString("0.00")}$";
+                itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.usdToCadRate).ToString("0.00")}$";
+                itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.usdToCadRate).ToString("0.00")}$";
+                itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.usdToCadRate).ToString("0.00")}$";
+                itemRecommendedDiscount.Text = $"{curProductObject.recommendedDiscount}";
+                itemRecommendedSalePrice.Text = $"{curProductObject.recommendedResellPrice}";
+                itemProfitPOnResale.Text = $"{curProductObject.profitPercentageOnResellPrice}";
+                itemProfitCOnResale.Text = $"{curProductObject.profitMoneyOnResellPrice}";
+                itemLongTermInvestmentIndicator.Text = $"{await curProductObject.productMarketHistory.GetLongTermPercentageProfit(curProductObject)}%";
+                itemInvestmentValue.Text = $"{await curProductObject.productMarketHistory.GetLongMovingMedian()}$";
+                //We check if Buff is functionnal, in the case where it is, the image source and information changes
+                if (buffCookieFunctionnal)
+                {
+                    //We verify that the item in question isn't null before doing anything.
+                    BuffItem buffItem = await buff163ApiFactory.GetItem(curProductObject.Market_Hash_Name);
+                    if (buffItem != null)
+                    {
+                        //This section gives the item its actual image, if it can't be found it assigns a placeholder which represents the product's type.
+                        if (buffItem.Goods_Info != null)
+                            itemImage.Source = new BitmapImage(new Uri($"{buffItem.Goods_Info.Icon_Url}", UriKind.Absolute));
+                    }
+                }
+                PriceCheckGrid.Children.Add(curPriceCheckedProduct);
+                return await DisplayPriceCheckedItems(productQueue);
+            } else
+                return productQueue;
         }
     }
 }

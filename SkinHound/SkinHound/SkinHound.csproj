@@ -94,4 +94,17 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="PriceCheckedItem.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="PriceCheckedItem.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>
