@@ -51,6 +51,15 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Highest Order:</Label>
                         <TextBlock x:Name="DealXBuffHighestOrder" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">NULL</TextBlock>
                     </DockPanel>
+                    <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Steam Market Data</Label>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Average Sold at Last 7 Days:</Label>
+                        <TextBlock x:Name="DealXSteamLast7Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Average Sold at Last 30 Days:</Label>
+                        <TextBlock x:Name="DealXSteamLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                    </DockPanel>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">SkinHound Data</Label>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Discount:</Label>
@@ -73,6 +82,11 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Long Term Investment Indicator:</Label>
                         <TextBlock x:Name="DealXLTII" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
+                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Unique.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Investment Value (MA):</Label>
+                        <TextBlock x:Name="DealXMovingAverage" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
                         <Image gif:ImageBehavior.AnimatedSource="resources/images/Unique.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
                     </DockPanel>
                 </StackPanel>
