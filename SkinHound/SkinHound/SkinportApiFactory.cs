@@ -304,7 +304,7 @@ namespace SkinHound
         public async Task<Queue<Product>> PriceCheck(string skinName)
         {
             //We create a list of products that we will eventually return
-            //this list can be of a maximum size of 20 for reasons of optimization at the moment.
+            //this list can be of a maximum size of 15 for reasons of optimization at the moment.
             Queue<Product> foundProducts = new Queue<Product>();
             //We begin looking for the product in the memory.
             foreach(Product productInMemory in productListInMemory)
@@ -323,7 +323,7 @@ namespace SkinHound
                     tempProduct.profitMoneyOnResellPrice = $"{((1 - (double)recommendedDiscount / 100) * (double)tempProduct.Suggested_Price * GetSkinPortCut(tempProduct) - (double)tempProduct.Min_Price).ToString("0.00")}$";
                     //We add the product to our list and we keep itterating. If the list contains 20 items we stop and return it.
                     foundProducts.Enqueue(tempProduct);
-                    if (foundProducts.Count == 20)
+                    if (foundProducts.Count == 15)
                         return foundProducts;
                 }
             }
