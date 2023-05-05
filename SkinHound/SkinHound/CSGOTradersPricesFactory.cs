@@ -45,14 +45,23 @@ namespace SkinHound
         }
         public async Task<GlobalMarketDataObject> GetItemGlobalData(string marketHashName)
         {
+            if (marketHashName == null)
+                return null;
             //This is used to handle null values.
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             GlobalMarketDataObject currentItem = new GlobalMarketDataObject();
             var olga = globalMarketData;
             currentItem.Steam = JsonConvert.DeserializeObject<SteamHistory>(globalMarketData[marketHashName]["steam"].ToString(), settings);
             currentItem.Buff163 = new Buff163History();
-            currentItem.Buff163.Starting_At = (double)globalMarketData[marketHashName]["buff163"]["starting_at"]["price"];
-            currentItem.Buff163.Highest_Order = (double)globalMarketData[marketHashName]["buff163"]["highest_order"]["price"];
+            //We must do a little bit of validation before hand for this part.
+            if (globalMarketData[marketHashName]["buff163"]["starting_at"]["price"].ToString() != "")
+                currentItem.Buff163.Starting_At = (double)globalMarketData[marketHashName]["buff163"]["starting_at"]["price"];
+            else
+                currentItem.Buff163.Starting_At = 0.00;
+            if(globalMarketData[marketHashName]["buff163"]["highest_order"]["price"].ToString() != "")
+                currentItem.Buff163.Highest_Order = (double)globalMarketData[marketHashName]["buff163"]["highest_order"]["price"];
+            else
+                currentItem.Buff163.Highest_Order = 0.00;
             return currentItem;
         }
         private async Task VerifyIfRequireUpdates()

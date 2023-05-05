@@ -7,7 +7,7 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SkinHound"
         mc:Ignorable="d"
-        Title="SkinHound" MinHeight="465" MinWidth="525" Height="465" Width="525">
+        Title="SkinHound" MinHeight="465" MinWidth="545" Height="465" Width="545">
     <Grid>
         <Grid Background="#ebecee">
             <TabControl Background="#a09f99">
@@ -25,13 +25,14 @@
                             <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
                                 <Grid x:Name="DealXGrid" Grid.Column="0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition MaxWidth="160" MinWidth="160" Width="160*"/>
-                                        <ColumnDefinition MinWidth="320" MaxWidth="320" Width="113*"/>
-                                        <ColumnDefinition Width="207*"/>
+                                        <ColumnDefinition MaxWidth="160" MinWidth="160" Width="40*"/>
+                                        <ColumnDefinition MinWidth="320" MaxWidth="320" Width="29*"/>
+                                        <ColumnDefinition Width="51*"/>
+                                        <ColumnDefinition Width="0*"/>
                                     </Grid.ColumnDefinitions>
                                     <!-- Items -->
                                     <Button Background="#ccc601" Name="DealButtonX" Grid.Column="0" Tag="https://skinport.com/">
-                                        <StackPanel VerticalAlignment="Top" MaxHeight="270" MinHeight="270">
+                                        <StackPanel VerticalAlignment="Top" MaxHeight="350" MinHeight="350">
                                             <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                                             <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                                         </StackPanel>
@@ -105,27 +106,30 @@
                             <TextBlock FontSize="16" Text="Price Check" Foreground="Green" />
                         </StackPanel>
                     </TabItem.Header>
-                    <Border Background="#C4C4C4" Margin="0,15,0, 20">
-                        <StackPanel VerticalAlignment="Stretch">
-                            <TextBox x:Name="PriceCheckerSuggestingTextBox" FontSize="16" Margin="10,10,10,0" TextChanged="PriceCheckerSuggestionTextBox_TextChanged"/>
-                            <DockPanel>
-                                <Popup x:Name="PriceCheckerSuggestionListPopup" Visibility="Collapsed" StaysOpen="False" Placement="RelativePoint" Margin="100,50,0,0">
-                                    <ListBox x:Name="PriceCheckerSuggestionList" Visibility="Collapsed" FontSize="14" SelectionChanged="PriceCheckerSuggestionList_SelectionChanged">
-                                    </ListBox>
-                                </Popup>
-                                <Button x:Name="PriceCheckerSearchButton" FontSize="16" FontWeight="DemiBold" Margin="10,5,10,0" Background="#ccc601" Click="LaunchPriceCheck">Price Check</Button>
-                            </DockPanel>
-                            <StackPanel Background="#a09f99"  Margin="10,10,10,10" >
-                                <TextBlock x:Name="PriceCheckerMessageBox" Text="Enter a Skin Name to Price Check it" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" FontWeight="DemiBold" Margin="10, 10, 10, 0"/>
-                                <ScrollViewer x:Name="PriceCheckerScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
-                                    <WrapPanel x:Name="PriceCheckGrid" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480">
-                                        <!-- This section is automatically generated when a price check request comes in -->
-                                    </WrapPanel>
-                                </ScrollViewer>
-                            </StackPanel>
-
-                        </StackPanel>
-                    </Border>
+                    <Grid x:Name="PriceCheckerBody" Background="#a09f99" VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBox x:Name="PriceCheckerSuggestingTextBox" FontSize="16" Margin="10,10,10,0" TextChanged="PriceCheckerSuggestionTextBox_TextChanged" Grid.Row="0"/>
+                        <DockPanel Grid.Row="1">
+                            <Popup x:Name="PriceCheckerSuggestionListPopup" Visibility="Collapsed" StaysOpen="False" Placement="RelativePoint" Margin="100,50,0,0">
+                                <ListBox x:Name="PriceCheckerSuggestionList" Visibility="Collapsed" FontSize="14" SelectionChanged="PriceCheckerSuggestionList_SelectionChanged">
+                                </ListBox>
+                            </Popup>
+                            <Button x:Name="PriceCheckerSearchButton" FontSize="16" FontWeight="DemiBold" Margin="10,5,10,0" Background="#ccc601" Click="LaunchPriceCheck">Price Check</Button>
+                        </DockPanel>
+                        <TextBlock x:Name="PriceCheckerMessageBox" Margin="10,10,0,10" Text="Enter a Skin Name to Price Check it" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" FontWeight="DemiBold" Grid.Row="2"/>
+                        <ScrollViewer x:Name="PriceCheckerScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True" Height="Auto" Grid.Row="3">
+                            <WrapPanel x:Name="PriceCheckGrid" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480">
+                                <Border HorizontalAlignment="Center">
+                                    <TextBlock>Items will appear here.</TextBlock>
+                                </Border>
+                            </WrapPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>

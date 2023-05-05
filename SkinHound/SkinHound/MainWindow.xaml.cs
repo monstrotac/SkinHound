@@ -43,6 +43,7 @@ namespace SkinHound
         private WrapPanel dealsGrid;
         private Image loadingGif;
         private ScrollViewer dealScroll;
+        private ScrollViewer priceCheckScroll;
         //The default content for the config file, in case it does not already exist.
         private const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
@@ -77,6 +78,7 @@ namespace SkinHound
             dealsGrid = (WrapPanel)FindName("DealsGrid");
             loadingGif = (Image)FindName("LoadingIcon");
             dealScroll = (ScrollViewer)FindName("DealScrollBar");
+            priceCheckScroll = (ScrollViewer)FindName("PriceCheckerScrollBar");
             //We start the timer which will automate the deals and refresh them on X configured basis.
             timeIntervalBetweenQuerries = 1000 * 60 * configuration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
@@ -607,6 +609,12 @@ namespace SkinHound
             PriceCheckGrid.Children.Clear();
             //Then we make a request to our factory and find out soon enough if the Skin exists.
             Queue<Product> productsToDisplay = await skinportApiFactory.PriceCheck(PriceCheckerSuggestingTextBox.Text);
+            if(productsToDisplay == null)
+            {
+                PriceCheckerMessageBox.Text = $"An error occured searching for \"{PriceCheckerSuggestingTextBox.Text}\", please wait a few seconds and try again.";
+                return;
+            }
+
             if(productsToDisplay.Count == 0)
             {
                 PriceCheckerMessageBox.Text = $"Couldn't find any skins with the name \"{PriceCheckerSuggestingTextBox.Text}\"";
@@ -621,7 +629,7 @@ namespace SkinHound
             BuffMarketHistory buffMarketHistory = buff163ApiFactory.GetBuffMarketHistory();
             if (productQueue == null || productQueue.Count > 0)
             {
-                PriceCheckedItem curPriceCheckedProduct = new PriceCheckedItem(PriceCheckerScrollBar);
+                PriceCheckedItem curPriceCheckedProduct = new PriceCheckedItem(priceCheckScroll);
                 //In this section we rename everything and keep them as a variable to give them a new value later on.
                 ((Grid)curPriceCheckedProduct.FindName("PriceCheckedXGrid")).Name = $"PriceChecked{productQueue.Count}Grid";
                 Button itemButton = ((Button)curPriceCheckedProduct.FindName("PriceCheckedButtonX"));
@@ -665,6 +673,9 @@ namespace SkinHound
                 //We Dequeue the product, gather its global data and start assigning its values in the front-end
                 Product curProductObject = productQueue.Dequeue();
                 GlobalMarketDataObject curItemGlobalData = await csgoTradersPriceFactory.GetItemGlobalData(curProductObject.Market_Hash_Name);
+                if (curItemGlobalData == null)
+                    curItemGlobalData = new GlobalMarketDataObject();
+
                 //We begin initializing the values.
                 itemName.Text = curProductObject.Market_Hash_Name;
                 itemButton.Tag = curProductObject.Item_Page;

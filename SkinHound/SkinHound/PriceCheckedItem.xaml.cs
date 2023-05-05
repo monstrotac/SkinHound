@@ -25,11 +25,11 @@ namespace SkinHound
     /// </summary>
     public partial class PriceCheckedItem : UserControl
     {
-        private ScrollViewer dealScrollBar;
+        private ScrollViewer priceCheckScrollBar;
         public PriceCheckedItem(ScrollViewer dealScroll)
         {
             InitializeComponent();
-            dealScrollBar = dealScroll;
+            priceCheckScrollBar = dealScroll;
         }
 
         private void PriceCheckedClicked(object sender, RoutedEventArgs e)
@@ -50,7 +50,7 @@ namespace SkinHound
         {
             if (this._scrolling)
             {
-                dealScrollBar.ScrollToVerticalOffset(dealScrollBar.VerticalOffset - e.Delta);
+                priceCheckScrollBar.ScrollToVerticalOffset(priceCheckScrollBar.VerticalOffset - e.Delta);
                 e.Handled = true;
             }
         }

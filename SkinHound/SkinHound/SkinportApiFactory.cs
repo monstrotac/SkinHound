@@ -108,6 +108,8 @@ namespace SkinHound
         //This function is used to find a certain market hashname in the MarketHistoryInMemory.
         private static async Task<ProductMarketHistory> GetProductMarketHistory(string marketHashName)
         {
+            if (marketHistoryInMemory == null)
+                return null;
             //This is used to handle null values.
             foreach (var history in marketHistoryInMemory)
             {
@@ -312,6 +314,8 @@ namespace SkinHound
                     //We create a new product object and begin assigning values to it, so that it is ready to be used.
                     Product tempProduct = productInMemory;
                     tempProduct.productMarketHistory = await GetProductMarketHistory(productInMemory.Market_Hash_Name);
+                    if (tempProduct.productMarketHistory == null)
+                        return null;
                     double recommendedDiscount = await tempProduct.productMarketHistory.GetInstantResellDiscount(tempProduct);
                     tempProduct.recommendedDiscount = $"{recommendedDiscount}%";
                     tempProduct.recommendedResellPrice = $"{((1 - recommendedDiscount / 100) * (double)tempProduct.Suggested_Price).ToString("0.00")}$";
