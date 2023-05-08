@@ -292,7 +292,7 @@ namespace SkinHound
             //We begin looking for the product in the memory.
             foreach(Product productInMemory in productListInMemory)
             {
-                if (productInMemory.Market_Hash_Name.Contains(skinName))
+                if (productInMemory.Market_Hash_Name.ToLower().Contains(skinName.ToLower()))
                 {
                     //We create a new product object and begin assigning values to it, so that it is ready to be used.
                     Product tempProduct = productInMemory;
