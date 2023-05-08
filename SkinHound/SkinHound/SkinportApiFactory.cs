@@ -252,7 +252,7 @@ namespace SkinHound
         {
             if (userConfiguration.Desired_Weapons.Count == 0)
                 return false;
-            if (itemName.Contains($"{userConfiguration.Desired_Weapons.ElementAt(i)}"))
+            if (itemName.ToLower().Contains($"{userConfiguration.Desired_Weapons.ElementAt(i).ToLower()}"))
                 return true;
             else if (userConfiguration.Desired_Weapons.Count - 1 > i)
                 return VerifyIfDesired(itemName, i + 1);
