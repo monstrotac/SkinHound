@@ -255,6 +255,8 @@ namespace SkinHound
                     itemName.Name = $"Deal{productQueue.Count}ItemName";
                     Image itemImage = ((Image)curDeal.FindName("DealXImage"));
                     itemImage.Name = $"Deal{productQueue.Count}Image";
+                    Label itemNewOrNot = ((Label)curDeal.FindName("DealXNewOrNot"));
+                    itemNewOrNot.Name = $"Deal{productQueue.Count}NewOrNot";
                     //Skinport Variables
                     TextBlock itemSkinportDiscount = ((TextBlock)curDeal.FindName("DealXSkinportDiscount"));
                     itemSkinportDiscount.Name = $"Deal{productQueue.Count}SkinportDiscount";
@@ -291,6 +293,8 @@ namespace SkinHound
                     Product curProduct = productQueue.Dequeue();
                     GlobalMarketDataObject curItemGlobalData = await csgoTradersPriceFactory.GetItemGlobalData(curProduct.Market_Hash_Name);
                     //We begin initializing the values.
+                    if (curProduct.isNew)
+                        itemNewOrNot.Content = "*NEW*";
                     itemName.Text = curProduct.Market_Hash_Name;
                     itemButton.Tag = curProduct.Item_Page;
                     itemSkinportDiscount.Text = $"{curProduct.Percentage_Off}%";
@@ -305,7 +309,7 @@ namespace SkinHound
                     itemRecommendedSalePrice.Text = $"{curProduct.recommendedResellPrice}";
                     itemProfitPOnResale.Text = $"{curProduct.profitPercentageOnResellPrice}";
                     itemProfitCOnResale.Text = $"{curProduct.profitMoneyOnResellPrice}";
-                    itemLongTermInvestmentIndicator.Text = $"{await curProduct.productMarketHistory.GetLongTermPercentageProfit(curProduct)}%";
+                    itemLongTermInvestmentIndicator.Text = $"{await curProduct.productMarketHistory.GetLongTermPercentageProfit()}%";
                     itemInvestmentValue.Text = $"{await curProduct.productMarketHistory.GetLongMovingMedian()}$";
                     //We check if Buff is functionnal, in the case where it is, the image source and information changes
                     if (buffCookieFunctionnal)
@@ -691,7 +695,7 @@ namespace SkinHound
                 itemRecommendedSalePrice.Text = $"{curProductObject.recommendedResellPrice}";
                 itemProfitPOnResale.Text = $"{curProductObject.profitPercentageOnResellPrice}";
                 itemProfitCOnResale.Text = $"{curProductObject.profitMoneyOnResellPrice}";
-                itemLongTermInvestmentIndicator.Text = $"{await curProductObject.productMarketHistory.GetLongTermPercentageProfit(curProductObject)}%";
+                itemLongTermInvestmentIndicator.Text = $"{await curProductObject.productMarketHistory.GetLongTermPercentageProfit()}%";
                 itemInvestmentValue.Text = $"{await curProductObject.productMarketHistory.GetLongMovingMedian()}$";
                 //We check if Buff is functionnal, in the case where it is, the image source and information changes
                 if (buffCookieFunctionnal)

@@ -26,6 +26,9 @@ namespace SkinHound
         public bool Notify_On_All_Desired_Weapons { get; set; }
         //Inspect element -> Network -> Domain: Buff.163.com -> Request Headers -> Cookies
         public string Buff_Cookie { get; set; }
+        //Are Windows notifications enabled or not
         public bool Notifications_Enabled { get; set; }
+        //In what currency should the prices be shown?
+        public string Currency { get; set; }
     }
 }

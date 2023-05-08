@@ -37,6 +37,7 @@ namespace SkinHound
         private static HttpClient client = new HttpClient();
         //We keep a copy of the current product list in memory for price checking.
         private static List<Product> productListInMemory = new List<Product>();
+        private static List<Product> lastShownProducts = new List<Product>();
         private static List<ProductMarketHistory> marketHistoryInMemory;
 
         //Main
@@ -65,7 +66,14 @@ namespace SkinHound
             client.DefaultRequestHeaders.Add("Authorization", "Basic " + authHeader);
             client.BaseAddress = new Uri("https://api.skinport.com/v1/");
         }
-
+        public async Task<bool> IsProductNew (string name)
+        {
+            foreach(Product product in lastShownProducts)
+            {
+                if(product.Market_Hash_Name == name) return false;
+            }
+            return true;
+        }
         public async Task<List<string>> GetItemsNameList()
         {
             List<string> itemsNameList = new List<string>();
@@ -97,6 +105,7 @@ namespace SkinHound
                     if (tempProduct != null)
                         filteredList.Add(tempProduct);
                 }
+                lastShownProducts = filteredList;
                 return filteredList;
             }
             catch (Exception e)
@@ -119,7 +128,7 @@ namespace SkinHound
             return null;
         }
         //Updates the content of the products and filters the list with the help of the users settings.
-        private static async Task<Product> FilterProduct(Product product)
+        private async Task<Product> FilterProduct(Product product)
         {
             //These variables are used to determine what type of notification we will be sending.
             bool VerificationsPassed = false, notificationIsFromDesired = false;
@@ -204,6 +213,7 @@ namespace SkinHound
                 product.recommendedResellPrice = $"{((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$";
                 product.profitPercentageOnResellPrice = $"{Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%";
                 product.profitMoneyOnResellPrice = $"{((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$";
+                product.isNew = await IsProductNew(product.Market_Hash_Name);
                 //We notify our notification manager to take care of the notification process.
                 if (userConfiguration.Notifications_Enabled)
                     await notificationManager.SendNotification(product, notificationType, notificationIsFromDesired);
@@ -273,33 +283,6 @@ namespace SkinHound
         {
             userConfiguration = skinHoundConfig;
         }
-
-        //This method is used to run manual price checks on items, it is incredibly useful to sell items fast at a decent price.
-        /*private async static void RunPriceChecker()
-        {
-            string skinName = Console.ReadLine();
-            if (productListInMemory.Count > 0)
-            {
-                bool productFound = false;
-                foreach (Product product in productListInMemory)
-                {
-                    productFound = await PriceCheck(product, skinName, productFound);
-                }
-                if (!productFound)
-                {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.BackgroundColor = ConsoleColor.Black;
-                    Console.WriteLine($"No skin with the name \"{skinName}\" found.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Product list is empty please try again");
-            }
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Black;
-            Console.Write("Enter a skin name to price check it: ");
-        }*/
 
         public async Task<Queue<Product>> PriceCheck(string skinName)
         {

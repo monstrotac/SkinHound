@@ -17,6 +17,7 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
             <!-- Items -->
             <Button Background="#ccc601" Name="DealButtonX" Click="DealClicked" Grid.Column="0" Tag="https://skinport.com/">
                 <StackPanel VerticalAlignment="Top" MaxHeight="350" MinHeight="350">
+                    <Label x:Name="DealXNewOrNot" HorizontalAlignment="Center" FontSize="16" FontWeight="Black"></Label>
                     <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
                     <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
                 </StackPanel>

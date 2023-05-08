@@ -18,13 +18,13 @@ namespace SkinHound
         public Last30days Last_30_days { get; set; }
         public Last7Days Last_7_days { get; set; }
         public Last24Hours Last_24_hours { get; set; }
-        public async Task<double> GetLongTermPercentageProfit(Product product)
+        public async Task<double> GetLongTermPercentageProfit()
         {
             try
             {
                 double movingMedian = await GetLongMovingMedian();
                 //Although 4 might seem like a random value, it isn't. We are calculating what the 4th month profit/loss should be.
-                double marketValueEstimate = (1- movingMedian / (double)product.Suggested_Price)/4 * 100;
+                double marketValueEstimate = (movingMedian / (double)Last_30_days.Median -1) * 100;
                 return Math.Round(marketValueEstimate, 1); ;
             }
             catch (Exception e)
