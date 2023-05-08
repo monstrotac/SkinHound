@@ -7,7 +7,7 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SkinHound"
         mc:Ignorable="d"
-        Title="SkinHound" MinHeight="465" MinWidth="545" Height="465" Width="545">
+        Title="Skinhound" MinHeight="465" MinWidth="545" Height="465" Width="545">
     <Grid>
         <Grid Background="#ebecee">
             <TabControl Background="#a09f99">

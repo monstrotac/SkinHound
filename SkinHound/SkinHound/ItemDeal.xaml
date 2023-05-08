@@ -64,7 +64,7 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                         <TextBlock x:Name="DealXSteamLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
                     <Separator Background="#ccc601"/>
-                    <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">SkinHound Data</Label>
+                    <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinhound Data</Label>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Discount:</Label>
                         <TextBlock x:Name="DealXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>

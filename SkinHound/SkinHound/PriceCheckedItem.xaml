@@ -63,7 +63,7 @@
                         <TextBlock x:Name="PriceCheckedXSteamLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
                     <Separator Background="#ccc601"/>
-                    <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">SkinHound Data</Label>
+                    <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinhound Data</Label>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Instant Sale Discount:</Label>
                         <TextBlock x:Name="PriceCheckedXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
