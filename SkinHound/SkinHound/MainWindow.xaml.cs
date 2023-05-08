@@ -82,7 +82,6 @@ namespace SkinHound
             //We start the timer which will automate the deals and refresh them on X configured basis.
             timeIntervalBetweenQuerries = 1000 * 60 * configuration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
-
         }
         private void InitSettingsValue()
         {
