@@ -138,7 +138,7 @@
                         </StackPanel>
                     </TabItem.Header>
                     <ScrollViewer Background="Black" x:Name="SettingsScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
-                        <Border Background="#a09f99" BorderBrush="Green" BorderThickness="1" Margin="1">
+                        <Border Background="#a09f99" BorderBrush="Black" BorderThickness="1" Margin="1">
                             <StackPanel x:Name="SettingsGrid" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,10,5">
                                 <!-- Settings Area -->
                                 <Label FontSize="34" FontWeight="Bold">General Settings</Label>

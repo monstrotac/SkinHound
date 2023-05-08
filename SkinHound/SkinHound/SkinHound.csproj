@@ -6,6 +6,17 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>resources\SkinHound.ico</ApplicationIcon>
+    <Authors>Calvery</Authors>
+    <Description>Skinhoud is a powerful CS:GO price checking tool which can notify you when good deals are placed on the market, this way you're the first on the scene.</Description>
+    <Copyright>Calvery</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>First release of the project, converted from SkyportAnylyzer to Skinhound.</PackageReleaseNotes>
+    <NeutralLanguage>en-CA</NeutralLanguage>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Title>Skinhound</Title>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -93,6 +104,13 @@
     <Content Include="resources\images\Loading.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
