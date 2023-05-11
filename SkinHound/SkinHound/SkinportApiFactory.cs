@@ -17,6 +17,7 @@ using System.Linq;
 using System.IO;
 using System.Windows.Shapes;
 using System.Runtime.InteropServices;
+using System.Net.WebSockets;
 
 namespace SkinHound
 {
@@ -39,7 +40,6 @@ namespace SkinHound
         private static List<Product> productListInMemory = new List<Product>();
         private static List<Product> lastShownProducts = new List<Product>();
         private static List<ProductMarketHistory> marketHistoryInMemory;
-
         //Main
         public SkinportApiFactory(SkinHoundConfiguration skinHoundConfiguration)
         {

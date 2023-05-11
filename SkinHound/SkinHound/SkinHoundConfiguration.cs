@@ -24,8 +24,6 @@ namespace SkinHound
         public int Minutes_Between_Queries { get; set; }
         //Having this set to true will make it so that you will receive notifications for all desired weapons above or equal the Desired_Weapons_Min_Discount_Threshold.
         public bool Notify_On_All_Desired_Weapons { get; set; }
-        //Inspect element -> Network -> Domain: Buff.163.com -> Request Headers -> Cookies
-        public string Buff_Cookie { get; set; }
         //Are Windows notifications enabled or not
         public bool Notifications_Enabled { get; set; }
         //In what currency should the prices be shown?

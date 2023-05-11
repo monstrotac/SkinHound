@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -29,7 +30,6 @@ namespace SkinHound
         //Private fields
         private SkinHoundConfiguration configuration;
         private SkinportApiFactory skinportApiFactory;
-        private Buff163ApiFactory buff163ApiFactory;
         private CSGOTradersPricesFactory csgoTradersPriceFactory;
         private bool buffCookieFunctionnal = false;
         private Timer refreshProcess;
@@ -44,6 +44,8 @@ namespace SkinHound
         private Image loadingGif;
         private ScrollViewer dealScroll;
         private ScrollViewer priceCheckScroll;
+        //WebSocket testing
+        private WsClient ws;
         //The default content for the config file, in case it does not already exist.
         private const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
@@ -55,8 +57,7 @@ namespace SkinHound
           "\n\t\"desired_weapons\":[" +
           "\n\t]," +
           "\n\t\"notify_on_all_desired_weapons\":true," +
-          "\n\t\"notifications_enabled\":true," +
-          "\n\t\"buff_cookie\":''" +
+          "\n\t\"notifications_enabled\":true" +
           "\n}";
 
         public MainWindow()
@@ -65,13 +66,10 @@ namespace SkinHound
             GetUserConfigFromFile();
             //Then we proceed to Initialize our APIFactories followed by the components.
             skinportApiFactory = new SkinportApiFactory(configuration);
-            buff163ApiFactory = new Buff163ApiFactory(configuration);
             csgoTradersPriceFactory = new CSGOTradersPricesFactory();
             InitializeComponent();
             //We take a quick moment to Init the values of the settings.
             InitSettingsValue();
-            //We obtain Buff's Market History here since doing it constantly is not good practice for this one, and is not needed.
-            RefreshBuffMarketValue();
             //We update the value of the rates for money conversion later on since everything the Buff163 API returns is in CNY
             Utils.UpdateRates();
             //Initialize the methods linked to components of the application.
@@ -79,9 +77,16 @@ namespace SkinHound
             loadingGif = (Image)FindName("LoadingIcon");
             dealScroll = (ScrollViewer)FindName("DealScrollBar");
             priceCheckScroll = (ScrollViewer)FindName("PriceCheckerScrollBar");
+            //Websocket
+            ws = new WsClient();
+            TestWebSocket();
             //We start the timer which will automate the deals and refresh them on X configured basis.
             timeIntervalBetweenQuerries = 1000 * 60 * configuration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
+        }
+        private async void TestWebSocket()
+        {
+            await ws.ConnectAsync("wss://skinport.com/socket.io/?EIO=4&transport=websocket"); 
         }
         private void InitSettingsValue()
         {
@@ -100,7 +105,6 @@ namespace SkinHound
             BindingOperations.EnableCollectionSynchronization(desiredWeaponsList, _syncLock);
             //There's this dumb issue to if you don't refresh the list it simply won't show what's inside.
             SettingsDesiredDiscountThreshold.Text = configuration.Desired_Weapons_Min_Discount_Threshold.ToString();
-            SettingsBuffCookie.Text = configuration.Buff_Cookie;
             SettingsGoodDiscountThreshold.Text = configuration.Good_Discount_Threshold.ToString();
             SettingsGreatDiscountThreshold.Text = configuration.Great_Discount_Threshold.ToString();
             SettingsOutstandingDiscountThreshold.Text = configuration.Outstanding_Discount_Threshold.ToString();
@@ -130,8 +134,7 @@ namespace SkinHound
                 }
             newSettings += "\n\t]," +
             "\n\t\"notify_on_all_desired_weapons\":"+SettingsNotifyOnAllDesiredWeapons.IsChecked.ToString().ToLower()+"," +
-            "\n\t\"notifications_enabled\":"+SettingsNotificationsEnabled.IsChecked.ToString().ToLower()+"," +
-            "\n\t\"buff_cookie\":\""+SettingsBuffCookie.Text+"\"" +
+            "\n\t\"notifications_enabled\":"+SettingsNotificationsEnabled.IsChecked.ToString().ToLower()+
             "\n}";
             //We overwrite the current Config File with our new settings.
             File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", newSettings);
@@ -242,7 +245,6 @@ namespace SkinHound
         {
             await Application.Current.Dispatcher.InvokeAsync( async () =>
             {
-                BuffMarketHistory buffMarketHistory = buff163ApiFactory.GetBuffMarketHistory();
                 if (productQueue == null || productQueue.Count > 0)
                 {
                     ItemDeal curDeal = new ItemDeal(dealScroll);
@@ -310,27 +312,7 @@ namespace SkinHound
                     itemProfitCOnResale.Text = $"{curProduct.profitMoneyOnResellPrice}";
                     itemLongTermInvestmentIndicator.Text = $"{await curProduct.productMarketHistory.GetLongTermPercentageProfit()}%";
                     itemInvestmentValue.Text = $"{await curProduct.productMarketHistory.GetLongMovingMedian()}$";
-                    //We check if Buff is functionnal, in the case where it is, the image source and information changes
-                    if (buffCookieFunctionnal)
-                    {
-                        //We verify that the item in question isn't null before doing anything.
-                        BuffItem buffItem = await buff163ApiFactory.GetItem(curProduct.Market_Hash_Name);
-                        if (buffItem != null)
-                        {
-                            //This section gives the item its actual image, if it can't be found it assigns a placeholder which represents the deal's type.
-                            if (buffItem.Goods_Info != null)
-                                itemImage.Source = new BitmapImage(new Uri($"{buffItem.Goods_Info.Icon_Url}", UriKind.Absolute));
-                            else
-                                itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
-                        }
-                        else
-                            itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
-                    }
-                    else
-                    {
-                        //Here we have to initiate a new image in order to assign a new ImageSource
-                        itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
-                    }
+                    itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
                     dealsGrid.Children.Add(curDeal);
                     return await ShowDeals(productQueue);
                 }
@@ -338,11 +320,6 @@ namespace SkinHound
                     return productQueue;
             });
             return productQueue;
-        }
-        //Function used to refresh the Data from buff.
-        private async void RefreshBuffMarketValue()
-        {
-            buffCookieFunctionnal = await buff163ApiFactory.VerifyCookie();
         }
         //This function is responsible for acquiring the user configs in /AppData/Roaming/SkinHound
         private void GetUserConfigFromFile()
@@ -364,7 +341,6 @@ namespace SkinHound
         private async void UpdateConfigurationInFactories()
         {
             skinportApiFactory.SetConfig(configuration);
-            buff163ApiFactory.SetConfig(configuration);
         }
         //This method is used by all of the fields which accept a double value and is needed to prevent unwanted characters.
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
@@ -629,7 +605,6 @@ namespace SkinHound
         //This method does essentially the same thing as the one which displays our Deals except it is for the PriceChecks.
         private async Task<Queue<Product>> DisplayPriceCheckedItems(Queue<Product> productQueue)
         {
-            BuffMarketHistory buffMarketHistory = buff163ApiFactory.GetBuffMarketHistory();
             if (productQueue == null || productQueue.Count > 0)
             {
                 PriceCheckedItem curPriceCheckedProduct = new PriceCheckedItem(priceCheckScroll);
@@ -696,18 +671,6 @@ namespace SkinHound
                 itemProfitCOnResale.Text = $"{curProductObject.profitMoneyOnResellPrice}";
                 itemLongTermInvestmentIndicator.Text = $"{await curProductObject.productMarketHistory.GetLongTermPercentageProfit()}%";
                 itemInvestmentValue.Text = $"{await curProductObject.productMarketHistory.GetLongMovingMedian()}$";
-                //We check if Buff is functionnal, in the case where it is, the image source and information changes
-                if (buffCookieFunctionnal)
-                {
-                    //We verify that the item in question isn't null before doing anything.
-                    BuffItem buffItem = await buff163ApiFactory.GetItem(curProductObject.Market_Hash_Name);
-                    if (buffItem != null)
-                    {
-                        //This section gives the item its actual image, if it can't be found it assigns a placeholder which represents the product's type.
-                        if (buffItem.Goods_Info != null)
-                            itemImage.Source = new BitmapImage(new Uri($"{buffItem.Goods_Info.Icon_Url}", UriKind.Absolute));
-                    }
-                }
                 PriceCheckGrid.Children.Add(curPriceCheckedProduct);
                 return await DisplayPriceCheckedItems(productQueue);
             } else

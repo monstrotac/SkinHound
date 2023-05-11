@@ -25,7 +25,6 @@ namespace SkinHound
         public CSGOTradersPricesFactory()
         {
             client.DefaultRequestHeaders.Accept.Clear();
-            VerifyIfRequireUpdates();
             PrepareData();
         }
         public async void PrepareData()

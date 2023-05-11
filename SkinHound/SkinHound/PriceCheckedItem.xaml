@@ -8,7 +8,7 @@
           mc:Ignorable="d" 
           d:DesignHeight="650" d:DesignWidth="450">
     <!-- Area where the price cheked items are inserted/created -->
-    <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
+    <Border Background="Black" BorderBrush="Black" BorderThickness="1" Margin="1">
         <Grid x:Name="PriceCheckedXGrid" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition MaxWidth="160" MinWidth="160"/>

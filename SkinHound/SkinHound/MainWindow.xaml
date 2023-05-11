@@ -19,7 +19,7 @@
                         </StackPanel>
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
-                    <ScrollViewer Background="Black" x:Name="DealScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
+                    <ScrollViewer x:Name="DealScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
                         <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480" Margin="10">
                             <!-- Area where the items on deal are inserted/created -->
                             <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
@@ -151,11 +151,6 @@
                                     <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Skinport Client Secret</TextBlock>
                                     <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">(Can be found in your settings on Skinport)</TextBlock>
                                     <PasswordBox x:Name="SettingsSkinportClientSecret" FontSize="18"/>
-                                </StackPanel>
-                                <StackPanel>
-                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">BUFF163 Cookie</TextBlock>
-                                    <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">(Inspect element -> Network -> Domain: Buff.163.com -> Request Headers -> Cookies)</TextBlock>
-                                    <TextBox x:Name="SettingsBuffCookie" FontSize="18"/>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Stretch">
                                     <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Minutes Between Querries</TextBlock>
