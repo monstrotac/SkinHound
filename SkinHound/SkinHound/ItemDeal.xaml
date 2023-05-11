@@ -23,7 +23,7 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                 </StackPanel>
             </Button>
             <ScrollViewer Background="#DDDDDD" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" PreviewMouseDown="ScrollViewer_PreviewMouseDown" MouseLeave="ScrollViewer_MouseLeave">
-                <StackPanel Grid.Column="1" >
+                <StackPanel>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Discount:</Label>

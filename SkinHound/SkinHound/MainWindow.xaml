@@ -20,7 +20,7 @@
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
                     <ScrollViewer x:Name="DealScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
-                        <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480" Margin="10">
+                        <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="492" Margin="10">
                             <!-- Area where the items on deal are inserted/created -->
                             <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
                                 <Grid x:Name="DealXGrid" Grid.Column="0">
