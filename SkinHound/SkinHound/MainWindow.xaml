@@ -7,7 +7,7 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SkinHound"
         mc:Ignorable="d"
-        Title="Skinhound" MinHeight="465" MinWidth="545" Height="465" Width="545">
+        Title="Skinhound" MinHeight="465" MinWidth="545" Height="1465" Width="545">
     <Grid>
         <Grid Background="#ebecee">
             <TabControl Background="#a09f99">
@@ -151,6 +151,15 @@
                                     <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Skinport Client Secret</TextBlock>
                                     <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">(Can be found in your settings on Skinport)</TextBlock>
                                     <PasswordBox x:Name="SettingsSkinportClientSecret" FontSize="18"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Currency</TextBlock>
+                                    <TextBlock FontSize="14" TextWrapping="WrapWithOverflow">In what currency should the prices be shown?</TextBlock>
+                                    <ComboBox x:Name="SettingsCurrencyList" SelectedIndex="0" FontSize="18">
+                                        <ComboBoxItem>CAD</ComboBoxItem>
+                                        <ComboBoxItem>EUR</ComboBoxItem>
+                                        <ComboBoxItem>USD</ComboBoxItem>
+                                    </ComboBox>
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Stretch">
                                     <TextBlock FontSize="22" FontWeight="DemiBold" TextWrapping="WrapWithOverflow">Minutes Between Querries</TextBlock>
