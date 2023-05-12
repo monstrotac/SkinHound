@@ -253,7 +253,7 @@ namespace SkinHound
         public void ChangeRefreshIntervals(int period)
         {
             timeIntervalBetweenQuerries = period * 60 * 1000;
-            refreshProcess.Change(10000, timeIntervalBetweenQuerries);
+            refreshProcess.Change(3000, timeIntervalBetweenQuerries);
         }
         private void DealsGridHandler(object? state)
         {

@@ -49,7 +49,6 @@ namespace SkinHound
             //This is used to handle null values.
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             GlobalMarketDataObject currentItem = new GlobalMarketDataObject();
-            var olga = globalMarketData;
             currentItem.Steam = JsonConvert.DeserializeObject<SteamHistory>(globalMarketData[marketHashName]["steam"].ToString(), settings);
             currentItem.Buff163 = new Buff163History();
             //We must do a little bit of validation before hand for this part.

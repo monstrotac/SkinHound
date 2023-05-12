@@ -229,6 +229,42 @@
                         </Border>
                     </ScrollViewer>
                 </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="16" Text="About" Foreground="Black"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <ScrollViewer Padding="5">
+                        <StackPanel>
+                            <TextBlock FontSize="26" FontWeight="DemiBold" Text="Deal Colours"/>
+                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="As you would expect, each colour means something. There are two types of deals, each with their specific colours. Desired deals come in shades of blues, and regular deals come in white, yellow, and green."/>
+                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Regular Deals"/>
+                            <DockPanel>
+                                <Image Source="resources\images\RegularNotification.png" Width="150" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\RegularDesiredNotification.png" Width="150" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Regular deals are deals which have a discount higher or equal to the good deal threshold you've set in the settings. By default, the percentage off for a Regular deal is 25%."/>
+                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Golden Deals"/>
+                            <DockPanel>
+                                <Image Source="resources\images\GoldenNotification.png" Width="150" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\GoldenDesiredNotification.png" Width="150" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Golden deals are deals which have a discount higher or equal to the golden deal threshold you've set in the settings. By default, the percentage off for a Golden deal is 30%."/>
+                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Oustanding Deals"/>
+                            <DockPanel>
+                                <Image Source="resources\images\IncredibleNotification.png" Width="150" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\IncredibleDesiredNotification.png" Width="150" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Oustanding deals are deals which have a discount higher or equal to the outstanding deal threshold you've set in the settings. By default, the percentage off for a Outstanding deal is 35%."/>
+                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Default Desired Deals"/>
+                            <DockPanel>
+                                <Image Source="resources\images\DefaultDesiredNotification.png" Width="300" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Default deals are desired deals which do not reach the Good deal threshold but reach your desired weapon discount threshold in the settings."/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
             </TabControl>
         </Grid>
     </Grid>

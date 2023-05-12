@@ -93,8 +93,7 @@ namespace SkinHound
                 //We sort the list in order to have the most expensive outputs at the end.
                 globalProductList.Sort((x, y) => x.Suggested_Price.CompareTo(y.Suggested_Price));
                 //We send the product list into the memory var for price checking
-                if(productListInMemory.Count == 0)
-                    productListInMemory = globalProductList;
+                productListInMemory = globalProductList;
                 List<Product> filteredList = new List<Product>();
                 foreach (Product product in globalProductList)
                 {
