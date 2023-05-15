@@ -43,6 +43,25 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Median Sold for Last 30 Days:</Label>
                         <TextBlock x:Name="DealXSkinportMedianSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
+                    <Separator/>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Discount:</Label>
+                        <TextBlock x:Name="DealXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Sale Price:</Label>
+                        <TextBlock x:Name="DealXRecommendedSalePrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit % on Resale:</Label>
+                        <TextBlock x:Name="DealXProfitPOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center"  FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit $ on Resale:</Label>
+                        <TextBlock x:Name="DealXProfitCOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
+                    </DockPanel>
                     <Separator Background="#ccc601"/>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Buff163 Information</Label>
                     <DockPanel>
@@ -65,24 +84,6 @@ xmlns:gif="http://wpfanimatedgif.codeplex.com"
                     </DockPanel>
                     <Separator Background="#ccc601"/>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinhound Data</Label>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Discount:</Label>
-                        <TextBlock x:Name="DealXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                    </DockPanel>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Sale Price:</Label>
-                        <TextBlock x:Name="DealXRecommendedSalePrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
-                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                    </DockPanel>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit % on Resale:</Label>
-                        <TextBlock x:Name="DealXProfitPOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                    </DockPanel>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center"  FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit $ on Resale:</Label>
-                        <TextBlock x:Name="DealXProfitCOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                    </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Long Term Investment Indicator:</Label>
                         <TextBlock x:Name="DealXLTII" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
