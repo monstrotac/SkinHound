@@ -238,30 +238,33 @@
                     <ScrollViewer Padding="5">
                         <StackPanel>
                             <TextBlock FontSize="26" FontWeight="DemiBold" Text="Deal Colours"/>
-                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="As you would expect, each colour means something. There are two types of deals, each with their specific colours. Desired deals come in shades of blues, and regular deals come in white, yellow, and green."/>
-                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Regular Deals"/>
+                            <TextBlock FontSize="20" TextWrapping="Wrap" Text="As you would expect, each colour means something. There are two types of deals, each with their specific colours. Desired deals come in shades of blues, and regular deals come in white, yellow, and green."/>
+                            <TextBlock FontSize="24" FontWeight="DemiBold" Text="Regular Deals" Margin="0,10,0,0"/>
                             <DockPanel>
-                                <Image Source="resources\images\RegularNotification.png" Width="150" HorizontalAlignment="Left"/>
-                                <Image Source="resources\images\RegularDesiredNotification.png" Width="150" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\RegularNotification.png" Width="175" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\RegularDesiredNotification.png" Width="175" HorizontalAlignment="Left"/>
                             </DockPanel>
-                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Regular deals are deals which have a discount higher or equal to the good deal threshold you've set in the settings. By default, the percentage off for a Regular deal is 25%."/>
-                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Golden Deals"/>
+                            <TextBlock FontSize="20" TextWrapping="Wrap" Text="Regular deals are deals which have a discount higher or equal to the good deal threshold you've set in the settings. By default, the percentage off for a Regular deal is 25%."/>
+                            <TextBlock FontSize="24" FontWeight="DemiBold" Text="Golden Deals" Margin="0,10,0,0"/>
                             <DockPanel>
-                                <Image Source="resources\images\GoldenNotification.png" Width="150" HorizontalAlignment="Left"/>
-                                <Image Source="resources\images\GoldenDesiredNotification.png" Width="150" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\GoldenNotification.png" Width="175" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\GoldenDesiredNotification.png" Width="175" HorizontalAlignment="Left"/>
                             </DockPanel>
-                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Golden deals are deals which have a discount higher or equal to the golden deal threshold you've set in the settings. By default, the percentage off for a Golden deal is 30%."/>
-                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Oustanding Deals"/>
+                            <TextBlock FontSize="20" TextWrapping="Wrap" Text="Golden deals are deals which have a discount higher or equal to the golden deal threshold you've set in the settings. These deals are usually pretty rare and tend to sell quite fast. By default, the percentage off for a Golden deal is 30%."/>
+                            <TextBlock FontSize="24" FontWeight="DemiBold" Text="Oustanding Deals" Margin="0,10,0,0"/>
                             <DockPanel>
-                                <Image Source="resources\images\IncredibleNotification.png" Width="150" HorizontalAlignment="Left"/>
-                                <Image Source="resources\images\IncredibleDesiredNotification.png" Width="150" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\IncredibleNotification.png" Width="175" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\IncredibleDesiredNotification.png" Width="175" HorizontalAlignment="Left"/>
                             </DockPanel>
-                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Oustanding deals are deals which have a discount higher or equal to the outstanding deal threshold you've set in the settings. By default, the percentage off for a Outstanding deal is 35%."/>
-                            <TextBlock FontSize="22" FontWeight="DemiBold" Text="Default Desired Deals"/>
+                            <TextBlock FontSize="20" TextWrapping="Wrap" Text="Oustanding deals are deals which have a discount higher or equal to the outstanding deal threshold you've set in the settings. These deals are incredibly rare and sell incredibly fast. By default, the percentage off for an Outstanding deal is 35%."/>
+                            <TextBlock FontSize="24" FontWeight="DemiBold" Text="Default Desired Deals" Margin="0,10,0,0"/>
                             <DockPanel>
-                                <Image Source="resources\images\DefaultDesiredNotification.png" Width="300" HorizontalAlignment="Left"/>
+                                <Image Source="resources\images\DefaultDesiredNotification.png" Width="175" HorizontalAlignment="Left"/>
                             </DockPanel>
-                            <TextBlock FontSize="18" TextWrapping="Wrap" Text="Default deals are desired deals which do not reach the Good deal threshold but reach your desired weapon discount threshold in the settings."/>
+                            <TextBlock FontSize="20" TextWrapping="Wrap" Text="Default deals are desired deals which do not reach the Good deal threshold but reach your desired weapon discount threshold in the settings."/>
+                            <Separator Background="Black" Margin="0,20,0,20"/>
+                            <TextBlock FontSize="26" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="Long Term Investment Indicator and Investment Value"/>
+                            <TextBlock FontSize="20" TextWrapping="Wrap" Text="Calculated with the value of sales from the last three months, these variable are highly accurate and represent a weapon's current market value. With the help of the median, we are able to determine if it is a good time to sell or buy a certain item. A positive percentage above 10% suggests that it is a great time to invest while a negative percentage under -10% suggest that it is a good time to sell."/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
