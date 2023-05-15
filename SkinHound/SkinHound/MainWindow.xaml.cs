@@ -312,6 +312,14 @@ namespace SkinHound
                     itemSkinportVolumeSold30Days.Name = $"Deal{productQueue.Count}SkinportVolumeSoldLast30Days";
                     TextBlock itemSkinportMedianSold30Days = ((TextBlock)curDeal.FindName("DealXSkinportMedianSoldLast30Days"));
                     itemSkinportMedianSold30Days.Name = $"Deal{productQueue.Count}SkinportMedianSoldLast30Days";
+                    TextBlock itemRecommendedDiscount = ((TextBlock)curDeal.FindName("DealXRecommendedDiscount"));
+                    itemRecommendedDiscount.Name = $"Deal{productQueue.Count}RecommendedDiscount";
+                    TextBlock itemRecommendedSalePrice = ((TextBlock)curDeal.FindName("DealXRecommendedSalePrice"));
+                    itemRecommendedSalePrice.Name = $"Deal{productQueue.Count}RecommendedSalePrice";
+                    TextBlock itemProfitPOnResale = ((TextBlock)curDeal.FindName("DealXProfitPOnResale"));
+                    itemProfitPOnResale.Name = $"Deal{productQueue.Count}ProfitPOnResale";
+                    TextBlock itemProfitCOnResale = ((TextBlock)curDeal.FindName("DealXProfitCOnResale"));
+                    itemProfitCOnResale.Name = $"Deal{productQueue.Count}ProfitCOnResale";
                     //Buff163 Variables
                     TextBlock itemBuffStartingAt = ((TextBlock)curDeal.FindName("DealXBuffStartingAt"));
                     itemBuffStartingAt.Name = $"Deal{productQueue.Count}BuffStartingAt";
@@ -323,14 +331,6 @@ namespace SkinHound
                     TextBlock itemSteamLast30Days = ((TextBlock)curDeal.FindName("DealXSteamLast30Days"));
                     itemSteamLast30Days.Name = $"Deal{productQueue.Count}SteamLast30Days";
                     //SkinHound Variables
-                    TextBlock itemRecommendedDiscount = ((TextBlock)curDeal.FindName("DealXRecommendedDiscount"));
-                    itemRecommendedDiscount.Name = $"Deal{productQueue.Count}RecommendedDiscount";
-                    TextBlock itemRecommendedSalePrice = ((TextBlock)curDeal.FindName("DealXRecommendedSalePrice"));
-                    itemRecommendedSalePrice.Name = $"Deal{productQueue.Count}RecommendedSalePrice";
-                    TextBlock itemProfitPOnResale = ((TextBlock)curDeal.FindName("DealXProfitPOnResale"));
-                    itemProfitPOnResale.Name = $"Deal{productQueue.Count}ProfitPOnResale";
-                    TextBlock itemProfitCOnResale = ((TextBlock)curDeal.FindName("DealXProfitCOnResale"));
-                    itemProfitCOnResale.Name = $"Deal{productQueue.Count}ProfitCOnResale";
                     TextBlock itemLongTermInvestmentIndicator = ((TextBlock)curDeal.FindName("DealXLTII"));
                     itemLongTermInvestmentIndicator.Name = $"Deal{productQueue.Count}LTII";                    
                     TextBlock itemInvestmentValue = ((TextBlock)curDeal.FindName("DealXMovingAverage"));
@@ -670,6 +670,14 @@ namespace SkinHound
                 itemSkinportVolumeSold30Days.Name = $"PriceChecked{productQueue.Count}SkinportVolumeSoldLast30Days";
                 TextBlock itemSkinportMedianSold30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportMedianSoldLast30Days"));
                 itemSkinportMedianSold30Days.Name = $"PriceChecked{productQueue.Count}SkinportMedianSoldLast30Days";
+                TextBlock itemRecommendedDiscount = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedDiscount"));
+                itemRecommendedDiscount.Name = $"PriceChecked{productQueue.Count}RecommendedDiscount";
+                TextBlock itemRecommendedSalePrice = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedSalePrice"));
+                itemRecommendedSalePrice.Name = $"PriceChecked{productQueue.Count}RecommendedSalePrice";
+                TextBlock itemProfitPOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitPOnResale"));
+                itemProfitPOnResale.Name = $"PriceChecked{productQueue.Count}ProfitPOnResale";
+                TextBlock itemProfitCOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitCOnResale"));
+                itemProfitCOnResale.Name = $"PriceChecked{productQueue.Count}ProfitCOnResale";
                 //Buff163 Variables
                 TextBlock itemBuffStartingAt = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXBuffStartingAt"));
                 itemBuffStartingAt.Name = $"PriceChecked{productQueue.Count}BuffStartingAt";
@@ -681,14 +689,6 @@ namespace SkinHound
                 TextBlock itemSteamLast30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSteamLast30Days"));
                 itemSteamLast30Days.Name = $"PriceChecked{productQueue.Count}SteamLast30Days";
                 //SkinHound Variables
-                TextBlock itemRecommendedDiscount = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedDiscount"));
-                itemRecommendedDiscount.Name = $"PriceChecked{productQueue.Count}RecommendedDiscount";
-                TextBlock itemRecommendedSalePrice = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedSalePrice"));
-                itemRecommendedSalePrice.Name = $"PriceChecked{productQueue.Count}RecommendedSalePrice";
-                TextBlock itemProfitPOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitPOnResale"));
-                itemProfitPOnResale.Name = $"PriceChecked{productQueue.Count}ProfitPOnResale";
-                TextBlock itemProfitCOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitCOnResale"));
-                itemProfitCOnResale.Name = $"PriceChecked{productQueue.Count}ProfitCOnResale";
                 TextBlock itemLongTermInvestmentIndicator = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXLTII"));
                 itemLongTermInvestmentIndicator.Name = $"PriceChecked{productQueue.Count}LTII";
                 TextBlock itemInvestmentValue = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXMovingAverage"));
