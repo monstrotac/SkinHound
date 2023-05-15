@@ -31,9 +31,10 @@ namespace SkinHound
         private SkinHoundConfiguration configuration;
         private SkinportApiFactory skinportApiFactory;
         private CSGOTradersPricesFactory csgoTradersPriceFactory;
-        private bool buffCookieFunctionnal = false;
         private Timer refreshProcess;
         private int timeIntervalBetweenQuerries;
+        //Important Variable for Price Display depending on currency
+        private string currencySymbol = "$";
         //lock object for synchronization;
         private static object _syncLock = new object();
         //Suggestion TextBox related fields
@@ -44,8 +45,6 @@ namespace SkinHound
         private Image loadingGif;
         private ScrollViewer dealScroll;
         private ScrollViewer priceCheckScroll;
-        //WebSocket testing
-        private WsClient ws;
         //The default content for the config file, in case it does not already exist.
         private const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
@@ -57,13 +56,16 @@ namespace SkinHound
           "\n\t\"desired_weapons\":[" +
           "\n\t]," +
           "\n\t\"notify_on_all_desired_weapons\":true," +
-          "\n\t\"notifications_enabled\":true" +
+          "\n\t\"notifications_enabled\":true," +
+          "\n\t\"currency\":\"CAD\"" +
           "\n}";
 
         public MainWindow()
         {
             //The very first step is to acquire the configuration from the file, if it exists.
             GetUserConfigFromFile();
+            //Then we update the symbol to correspond to the currency's.
+            UpdateCurrencySymbol();
             //Then we proceed to Initialize our APIFactories followed by the components.
             skinportApiFactory = new SkinportApiFactory(configuration);
             csgoTradersPriceFactory = new CSGOTradersPricesFactory();
@@ -77,19 +79,26 @@ namespace SkinHound
             loadingGif = (Image)FindName("LoadingIcon");
             dealScroll = (ScrollViewer)FindName("DealScrollBar");
             priceCheckScroll = (ScrollViewer)FindName("PriceCheckerScrollBar");
-            //Websocket
-            ws = new WsClient();
-            TestWebSocket();
             //We start the timer which will automate the deals and refresh them on X configured basis.
             timeIntervalBetweenQuerries = 1000 * 60 * configuration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
         }
-        private async void TestWebSocket()
-        {
-            await ws.ConnectAsync("wss://skinport.com/socket.io/?EIO=4&transport=websocket"); 
-        }
         private void InitSettingsValue()
         {
+            //Check which index represents the currency
+            int currencyIndex = 0;
+            switch (configuration.Currency)
+            {
+                case "CAD":
+                    currencyIndex = 0;
+                    break;
+                case "EUR":
+                    currencyIndex = 1;
+                    break;
+                case "USD":
+                    currencyIndex = 2;
+                    break;
+            }
             //Notification section
             SettingsNotificationsEnabled.IsChecked = configuration.Notifications_Enabled;
             SettingsNotifyOnAllDesiredWeapons.IsChecked = configuration.Notify_On_All_Desired_Weapons;
@@ -100,6 +109,7 @@ namespace SkinHound
                 SettingsSkinportClientSecret.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR);
             SettingsMinWorthValue.Text = configuration.Minimum_Worth_Value.ToString();
             SettingsMinutesBetweenQuerries.Text = configuration.Minutes_Between_Queries.ToString();
+            SettingsCurrencyList.SelectedIndex = currencyIndex;
             //Deals section
             SettingsDesiredItemsList.ItemsSource = desiredWeaponsList;
             BindingOperations.EnableCollectionSynchronization(desiredWeaponsList, _syncLock);
@@ -109,10 +119,40 @@ namespace SkinHound
             SettingsGreatDiscountThreshold.Text = configuration.Great_Discount_Threshold.ToString();
             SettingsOutstandingDiscountThreshold.Text = configuration.Outstanding_Discount_Threshold.ToString();
         }
+        //This function is needed to update what symbol we're showing on the UI depending on the currency.
+        private void UpdateCurrencySymbol()
+        {
+            switch (configuration.Currency)
+            {
+                case "CAD":
+                    currencySymbol = "$";
+                    break;
+                case "EUR":
+                    currencySymbol = "€";
+                    break;
+                case "USD":
+                    currencySymbol = "$";
+                    break;
+            }
+        }
         private void SaveSettings(object sender, RoutedEventArgs e)
         {
             if (!HandleSavingErrors())
                 return;
+            string currencyString = configuration.Currency;
+            switch (SettingsCurrencyList.SelectedIndex)
+            {
+                case 0://CAD
+                    currencyString = "CAD";
+                    break;
+                case 1://EUR
+                    currencyString = "EUR";
+                    break;
+                case 2://USD
+                    currencyString = "USD";
+                    break;
+            }
+
             //We update the Environment Variables, this data is stored in the environement for safety measures.
             Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password);
             Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password);
@@ -134,7 +174,8 @@ namespace SkinHound
                 }
             newSettings += "\n\t]," +
             "\n\t\"notify_on_all_desired_weapons\":"+SettingsNotifyOnAllDesiredWeapons.IsChecked.ToString().ToLower()+"," +
-            "\n\t\"notifications_enabled\":"+SettingsNotificationsEnabled.IsChecked.ToString().ToLower()+
+            "\n\t\"notifications_enabled\":"+SettingsNotificationsEnabled.IsChecked.ToString().ToLower()+ "," +
+            "\n\t\"currency\":\""+ currencyString +"\"" +
             "\n}";
             //We overwrite the current Config File with our new settings.
             File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", newSettings);
@@ -144,6 +185,8 @@ namespace SkinHound
                 ChangeRefreshIntervals(int.Parse(SettingsMinutesBetweenQuerries.Text));
             //We order an update on the API factories with our new config.
             UpdateConfigurationInFactories();
+            //We update the currency symbol
+            UpdateCurrencySymbol();
             //We Notify the user if the operation was a success.
             SettingsErrorText.Text = "Settings saved.";
         }
@@ -157,6 +200,8 @@ namespace SkinHound
                 ChangeRefreshIntervals(2);
             //We order an update on the API factories with our new config.
             UpdateConfigurationInFactories();
+            //We update the currency symbol
+            UpdateCurrencySymbol();
             //Since we are resetting everything we reinit the settings Value
             InitSettingsValue();
         }
@@ -208,7 +253,7 @@ namespace SkinHound
         public void ChangeRefreshIntervals(int period)
         {
             timeIntervalBetweenQuerries = period * 60 * 1000;
-            refreshProcess.Change(10000, timeIntervalBetweenQuerries);
+            refreshProcess.Change(3000, timeIntervalBetweenQuerries);
         }
         private void DealsGridHandler(object? state)
         {
@@ -299,19 +344,19 @@ namespace SkinHound
                     itemName.Text = curProduct.Market_Hash_Name;
                     itemButton.Tag = curProduct.Item_Page;
                     itemSkinportDiscount.Text = $"{curProduct.Percentage_Off}%";
-                    itemPrice.Text = $"{curProduct.Min_Price.ToString("0.00")}$";
+                    itemPrice.Text = $"{curProduct.Min_Price.ToString("0.00")}{currencySymbol}";
                     itemSkinportVolumeSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Volume}";
-                    itemSkinportMedianSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Median.ToString("0.00")}$";
-                    itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.usdToCadRate).ToString("0.00")}$";
-                    itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.usdToCadRate).ToString("0.00")}$";
-                    itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.usdToCadRate).ToString("0.00")}$";
-                    itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.usdToCadRate).ToString("0.00")}$";
+                    itemSkinportMedianSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Median.ToString("0.00")}{currencySymbol}";
+                    itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
+                    itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
+                    itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
+                    itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
                     itemRecommendedDiscount.Text = $"{curProduct.recommendedDiscount}";
-                    itemRecommendedSalePrice.Text = $"{curProduct.recommendedResellPrice}";
+                    itemRecommendedSalePrice.Text = $"{curProduct.recommendedResellPrice}{currencySymbol}";
                     itemProfitPOnResale.Text = $"{curProduct.profitPercentageOnResellPrice}";
-                    itemProfitCOnResale.Text = $"{curProduct.profitMoneyOnResellPrice}";
+                    itemProfitCOnResale.Text = $"{curProduct.profitMoneyOnResellPrice}{currencySymbol}";
                     itemLongTermInvestmentIndicator.Text = $"{await curProduct.productMarketHistory.GetLongTermPercentageProfit()}%";
-                    itemInvestmentValue.Text = $"{await curProduct.productMarketHistory.GetLongMovingMedian()}$";
+                    itemInvestmentValue.Text = $"{await curProduct.productMarketHistory.GetLongMovingMedian()}{currencySymbol}";
                     itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
                     dealsGrid.Children.Add(curDeal);
                     return await ShowDeals(productQueue);
@@ -658,19 +703,19 @@ namespace SkinHound
                 itemName.Text = curProductObject.Market_Hash_Name;
                 itemButton.Tag = curProductObject.Item_Page;
                 itemSkinportDiscount.Text = $"{curProductObject.Percentage_Off}%";
-                itemPrice.Text = $"{curProductObject.Min_Price.ToString("0.00")}$";
+                itemPrice.Text = $"{curProductObject.Min_Price.ToString("0.00")}{currencySymbol}";
                 itemSkinportVolumeSold30Days.Text = $"{curProductObject.productMarketHistory.Last_30_days.Volume}";
-                itemSkinportMedianSold30Days.Text = $"{curProductObject.productMarketHistory.Last_30_days.Median.ToString("0.00")}$";
-                itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.usdToCadRate).ToString("0.00")}$";
-                itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.usdToCadRate).ToString("0.00")}$";
-                itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.usdToCadRate).ToString("0.00")}$";
-                itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.usdToCadRate).ToString("0.00")}$";
+                itemSkinportMedianSold30Days.Text = $"{curProductObject.productMarketHistory.Last_30_days.Median.ToString("0.00")}{currencySymbol}";
+                itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
+                itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
+                itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
+                itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
                 itemRecommendedDiscount.Text = $"{curProductObject.recommendedDiscount}";
-                itemRecommendedSalePrice.Text = $"{curProductObject.recommendedResellPrice}";
+                itemRecommendedSalePrice.Text = $"{curProductObject.recommendedResellPrice}{currencySymbol}";
                 itemProfitPOnResale.Text = $"{curProductObject.profitPercentageOnResellPrice}";
-                itemProfitCOnResale.Text = $"{curProductObject.profitMoneyOnResellPrice}";
+                itemProfitCOnResale.Text = $"{curProductObject.profitMoneyOnResellPrice}{currencySymbol}";
                 itemLongTermInvestmentIndicator.Text = $"{await curProductObject.productMarketHistory.GetLongTermPercentageProfit()}%";
-                itemInvestmentValue.Text = $"{await curProductObject.productMarketHistory.GetLongMovingMedian()}$";
+                itemInvestmentValue.Text = $"{await curProductObject.productMarketHistory.GetLongMovingMedian()}{currencySymbol}";
                 PriceCheckGrid.Children.Add(curPriceCheckedProduct);
                 return await DisplayPriceCheckedItems(productQueue);
             } else

@@ -15,11 +15,14 @@ namespace SkinHound
     {
         private const string USD_TO_CAD_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDCAD";
         private const string USD_TO_CNY_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDCNY";
+        private const string USD_TO_EUR_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDEUR";
         private static HttpClient client = new HttpClient();
         public static float usdToCnyRate;
         public static float usdToCadRate;
+        public static float usdToEurRate;
         public float USDToCHYRate { get; set; }
         public float USDToCADRate { get; set; }
+        public float USDToEURRate { get; set; }
         //Base64 utilities.
         public static string Base64Encode(string plainText)
         {
@@ -36,21 +39,47 @@ namespace SkinHound
             //This is used to handle null values.
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             //The list that we will eventually return.
-            string usdToCad;
+            string conversionUsdCad;
             HttpResponseMessage responseCad = await client.GetAsync(USD_TO_CAD_PATH);
             if (responseCad.IsSuccessStatusCode)
             {
-                usdToCad = await responseCad.Content.ReadAsStringAsync();
-                JObject obj = JObject.Parse(usdToCad);
+                conversionUsdCad = await responseCad.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(conversionUsdCad);
                 usdToCadRate = (float)obj["rates"]["USDCAD"]["rate"];
             }
-            string usdToCny;
+            string conversionUsdCny;
             HttpResponseMessage responseCny = await client.GetAsync(USD_TO_CNY_PATH);
             if (responseCny.IsSuccessStatusCode)
             {
-                usdToCad = await responseCny.Content.ReadAsStringAsync();
-                JObject obj = JObject.Parse(usdToCad);
+                conversionUsdCny = await responseCny.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(conversionUsdCny);
                 usdToCnyRate = (float)obj["rates"]["USDCNY"]["rate"];
+            }
+            string conversionUsdEur;
+            HttpResponseMessage responseEur = await client.GetAsync(USD_TO_EUR_PATH);
+            if (responseEur.IsSuccessStatusCode)
+            {
+                conversionUsdEur = await responseEur.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(conversionUsdEur);
+                usdToEurRate = (float)obj["rates"]["USDEUR"]["rate"];
+            }
+        }
+        public static float GetCurrencyRateFromUSD(string currency)
+        {
+            switch (currency)
+            {
+                case "CAD":
+                    return usdToCadRate;
+                    break;
+                case "EUR":
+                    return usdToEurRate;
+                    break;
+                case "USD":
+                    return 1.0f;
+                    break;
+                default:
+                    return 0.0f;
+                    break;
             }
         }
     }

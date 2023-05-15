@@ -29,8 +29,6 @@ namespace SkinHound
         public static SkinHoundConfiguration userConfiguration;
         //This setting is created publicly to avoid repetition, it is used to avoid null values.
         private static JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-        //The following const is a path to make our life easier.
-        public const string SKINPORT_MARKET_HISTORY_PATH = "/v1/sales/history?currency=CAD&app_id=730";
         //For safety measures, we store our token info in the environement variables of the system, in order for the software to work for you, you'll have to create variables with the same name with your tokens as their value.
         public const string SKINPORT_TOKEN_CLIENT_ENV_VAR = "skinport_tk_id";
         public const string SKINPORT_TOKEN_SECRET_ENV_VAR = "skinport_tk_secret";
@@ -91,12 +89,11 @@ namespace SkinHound
                 //This is used to handle null values.
                 JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                 //We query for a Global product list.
-                List<Product> globalProductList = await GetGlobalProductList("/v1/items?currency=CAD");
+                List<Product> globalProductList = await GetGlobalProductList($"/v1/items?currency={userConfiguration.Currency}");
                 //We sort the list in order to have the most expensive outputs at the end.
                 globalProductList.Sort((x, y) => x.Suggested_Price.CompareTo(y.Suggested_Price));
                 //We send the product list into the memory var for price checking
-                if(productListInMemory.Count == 0)
-                    productListInMemory = globalProductList;
+                productListInMemory = globalProductList;
                 List<Product> filteredList = new List<Product>();
                 foreach (Product product in globalProductList)
                 {
@@ -210,9 +207,9 @@ namespace SkinHound
             {
                 //We assign everything in the product
                 product.recommendedDiscount = $"{recommendedDiscount}%";
-                product.recommendedResellPrice = $"{((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}$";
+                product.recommendedResellPrice = $"{((1 - recommendedDiscount / 100) * (double)product.Suggested_Price).ToString("0.00")}";
                 product.profitPercentageOnResellPrice = $"{Math.Round((((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price) / (double)product.Min_Price * 100), 2)}%";
-                product.profitMoneyOnResellPrice = $"{((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}$";
+                product.profitMoneyOnResellPrice = $"{((1 - (double)recommendedDiscount / 100) * (double)product.Suggested_Price * GetSkinPortCut(product) - (double)product.Min_Price).ToString("0.00")}";
                 product.isNew = await IsProductNew(product.Market_Hash_Name);
                 //We notify our notification manager to take care of the notification process.
                 if (userConfiguration.Notifications_Enabled)
@@ -230,7 +227,7 @@ namespace SkinHound
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
             //The list that we will eventually return.
             string marketHistory;
-            HttpResponseMessage response = await client.GetAsync($"{SKINPORT_MARKET_HISTORY_PATH}");
+            HttpResponseMessage response = await client.GetAsync($"/v1/sales/history?currency={userConfiguration.Currency}&app_id=730");
             if (response.IsSuccessStatusCode)
             {
                 marketHistory = await response.Content.ReadAsStringAsync();
