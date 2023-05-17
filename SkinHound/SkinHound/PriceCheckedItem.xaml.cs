@@ -26,12 +26,36 @@ namespace SkinHound
     public partial class PriceCheckedItem : UserControl
     {
         private ScrollViewer priceCheckScrollBar;
-        public PriceCheckedItem(ScrollViewer dealScroll)
+        public PriceCheckedItem(ScrollViewer dealScroll, Product product, string currencySymbol)
         {
             InitializeComponent();
             priceCheckScrollBar = dealScroll;
+            InitializeAllValues(currencySymbol, product);
         }
+        private async void InitializeAllValues(string currencySymbol, Product product) 
+        {
+            GlobalMarketDataObject curItemGlobalData = await CSGOTradersPricesFactory.GetItemGlobalData(product.Market_Hash_Name);
+            if (curItemGlobalData == null)
+                curItemGlobalData = new GlobalMarketDataObject();
 
+            //We begin initializing the values.
+            PriceCheckedXItemName.Text = product.Market_Hash_Name;
+            PriceCheckedButtonX.Tag = product.Item_Page;
+            PriceCheckedXSkinportDiscount.Text = $"{product.Percentage_Off}%";
+            PriceCheckedXSkinportDiscount.Text = $"{product.Min_Price.ToString("0.00")}{currencySymbol}";
+            PriceCheckedXSkinportVolumeSoldLast30Days.Text = $"{product.productMarketHistory.Last_30_days.Volume}";
+            PriceCheckedXSkinportMedianSoldLast30Days.Text = $"{product.productMarketHistory.Last_30_days.Median.ToString("0.00")}{currencySymbol}";
+            PriceCheckedXBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
+            PriceCheckedXBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
+            PriceCheckedXSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
+            PriceCheckedXSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
+            PriceCheckedXRecommendedDiscount.Text = $"{product.recommendedDiscount}";
+            PriceCheckedXRecommendedSalePrice.Text = $"{product.recommendedResellPrice}{currencySymbol}";
+            PriceCheckedXProfitPOnResale.Text = $"{product.profitPercentageOnResellPrice}";
+            PriceCheckedXProfitCOnResale.Text = $"{product.profitMoneyOnResellPrice}{currencySymbol}";
+            PriceCheckedXLTII.Text = $"{await product.productMarketHistory.GetLongTermPercentageProfit()}%";
+            PriceCheckedXMovingAverage.Text = $"{await product.productMarketHistory.GetLongMovingMedian()}{currencySymbol}";
+        }
         private void PriceCheckedClicked(object sender, RoutedEventArgs e)
         {
             //The default link.

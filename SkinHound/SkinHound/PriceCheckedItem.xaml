@@ -42,6 +42,25 @@
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Median Sold for Last 30 Days:</Label>
                         <TextBlock x:Name="PriceCheckedXSkinportMedianSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
                     </DockPanel>
+                    <Separator/>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Instant Sale Discount:</Label>
+                        <TextBlock x:Name="PriceCheckedXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Instant Sale Price:</Label>
+                        <TextBlock x:Name="PriceCheckedXRecommendedSalePrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
+                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit % on Resale:</Label>
+                        <TextBlock x:Name="PriceCheckedXProfitPOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                    </DockPanel>
+                    <DockPanel>
+                        <Label HorizontalAlignment="Center"  FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit $ on Resale:</Label>
+                        <TextBlock x:Name="PriceCheckedXProfitCOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
+                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
+                    </DockPanel>
                     <Separator Background="#ccc601"/>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Buff163 Information</Label>
                     <DockPanel>
@@ -64,24 +83,6 @@
                     </DockPanel>
                     <Separator Background="#ccc601"/>
                     <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinhound Data</Label>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Instant Sale Discount:</Label>
-                        <TextBlock x:Name="PriceCheckedXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                    </DockPanel>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Instant Sale Price:</Label>
-                        <TextBlock x:Name="PriceCheckedXRecommendedSalePrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
-                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                    </DockPanel>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit % on Resale:</Label>
-                        <TextBlock x:Name="PriceCheckedXProfitPOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                    </DockPanel>
-                    <DockPanel>
-                        <Label HorizontalAlignment="Center"  FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit $ on Resale:</Label>
-                        <TextBlock x:Name="PriceCheckedXProfitCOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                        <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                    </DockPanel>
                     <DockPanel>
                         <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Long Term Investment Indicator:</Label>
                         <TextBlock x:Name="PriceCheckedXLTII" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>

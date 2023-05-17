@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SkinHound
 {
-    enum NotificationType
+    public enum DealType
     {
         DEFAULT = 0,
         REGULAR = 1,

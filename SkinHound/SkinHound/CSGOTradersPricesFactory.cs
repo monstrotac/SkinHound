@@ -19,15 +19,15 @@ namespace SkinHound
 {
     public class CSGOTradersPricesFactory
     {
-        private HttpClient client = new HttpClient();
+        private static HttpClient client = new HttpClient();
         private const string CSGO_TRADERS_DATA_URL = "https://prices.csgotrader.app/latest/prices_v6.json";
-        private JObject globalMarketData;
+        private static JObject globalMarketData;
         public CSGOTradersPricesFactory()
         {
             client.DefaultRequestHeaders.Accept.Clear();
             PrepareData();
         }
-        public async void PrepareData()
+        public static async void PrepareData()
         {
             //We make sure that the file exists and that it is up to date.
             await VerifyIfRequireUpdates();
@@ -42,7 +42,7 @@ namespace SkinHound
             //We parse the object and assign it into our field.
             globalMarketData = JObject.Parse(textInDataFile);
         }
-        public async Task<GlobalMarketDataObject> GetItemGlobalData(string marketHashName)
+        public static async Task<GlobalMarketDataObject> GetItemGlobalData(string marketHashName)
         {
             if (marketHashName == null)
                 return null;
@@ -62,7 +62,7 @@ namespace SkinHound
                 currentItem.Buff163.Highest_Order = 0.00;
             return currentItem;
         }
-        private async Task VerifyIfRequireUpdates()
+        private static async Task VerifyIfRequireUpdates()
         {
             if (Directory.EnumerateFiles($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound","*-data.json").Count() != 0)
             {
@@ -74,7 +74,7 @@ namespace SkinHound
             await DownloadDataFile();
             return;
         }
-        private async Task DownloadDataFile()
+        private static async Task DownloadDataFile()
         {
             //This is used to handle null values.
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };

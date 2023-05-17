@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
@@ -25,14 +27,15 @@ namespace SkinHound
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         //Private fields
-        private SkinHoundConfiguration configuration;
         private SkinportApiFactory skinportApiFactory;
-        private CSGOTradersPricesFactory csgoTradersPriceFactory;
         private Timer refreshProcess;
         private int timeIntervalBetweenQuerries;
+        //Used for the current filter applied to the Displayed deals
+        DealsFilterType dealsFilterType = DealsFilterType.PriceAsc;
         //Important Variable for Price Display depending on currency
         private string currencySymbol = "$";
         //lock object for synchronization;
@@ -40,11 +43,38 @@ namespace SkinHound
         //Suggestion TextBox related fields
         private List<string> skinNamesList = new List<string>();
         private ObservableCollection<string> desiredWeaponsList = new ObservableCollection<string>();
+        //Deals that will be displayed (We create a binding with this)
+        private ObservableCollection<PriceCheckedItem> _displayedPriceChecks;
+        public ObservableCollection<PriceCheckedItem> DisplayedPriceChecks
+        {
+            get { return _displayedPriceChecks; }
+            set
+            {
+                _displayedPriceChecks = value;
+                OnPropertyChanged(nameof(DisplayedPriceChecks));
+            }
+        }
+        private ObservableCollection<ItemDeal> _displayedDeals;
+        public ObservableCollection<ItemDeal> DisplayedDeals
+        {
+            get { return _displayedDeals; }
+            set
+            {
+                _displayedDeals = value;
+                OnPropertyChanged(nameof(DisplayedDeals));
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         //Components
         private WrapPanel dealsGrid;
         private Image loadingGif;
         private ScrollViewer dealScroll;
         private ScrollViewer priceCheckScroll;
+        private WsClient skinportWebSocket;
         //The default content for the config file, in case it does not already exist.
         private const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
@@ -62,32 +92,40 @@ namespace SkinHound
 
         public MainWindow()
         {
+            DisplayedDeals = new ObservableCollection<ItemDeal>();
+            DisplayedPriceChecks = new ObservableCollection<PriceCheckedItem>();
             //The very first step is to acquire the configuration from the file, if it exists.
             GetUserConfigFromFile();
             //Then we update the symbol to correspond to the currency's.
             UpdateCurrencySymbol();
             //Then we proceed to Initialize our APIFactories followed by the components.
-            skinportApiFactory = new SkinportApiFactory(configuration);
-            csgoTradersPriceFactory = new CSGOTradersPricesFactory();
+            skinportApiFactory = new SkinportApiFactory();
+            CSGOTradersPricesFactory.PrepareData();
             InitializeComponent();
+            DataContext = this;
             //We take a quick moment to Init the values of the settings.
             InitSettingsValue();
             //We update the value of the rates for money conversion later on since everything the Buff163 API returns is in CNY
             Utils.UpdateRates();
             //Initialize the methods linked to components of the application.
-            dealsGrid = (WrapPanel)FindName("DealsGrid");
             loadingGif = (Image)FindName("LoadingIcon");
             dealScroll = (ScrollViewer)FindName("DealScrollBar");
             priceCheckScroll = (ScrollViewer)FindName("PriceCheckerScrollBar");
             //We start the timer which will automate the deals and refresh them on X configured basis.
-            timeIntervalBetweenQuerries = 1000 * 60 * configuration.Minutes_Between_Queries;
+            timeIntervalBetweenQuerries = 1000 * 60 * SkinHoundConfiguration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
+            InitWebSocket();
+        }
+        private async void InitWebSocket()
+        {
+            skinportWebSocket = new WsClient(WebsocketTextBlock);
+            await skinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
         }
         private void InitSettingsValue()
         {
             //Check which index represents the currency
             int currencyIndex = 0;
-            switch (configuration.Currency)
+            switch (SkinHoundConfiguration.Currency)
             {
                 case "CAD":
                     currencyIndex = 0;
@@ -100,29 +138,29 @@ namespace SkinHound
                     break;
             }
             //Notification section
-            SettingsNotificationsEnabled.IsChecked = configuration.Notifications_Enabled;
-            SettingsNotifyOnAllDesiredWeapons.IsChecked = configuration.Notify_On_All_Desired_Weapons;
+            SettingsNotificationsEnabled.IsChecked = SkinHoundConfiguration.Notifications_Enabled;
+            SettingsNotifyOnAllDesiredWeapons.IsChecked = SkinHoundConfiguration.Notify_On_All_Desired_Weapons;
             //General section
             if(Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR) != null)
                 SettingsSkinportClientId.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR);
             if (Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR) != null)
                 SettingsSkinportClientSecret.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR);
-            SettingsMinWorthValue.Text = configuration.Minimum_Worth_Value.ToString();
-            SettingsMinutesBetweenQuerries.Text = configuration.Minutes_Between_Queries.ToString();
+            SettingsMinWorthValue.Text = SkinHoundConfiguration.Minimum_Worth_Value.ToString();
+            SettingsMinutesBetweenQuerries.Text = SkinHoundConfiguration.Minutes_Between_Queries.ToString();
             SettingsCurrencyList.SelectedIndex = currencyIndex;
             //Deals section
             SettingsDesiredItemsList.ItemsSource = desiredWeaponsList;
             BindingOperations.EnableCollectionSynchronization(desiredWeaponsList, _syncLock);
             //There's this dumb issue to if you don't refresh the list it simply won't show what's inside.
-            SettingsDesiredDiscountThreshold.Text = configuration.Desired_Weapons_Min_Discount_Threshold.ToString();
-            SettingsGoodDiscountThreshold.Text = configuration.Good_Discount_Threshold.ToString();
-            SettingsGreatDiscountThreshold.Text = configuration.Great_Discount_Threshold.ToString();
-            SettingsOutstandingDiscountThreshold.Text = configuration.Outstanding_Discount_Threshold.ToString();
+            SettingsDesiredDiscountThreshold.Text = SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold.ToString();
+            SettingsGoodDiscountThreshold.Text = SkinHoundConfiguration.Good_Discount_Threshold.ToString();
+            SettingsGreatDiscountThreshold.Text = SkinHoundConfiguration.Great_Discount_Threshold.ToString();
+            SettingsOutstandingDiscountThreshold.Text = SkinHoundConfiguration.Outstanding_Discount_Threshold.ToString();
         }
         //This function is needed to update what symbol we're showing on the UI depending on the currency.
         private void UpdateCurrencySymbol()
         {
-            switch (configuration.Currency)
+            switch (SkinHoundConfiguration.Currency)
             {
                 case "CAD":
                     currencySymbol = "$";
@@ -139,7 +177,7 @@ namespace SkinHound
         {
             if (!HandleSavingErrors())
                 return;
-            string currencyString = configuration.Currency;
+            string currencyString = SkinHoundConfiguration.Currency;
             switch (SettingsCurrencyList.SelectedIndex)
             {
                 case 0://CAD
@@ -179,12 +217,10 @@ namespace SkinHound
             "\n}";
             //We overwrite the current Config File with our new settings.
             File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", newSettings);
-            configuration = JsonConvert.DeserializeObject<SkinHoundConfiguration>(newSettings);
+            SkinHoundConfiguration.SetNewConfig(JsonConvert.DeserializeObject<ConfigurationObject>(newSettings));
             //We check if the timer changed, if so we order an update
             if (timeIntervalBetweenQuerries != int.Parse(SettingsMinutesBetweenQuerries.Text))
                 ChangeRefreshIntervals(int.Parse(SettingsMinutesBetweenQuerries.Text));
-            //We order an update on the API factories with our new config.
-            UpdateConfigurationInFactories();
             //We update the currency symbol
             UpdateCurrencySymbol();
             //We Notify the user if the operation was a success.
@@ -194,12 +230,10 @@ namespace SkinHound
         {
             //We overwrite the current Config File with the Default settings.
             File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", DEFAULT_CONFIG_FILE_CONTENT);
-            configuration = JsonConvert.DeserializeObject<SkinHoundConfiguration>(DEFAULT_CONFIG_FILE_CONTENT);
+            SkinHoundConfiguration.SetNewConfig(JsonConvert.DeserializeObject<ConfigurationObject>(DEFAULT_CONFIG_FILE_CONTENT));
             //We check if the timer changed, if so we order an update
             if (timeIntervalBetweenQuerries != 2)
                 ChangeRefreshIntervals(2);
-            //We order an update on the API factories with our new config.
-            UpdateConfigurationInFactories();
             //We update the currency symbol
             UpdateCurrencySymbol();
             //Since we are resetting everything we reinit the settings Value
@@ -265,106 +299,46 @@ namespace SkinHound
         private async Task RefreshDeals()
         {
             this.Dispatcher.Invoke(() => { loadingGif.Visibility = Visibility.Visible; });
-            await RemoveDeals();
-            Queue<Product> deals = new Queue<Product>();
+            await this.Dispatcher.Invoke(async () =>
+            {
+                await RemoveDeals();
+            });
+            //We acquire the product list.
             List<Product> list = await skinportApiFactory.AcquireProductList();
             if(list != null)
             {
-                foreach (var element in list)
+                await this.Dispatcher.Invoke(async () =>
                 {
-                    deals.Enqueue(element);
-                }
-                await ShowDeals(deals);
-
+                    await ShowDeals(list);
+                    await FilterDealList();
+                });
             }
             this.Dispatcher.Invoke(() => { loadingGif.Visibility = Visibility.Hidden; });
             return;
         }
         private async Task RemoveDeals()
         {
-            this.Dispatcher.Invoke(() => { dealsGrid.Children.Clear(); });
+            DisplayedDeals.Clear();
             return;
         }
         //This Task takes care of updating the deals for the user and formats them with the values which have been placed inside of it.
-        private async Task<Queue<Product>> ShowDeals(Queue<Product> productQueue)
+        private async Task ShowDeals(List<Product> productQueue)
         {
             await Application.Current.Dispatcher.InvokeAsync( async () =>
             {
-                if (productQueue == null || productQueue.Count > 0)
+                if (productQueue != null || productQueue.Count > 0)
                 {
-                    ItemDeal curDeal = new ItemDeal(dealScroll);
-                    //In this section we rename everything and keep them as a variable to give them a new value later on.
-                    ((Grid)curDeal.FindName("DealXGrid")).Name = $"Deal{productQueue.Count}Grid";
-                    Button itemButton = ((Button)curDeal.FindName("DealButtonX"));
-                    itemButton.Name = $"DealButton{productQueue.Count}";
-                    TextBlock itemName = ((TextBlock)curDeal.FindName("DealXItemName"));
-                    itemName.Name = $"Deal{productQueue.Count}ItemName";
-                    Image itemImage = ((Image)curDeal.FindName("DealXImage"));
-                    itemImage.Name = $"Deal{productQueue.Count}Image";
-                    Label itemNewOrNot = ((Label)curDeal.FindName("DealXNewOrNot"));
-                    itemNewOrNot.Name = $"Deal{productQueue.Count}NewOrNot";
-                    //Skinport Variables
-                    TextBlock itemSkinportDiscount = ((TextBlock)curDeal.FindName("DealXSkinportDiscount"));
-                    itemSkinportDiscount.Name = $"Deal{productQueue.Count}SkinportDiscount";
-                    TextBlock itemPrice = ((TextBlock)curDeal.FindName("DealXSkinportPrice"));
-                    itemPrice.Name = $"Deal{productQueue.Count}SkinportPrice";
-                    TextBlock itemSkinportVolumeSold30Days = ((TextBlock)curDeal.FindName("DealXSkinportVolumeSoldLast30Days"));
-                    itemSkinportVolumeSold30Days.Name = $"Deal{productQueue.Count}SkinportVolumeSoldLast30Days";
-                    TextBlock itemSkinportMedianSold30Days = ((TextBlock)curDeal.FindName("DealXSkinportMedianSoldLast30Days"));
-                    itemSkinportMedianSold30Days.Name = $"Deal{productQueue.Count}SkinportMedianSoldLast30Days";
-                    //Buff163 Variables
-                    TextBlock itemBuffStartingAt = ((TextBlock)curDeal.FindName("DealXBuffStartingAt"));
-                    itemBuffStartingAt.Name = $"Deal{productQueue.Count}BuffStartingAt";
-                    TextBlock itemBuffHighestOrder = ((TextBlock)curDeal.FindName("DealXBuffHighestOrder"));
-                    itemBuffHighestOrder.Name = $"Deal{productQueue.Count}BuffHighestOrder";
-                    //Steam Variables
-                    TextBlock itemSteamLast7Days = ((TextBlock)curDeal.FindName("DealXSteamLast7Days"));
-                    itemSteamLast7Days.Name = $"Deal{productQueue.Count}SteamLast7Days";
-                    TextBlock itemSteamLast30Days = ((TextBlock)curDeal.FindName("DealXSteamLast30Days"));
-                    itemSteamLast30Days.Name = $"Deal{productQueue.Count}SteamLast30Days";
-                    //SkinHound Variables
-                    TextBlock itemRecommendedDiscount = ((TextBlock)curDeal.FindName("DealXRecommendedDiscount"));
-                    itemRecommendedDiscount.Name = $"Deal{productQueue.Count}RecommendedDiscount";
-                    TextBlock itemRecommendedSalePrice = ((TextBlock)curDeal.FindName("DealXRecommendedSalePrice"));
-                    itemRecommendedSalePrice.Name = $"Deal{productQueue.Count}RecommendedSalePrice";
-                    TextBlock itemProfitPOnResale = ((TextBlock)curDeal.FindName("DealXProfitPOnResale"));
-                    itemProfitPOnResale.Name = $"Deal{productQueue.Count}ProfitPOnResale";
-                    TextBlock itemProfitCOnResale = ((TextBlock)curDeal.FindName("DealXProfitCOnResale"));
-                    itemProfitCOnResale.Name = $"Deal{productQueue.Count}ProfitCOnResale";
-                    TextBlock itemLongTermInvestmentIndicator = ((TextBlock)curDeal.FindName("DealXLTII"));
-                    itemLongTermInvestmentIndicator.Name = $"Deal{productQueue.Count}LTII";                    
-                    TextBlock itemInvestmentValue = ((TextBlock)curDeal.FindName("DealXMovingAverage"));
-                    itemInvestmentValue.Name = $"Deal{productQueue.Count}MovingAverage";
-                    //We Dequeue the product, gather its global data and start assigning its values in the front-end
-                    Product curProduct = productQueue.Dequeue();
-                    GlobalMarketDataObject curItemGlobalData = await csgoTradersPriceFactory.GetItemGlobalData(curProduct.Market_Hash_Name);
-                    //We begin initializing the values.
-                    if (curProduct.isNew)
-                        itemNewOrNot.Content = "*NEW*";
-                    itemName.Text = curProduct.Market_Hash_Name;
-                    itemButton.Tag = curProduct.Item_Page;
-                    itemSkinportDiscount.Text = $"{curProduct.Percentage_Off}%";
-                    itemPrice.Text = $"{curProduct.Min_Price.ToString("0.00")}{currencySymbol}";
-                    itemSkinportVolumeSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Volume}";
-                    itemSkinportMedianSold30Days.Text = $"{curProduct.productMarketHistory.Last_30_days.Median.ToString("0.00")}{currencySymbol}";
-                    itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                    itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                    itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                    itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                    itemRecommendedDiscount.Text = $"{curProduct.recommendedDiscount}";
-                    itemRecommendedSalePrice.Text = $"{curProduct.recommendedResellPrice}{currencySymbol}";
-                    itemProfitPOnResale.Text = $"{curProduct.profitPercentageOnResellPrice}";
-                    itemProfitCOnResale.Text = $"{curProduct.profitMoneyOnResellPrice}{currencySymbol}";
-                    itemLongTermInvestmentIndicator.Text = $"{await curProduct.productMarketHistory.GetLongTermPercentageProfit()}%";
-                    itemInvestmentValue.Text = $"{await curProduct.productMarketHistory.GetLongMovingMedian()}{currencySymbol}";
-                    itemImage.Source = new BitmapImage(new Uri($"{curProduct.imagePath}", UriKind.Relative));
-                    dealsGrid.Children.Add(curDeal);
-                    return await ShowDeals(productQueue);
+                    foreach(Product product in productQueue)
+                    {
+                        ItemDeal curDeal = new ItemDeal(dealScroll, product, currencySymbol);
+                        DisplayedDeals.Add(curDeal);
+                    }
+                    return;
                 }
                 else
-                    return productQueue;
+                    return;
             });
-            return productQueue;
+            return;
         }
         //This function is responsible for acquiring the user configs in /AppData/Roaming/SkinHound
         private void GetUserConfigFromFile()
@@ -378,14 +352,9 @@ namespace SkinHound
                 configFile.Write(DEFAULT_CONFIG_FILE_CONTENT);
                 configFile.Flush();
             }
-            configuration = JsonConvert.DeserializeObject<SkinHoundConfiguration>(File.ReadAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json"));
-            foreach (string name in configuration.Desired_Weapons)
+            SkinHoundConfiguration.SetNewConfig(JsonConvert.DeserializeObject<ConfigurationObject>(File.ReadAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json")));
+            foreach (string name in SkinHoundConfiguration.Desired_Weapons)
                 desiredWeaponsList.Add(name);
-        }
-        //Sets the Configuration variable in all of the API factories
-        private async void UpdateConfigurationInFactories()
-        {
-            skinportApiFactory.SetConfig(configuration);
         }
         //This method is used by all of the fields which accept a double value and is needed to prevent unwanted characters.
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
@@ -628,17 +597,16 @@ namespace SkinHound
         //This method is called when the price check button is clicked.
         private async void LaunchPriceCheck(object sender, RoutedEventArgs e)
         {
+            DisplayedPriceChecks.Clear();
             //We initialize our display by setting everything to nothing.
             PriceCheckerMessageBox.Text = "Enter a Skin Name to Price Check it";
-            PriceCheckGrid.Children.Clear();
             //Then we make a request to our factory and find out soon enough if the Skin exists.
-            Queue<Product> productsToDisplay = await skinportApiFactory.PriceCheck(PriceCheckerSuggestingTextBox.Text);
+            List<Product> productsToDisplay = await skinportApiFactory.PriceCheck(PriceCheckerSuggestingTextBox.Text);
             if(productsToDisplay == null)
             {
                 PriceCheckerMessageBox.Text = $"An error occured searching for \"{PriceCheckerSuggestingTextBox.Text}\", please wait a few seconds and try again.";
                 return;
             }
-
             if(productsToDisplay.Count == 0)
             {
                 PriceCheckerMessageBox.Text = $"Couldn't find any skins with the name \"{PriceCheckerSuggestingTextBox.Text}\"";
@@ -648,78 +616,126 @@ namespace SkinHound
             await DisplayPriceCheckedItems(productsToDisplay);
         }
         //This method does essentially the same thing as the one which displays our Deals except it is for the PriceChecks.
-        private async Task<Queue<Product>> DisplayPriceCheckedItems(Queue<Product> productQueue)
+        private async Task DisplayPriceCheckedItems(List<Product> productList)
         {
-            if (productQueue == null || productQueue.Count > 0)
+            if (productList == null || productList.Count > 0)
             {
-                PriceCheckedItem curPriceCheckedProduct = new PriceCheckedItem(priceCheckScroll);
-                //In this section we rename everything and keep them as a variable to give them a new value later on.
-                ((Grid)curPriceCheckedProduct.FindName("PriceCheckedXGrid")).Name = $"PriceChecked{productQueue.Count}Grid";
-                Button itemButton = ((Button)curPriceCheckedProduct.FindName("PriceCheckedButtonX"));
-                itemButton.Name = $"PriceCheckedButton{productQueue.Count}";
-                TextBlock itemName = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXItemName"));
-                itemName.Name = $"PriceChecked{productQueue.Count}ItemName";
-                Image itemImage = ((Image)curPriceCheckedProduct.FindName("PriceCheckedXImage"));
-                itemImage.Name = $"PriceChecked{productQueue.Count}Image";
-                //Skinport Variables
-                TextBlock itemSkinportDiscount = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportDiscount"));
-                itemSkinportDiscount.Name = $"PriceChecked{productQueue.Count}SkinportDiscount";
-                TextBlock itemPrice = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportPrice"));
-                itemPrice.Name = $"PriceChecked{productQueue.Count}SkinportPrice";
-                TextBlock itemSkinportVolumeSold30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportVolumeSoldLast30Days"));
-                itemSkinportVolumeSold30Days.Name = $"PriceChecked{productQueue.Count}SkinportVolumeSoldLast30Days";
-                TextBlock itemSkinportMedianSold30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSkinportMedianSoldLast30Days"));
-                itemSkinportMedianSold30Days.Name = $"PriceChecked{productQueue.Count}SkinportMedianSoldLast30Days";
-                //Buff163 Variables
-                TextBlock itemBuffStartingAt = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXBuffStartingAt"));
-                itemBuffStartingAt.Name = $"PriceChecked{productQueue.Count}BuffStartingAt";
-                TextBlock itemBuffHighestOrder = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXBuffHighestOrder"));
-                itemBuffHighestOrder.Name = $"PriceChecked{productQueue.Count}BuffHighestOrder";
-                //Steam Variables
-                TextBlock itemSteamLast7Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSteamLast7Days"));
-                itemSteamLast7Days.Name = $"PriceChecked{productQueue.Count}SteamLast7Days";
-                TextBlock itemSteamLast30Days = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXSteamLast30Days"));
-                itemSteamLast30Days.Name = $"PriceChecked{productQueue.Count}SteamLast30Days";
-                //SkinHound Variables
-                TextBlock itemRecommendedDiscount = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedDiscount"));
-                itemRecommendedDiscount.Name = $"PriceChecked{productQueue.Count}RecommendedDiscount";
-                TextBlock itemRecommendedSalePrice = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXRecommendedSalePrice"));
-                itemRecommendedSalePrice.Name = $"PriceChecked{productQueue.Count}RecommendedSalePrice";
-                TextBlock itemProfitPOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitPOnResale"));
-                itemProfitPOnResale.Name = $"PriceChecked{productQueue.Count}ProfitPOnResale";
-                TextBlock itemProfitCOnResale = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXProfitCOnResale"));
-                itemProfitCOnResale.Name = $"PriceChecked{productQueue.Count}ProfitCOnResale";
-                TextBlock itemLongTermInvestmentIndicator = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXLTII"));
-                itemLongTermInvestmentIndicator.Name = $"PriceChecked{productQueue.Count}LTII";
-                TextBlock itemInvestmentValue = ((TextBlock)curPriceCheckedProduct.FindName("PriceCheckedXMovingAverage"));
-                itemInvestmentValue.Name = $"PriceChecked{productQueue.Count}MovingAverage";
-                //We Dequeue the product, gather its global data and start assigning its values in the front-end
-                Product curProductObject = productQueue.Dequeue();
-                GlobalMarketDataObject curItemGlobalData = await csgoTradersPriceFactory.GetItemGlobalData(curProductObject.Market_Hash_Name);
-                if (curItemGlobalData == null)
-                    curItemGlobalData = new GlobalMarketDataObject();
-
-                //We begin initializing the values.
-                itemName.Text = curProductObject.Market_Hash_Name;
-                itemButton.Tag = curProductObject.Item_Page;
-                itemSkinportDiscount.Text = $"{curProductObject.Percentage_Off}%";
-                itemPrice.Text = $"{curProductObject.Min_Price.ToString("0.00")}{currencySymbol}";
-                itemSkinportVolumeSold30Days.Text = $"{curProductObject.productMarketHistory.Last_30_days.Volume}";
-                itemSkinportMedianSold30Days.Text = $"{curProductObject.productMarketHistory.Last_30_days.Median.ToString("0.00")}{currencySymbol}";
-                itemBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                itemBuffHighestOrder.Text = $"{(curItemGlobalData.Buff163.Highest_Order * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                itemSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                itemSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.GetCurrencyRateFromUSD(configuration.Currency)).ToString("0.00")}{currencySymbol}";
-                itemRecommendedDiscount.Text = $"{curProductObject.recommendedDiscount}";
-                itemRecommendedSalePrice.Text = $"{curProductObject.recommendedResellPrice}{currencySymbol}";
-                itemProfitPOnResale.Text = $"{curProductObject.profitPercentageOnResellPrice}";
-                itemProfitCOnResale.Text = $"{curProductObject.profitMoneyOnResellPrice}{currencySymbol}";
-                itemLongTermInvestmentIndicator.Text = $"{await curProductObject.productMarketHistory.GetLongTermPercentageProfit()}%";
-                itemInvestmentValue.Text = $"{await curProductObject.productMarketHistory.GetLongMovingMedian()}{currencySymbol}";
-                PriceCheckGrid.Children.Add(curPriceCheckedProduct);
-                return await DisplayPriceCheckedItems(productQueue);
+                foreach(Product product in productList)
+                {
+                    PriceCheckedItem curPriceCheckedProduct = new PriceCheckedItem(priceCheckScroll, product, currencySymbol);
+                    DisplayedPriceChecks.Add(curPriceCheckedProduct);
+                }
+                return;
             } else
-                return productQueue;
+                return;
+        }
+        //Method used to filter through the shown deals.
+        private async void DealsFilterBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (DealsFilterBox.SelectedIndex)
+            {
+                case 0:
+                    dealsFilterType = DealsFilterType.PriceAsc;
+                    break;
+                case 1:
+                    dealsFilterType = DealsFilterType.PriceDesc;
+                    break;
+                case 2:
+                    dealsFilterType = DealsFilterType.Newest;
+                    break;
+                case 3:
+                    dealsFilterType = DealsFilterType.DesiredDeals;
+                    break;
+                case 4:
+                    dealsFilterType = DealsFilterType.QualityAsc;
+                    break;
+                case 5:
+                    dealsFilterType = DealsFilterType.QualityDesc;
+                    break;
+                case 6:
+                    dealsFilterType = DealsFilterType.Name;
+                    break;
+                case 7:
+                    dealsFilterType = DealsFilterType.InvestmentValueAsc;
+                    break;
+                case 8:
+                    dealsFilterType = DealsFilterType.InvestmentValueDesc;
+                    break;
+                case 9:
+                    dealsFilterType = DealsFilterType.LtiiAsc;
+                    break;
+                case 10:
+                    dealsFilterType = DealsFilterType.LtiiDesc;
+                    break;
+                default:
+                    dealsFilterType = DealsFilterType.PriceAsc;
+                    break;
+            }
+            //Once the filter has been changed, we make sure to apply it.
+            await FilterDealList();
+        }
+        private async Task FilterDealList()
+        {
+            ObservableCollection<ItemDeal> newList;
+            switch (dealsFilterType)
+            {
+                case DealsFilterType.PriceAsc:
+                     newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.Min_Price).ToList());
+                    break;
+                case DealsFilterType.PriceDesc:
+                    newList= new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.Min_Price).ToList());
+                    break;
+                case DealsFilterType.Newest:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.isNew).ToList());
+                    break;
+                case DealsFilterType.DesiredDeals:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.isDesired).ToList());
+                    break;
+                case DealsFilterType.QualityAsc:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => (int)item.product.dealType).ToList());
+                    break;
+                case DealsFilterType.QualityDesc:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => (int)item.product.dealType).ToList());
+                    break;
+                case DealsFilterType.Name:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.Market_Hash_Name).ToList());
+                    break;
+                case DealsFilterType.InvestmentValueAsc:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.InvestmentValue).ToList());
+                    break;
+                case DealsFilterType.InvestmentValueDesc:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.InvestmentValue).ToList());
+                    break;
+                case DealsFilterType.LtiiAsc:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.LongTermInvestmentIndicator).ToList());
+                    break;
+                case DealsFilterType.LtiiDesc:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.LongTermInvestmentIndicator).ToList());
+                    break;
+                default:
+                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.Min_Price).ToList());
+                    break;
+            }
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DisplayedDeals = newList;
+            });
+            var o = 3;
+            return;
+        }
+        enum DealsFilterType 
+        {
+            PriceAsc = 0,
+            PriceDesc = 1,
+            Newest = 2,
+            DesiredDeals = 3,
+            QualityAsc = 4,
+            QualityDesc = 5,
+            Name = 6,
+            InvestmentValueAsc = 7,
+            InvestmentValueDesc = 8,
+            LtiiAsc = 9,
+            LtiiDesc = 10
         }
     }
 }

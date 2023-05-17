@@ -20,7 +20,7 @@ namespace SkinHound
             ToastNotificationCreator = new NotificationCreator();
             NotificationHistory = new List<string>();
         }
-        public async Task SendNotification(Product product, NotificationType notificationType, bool isDesiredProduct)
+        public async Task SendNotification(Product product, DealType notificationType, bool isDesiredProduct)
         {
             //We make sure that the notification history isn't empty to avoid raising out of bounds errors.
             if (NotificationHistory.Count > 0)
@@ -29,16 +29,16 @@ namespace SkinHound
             //We create the appropriate type of notification if the notification doesn't already exist.
             switch (notificationType)
             {
-                case NotificationType.DEFAULT:
+                case DealType.DEFAULT:
                     await ToastNotificationCreator.CreateDefaultDesiredNotification(product);
                     break;
-                case NotificationType.REGULAR:
+                case DealType.REGULAR:
                     await ToastNotificationCreator.CreateGoodNotification(product, isDesiredProduct);
                     break;
-                case NotificationType.GOLDEN:
+                case DealType.GOLDEN:
                     await ToastNotificationCreator.CreateGoldenNotification(product, isDesiredProduct);
                     break;
-                case NotificationType.INCREDIBLE:
+                case DealType.INCREDIBLE:
                     await ToastNotificationCreator.CreateIncredibleNotification(product, isDesiredProduct);
                     break;
             }
