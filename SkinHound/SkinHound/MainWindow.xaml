@@ -20,7 +20,7 @@
                         </StackPanel>
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
-                    <Grid VerticalAlignment="Stretch">
+                    <Grid VerticalAlignment="Stretch" Margin="0,5,0,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="25"/>
                             <RowDefinition/>
