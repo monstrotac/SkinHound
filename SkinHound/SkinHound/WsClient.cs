@@ -8,154 +8,104 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using Windows.Storage.Streams;
 
 namespace SkinHound
 {
 
-    public class WsClient : IDisposable
+    public class WsClient
     {
-        private const int bufferSize = 1024;
-        readonly byte[] sendBuffer = new byte[bufferSize];
-        public int ReceiveBufferSize { get; set; } = 8192;
-        private List<JObject> skinportMarketActivity = new List<JObject>();
-        public async Task ConnectAsync(string url)
+        private const int ReceiveBufferSize = 390108192;
+        private const int PingIntervalSeconds = 20;
+
+        private ClientWebSocket webSocket;
+        private CancellationTokenSource cancellationTokenSource;
+
+        private TextBlock block;
+
+        public WsClient(TextBlock block)
         {
-            if (WS != null)
-            {
-                if (WS.State == WebSocketState.Open) return;
-                else WS.Dispose();
-            }
-            WS = new ClientWebSocket();
-            if (CTS != null) CTS.Dispose();
-            CTS = new CancellationTokenSource();
-            await WS.ConnectAsync(new Uri(url), CTS.Token);
-            await Task.Factory.StartNew(ReceiveLoop, CTS.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            this.block = block;
         }
 
-        public async Task DisconnectAsync()
+        public async Task Connect(string url)
         {
-            if (WS is null) return;
-            // TODO: requests cleanup code, sub-protocol dependent.
-            if (WS.State == WebSocketState.Open)
-            {
-                CTS.CancelAfter(TimeSpan.FromSeconds(2));
-                await WS.CloseOutputAsync(WebSocketCloseStatus.Empty, "", CancellationToken.None);
-                await WS.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
-            }
-            WS.Dispose();
-            WS = null;
-            CTS.Dispose();
-            CTS = null;
+            webSocket = new ClientWebSocket();
+            await webSocket.ConnectAsync(new Uri(url), CancellationToken.None);
+
+            cancellationTokenSource = new CancellationTokenSource();
+            await StartListening();
         }
 
-        private async Task ReceiveLoop()
+        private async Task StartListening()
         {
-            var loopToken = CTS.Token;
-            MemoryStream outputStream = null;
-            WebSocketReceiveResult receiveResult = null;
-            var buffer = new byte[ReceiveBufferSize];
-            try
+            while (webSocket.State == WebSocketState.Open)
             {
-                while (!loopToken.IsCancellationRequested)
+                var buffer = new ArraySegment<byte>(new byte[ReceiveBufferSize]);
+                var receiveResult = await webSocket.ReceiveAsync(buffer, cancellationTokenSource.Token);
+
+                if (receiveResult.MessageType == WebSocketMessageType.Text)
                 {
-                    outputStream = new MemoryStream(ReceiveBufferSize);
-                    do
+                    var message = System.Text.Encoding.UTF8.GetString(buffer.Array, 0, receiveResult.Count);
+                    block.Text = ("Received message: " + message);
+                    //We simply acquire the code in the string beforehand.
+                    JObject activity;
+                    string code = "";
+                    foreach (char character in message)
                     {
-                        receiveResult = await WS.ReceiveAsync(buffer, CTS.Token);
-                        if (receiveResult.MessageType != WebSocketMessageType.Close)
-                            outputStream.Write(buffer, 0, receiveResult.Count);
+                        if (character == '[' || character == '{')
+                            break;
+                        else code += character;
                     }
-                    while (!receiveResult.EndOfMessage);
-                    if (receiveResult.MessageType == WebSocketMessageType.Close) break;
-                    outputStream.Position = 0;
-                    ResponseReceived(outputStream);
+                    //Handle the code's value
+                    switch (code)
+                    {
+                        case "0":
+                            await SendMessage("40");
+                            break;
+                        case "2":
+                            // Received a ping frame (server's "2" ping frame)
+                            block.Text = ("Received ping frame. Responding with pong frame.");
+                            // Respond with a pong frame containing the same payload
+                            var pongPayload = System.Text.Encoding.UTF8.GetBytes("3");
+                            await webSocket.SendAsync(pongPayload, WebSocketMessageType.Text, true, CancellationToken.None);
+                            break;
+                        case "40":
+                            break;
+                        case "42":
+                            if (message.Contains("\"operational\""))
+                                await SendMessage("42[\"saleFeedJoin\",{\"appid\":730,\"currency\":\"CAD\",\"locale\":\"en\"}]");
+                            else if (message.Contains("saleFeed"))
+                            {
+                                string formatedMsg = message;
+                                formatedMsg = formatedMsg.Remove(formatedMsg.Length - 1);
+                                formatedMsg = formatedMsg.Replace("42[\"saleFeed\",", "");
+                                activity = JObject.Parse(formatedMsg);
+                                //saleFeed.Add(activity);
+                            }
+                            break;
+                    }
                 }
-            }
-            catch (TaskCanceledException) { }
-            finally
-            {
-                outputStream?.Dispose();
+                else if (receiveResult.MessageType == WebSocketMessageType.Close)
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                    block.Text = ("Connection closed by the server.");
+                    break;
+                }
             }
         }
 
-        private async Task SendMessageAsync(string message, CancellationToken token)
+        public async Task SendMessage(string message)
         {
-            var messageLength = message.Length;
-            var messageCount = (int)Math.Ceiling((double)messageLength / bufferSize);
-            for (var i = 0; i < messageCount; i++)
-            {
-                var offset = bufferSize * i;
-                var count = bufferSize;
-                var lastMessage = i + 1 == messageCount;
-                if (count * (i + 1) > messageLength)
-                    count = messageLength - offset;
-                var segmentLength = Encoding.UTF8.GetBytes(message, offset, count, sendBuffer, 0);
-                var segment = new ArraySegment<byte>(sendBuffer, 0, segmentLength);
-                await WS.SendAsync(segment, WebSocketMessageType.Text, lastMessage, token);
-            }
+            var buffer = new ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message));
+            await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
-        private async void ResponseReceived(Stream inputStream)
+        public async Task CloseConnection()
         {
-            // TODO: handle deserializing responses and matching them to the requests.
-            // IMPORTANT: DON'T FORGET TO DISPOSE THE inputStream!
-            StreamReader streamReader = new StreamReader(inputStream);
-            string strResponse = await streamReader.ReadLineAsync();
-            if (strResponse != null)
-            {
-                //We simply acquire the code in the string beforehand.
-                JObject activity;
-                string code = "";
-                foreach(char character in strResponse)
-                {
-                    if (character == '[' || character == '{')
-                        break;
-                    else code += character;
-                }
-                //Handle the code's value
-                switch (code)
-                {
-                    case "0":
-                        await SendMessageAsync("40", CancellationToken.None);
-                        break;
-                    case "40":
-                        break;
-                    case "42":
-                        if (strResponse.Contains("\"operational\""))
-                            await SendMessageAsync("42[\"saleFeedJoin\",{\"appid\":730,\"currency\":\"CAD\",\"locale\":\"en\"}]", CancellationToken.None);
-                        else if (strResponse.Contains("saleFeed"))
-                        {
-                            strResponse = strResponse.Replace("\\", "");
-                            strResponse = strResponse.Remove(strResponse.Length - 1);
-                            strResponse = strResponse.Replace("42[\"saleFeed\",", "");
-                            activity = JObject.Parse(strResponse);
-                            skinportMarketActivity.Add(activity);
-                        }
-                        break;
-                }
-            }
-            await SendMessageAsync("42", CancellationToken.None);
-        }
-
-        public void Dispose() => DisconnectAsync().Wait();
-        private ClientWebSocket WS;
-        private CancellationTokenSource CTS;
-        public void FilterMarketActivity()
-        {
-            List<JObject> newList = new List<JObject>();
-            foreach(JObject activity in skinportMarketActivity)
-            {
-                if (activity["eventType"].ToString() == "listed")
-                {
-                    newList.Add(activity);
-                }
-            }
-            skinportMarketActivity = newList;
-        }
-        public List<JObject> GetMarketActivity()
-        {
-            return skinportMarketActivity;
+            cancellationTokenSource.Cancel();
+            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
         }
     }
 }

@@ -7,103 +7,59 @@
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:local="clr-namespace:SkinHound"
         mc:Ignorable="d"
-        Title="Skinhound" MinHeight="465" MinWidth="545" Height="1465" Width="545">
+        Title="Skinhound" MinHeight="475" MinWidth="545" Height="475" Width="545">
     <Grid>
         <Grid Background="#ebecee">
             <TabControl Background="#a09f99">
+                <!-- ******************************* TRACKER ******************************* -->
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock FontSize="16" Text="Tracker" Foreground="Green"/>
+                            <TextBlock FontSize="16" Text="Tracker" Foreground="Black"/>
                             <Image x:Name="LoadingIcon" gif:ImageBehavior.AnimatedSource="resources/images/Loading.gif" Width="18" Visibility="Visible" Margin="4"/>
                         </StackPanel>
                     </TabItem.Header>
                     <!-- Item DealS Grid -->
-                    <ScrollViewer x:Name="DealScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
-                        <WrapPanel x:Name="DealsGrid" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="492" Margin="10">
-                            <!-- Area where the items on deal are inserted/created -->
-                            <Border Background="GhostWhite" BorderBrush="Black" BorderThickness="1" Margin="1">
-                                <Grid x:Name="DealXGrid" Grid.Column="0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition MaxWidth="160" MinWidth="160" Width="40*"/>
-                                        <ColumnDefinition MinWidth="320" MaxWidth="320" Width="29*"/>
-                                        <ColumnDefinition Width="51*"/>
-                                        <ColumnDefinition Width="0*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <!-- Items -->
-                                    <Button Background="#ccc601" Name="DealButtonX" Grid.Column="0" Tag="https://skinport.com/">
-                                        <StackPanel VerticalAlignment="Top" MaxHeight="350" MinHeight="350">
-                                            <Image x:Name="DealXImage" Source="resources\images\RegularNotification.png" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                                            <TextBlock x:Name="DealXItemName" FontSize="16" TextAlignment="Center" TextDecorations="Underline" FontWeight="DemiBold" TextWrapping="WrapWithOverflow" Text="M4A1-S Printsream Factory New"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <ScrollViewer Background="#b2b355" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Grid.Column="1" Grid.ColumnSpan="2">
-                                        <StackPanel Grid.Column="1" >
-                                            <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Skinport Information</Label>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Discount:</Label>
-                                                <TextBlock x:Name="DealXSkinportDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left"  VerticalAlignment="Center">0%</TextBlock>
-                                                <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Price:</Label>
-                                                <TextBlock x:Name="DealXSkinportPrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
-                                                <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Volume Sold Last 30 Days:</Label>
-                                                <TextBlock x:Name="DealXSkinportVolumeSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Median Sold for Last 30 Days:</Label>
-                                                <TextBlock x:Name="DealXSkinportMedianSoldLast30Days" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
-                                            </DockPanel>
-                                            <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">Buff163 Information</Label>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Starting At:</Label>
-                                                <TextBlock x:Name="DealXBuffStartingAt" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">NULL</TextBlock>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Highest Order:</Label>
-                                                <TextBlock x:Name="DealXBuffHighestOrder" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">NULL</TextBlock>
-                                            </DockPanel>
-                                            <Label HorizontalAlignment="Left" FontWeight="Bold" FontSize="16">SkinHound Data</Label>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Discount:</Label>
-                                                <TextBlock x:Name="DealXRecommendedDiscount" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Recommended Sale Price:</Label>
-                                                <TextBlock x:Name="DealXRecommendedSalePrice" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0$</TextBlock>
-                                                <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit % on Resale:</Label>
-                                                <TextBlock x:Name="DealXProfitPOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center"  FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Profit $ on Resale:</Label>
-                                                <TextBlock x:Name="DealXProfitCOnResale" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0%</TextBlock>
-                                                <Image gif:ImageBehavior.AnimatedSource="resources/images/Favorite.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                                            </DockPanel>
-                                            <DockPanel>
-                                                <Label HorizontalAlignment="Center" FontWeight="DemiBold" FontSize="14" VerticalAlignment="Center">Long Term Investment Indicator:</Label>
-                                                <TextBlock x:Name="DealXLTII" FontWeight="DemiBold" FontSize="14" HorizontalAlignment="Left" VerticalAlignment="Center">0</TextBlock>
-                                                <Image gif:ImageBehavior.AnimatedSource="resources/images/Unique.gif" Width="22" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Visible" Margin="3"/>
-                                            </DockPanel>
-                                        </StackPanel>
-                                    </ScrollViewer>
-                                </Grid>
-                            </Border>
-                            <!-- End of the Deal Area-->
-                        </WrapPanel>
-                    </ScrollViewer>
+                    <Grid VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <DockPanel Grid.Row="0">
+                            <DockPanel  DockPanel.Dock="Right" Margin="0,0,20,0">
+                                <Label Target="{Binding ElementName=DealsFilterBox}" FontWeight="DemiBold">Filter By :</Label>
+                                <ComboBox x:Name="DealsFilterBox" SelectedIndex="0" SelectionChanged="DealsFilterBox_SelectionChanged">
+                                    <ComboBoxItem>Price Ascending</ComboBoxItem>
+                                    <ComboBoxItem>Price Descending</ComboBoxItem>
+                                    <ComboBoxItem>Newest</ComboBoxItem>
+                                    <ComboBoxItem>Desired Deals</ComboBoxItem>
+                                    <ComboBoxItem>Deals Quality Ascending</ComboBoxItem>
+                                    <ComboBoxItem>Deals Quality Descending</ComboBoxItem>
+                                    <ComboBoxItem>Name</ComboBoxItem>
+                                    <ComboBoxItem>Investment Value Ascending</ComboBoxItem>
+                                    <ComboBoxItem>Investment Value Descending</ComboBoxItem>
+                                    <ComboBoxItem>LTII Ascending</ComboBoxItem>
+                                    <ComboBoxItem>LTII Descending</ComboBoxItem>
+                                </ComboBox>
+                            </DockPanel>
+                        </DockPanel>
+                        <ScrollViewer x:Name="DealScrollBar" Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Height="Auto" Margin="0,5,0,5" CanContentScroll="True">
+                            <ItemsControl x:Name="DealsGrid" ItemsSource="{Binding DisplayedDeals, Mode=TwoWay}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="492" Margin="10"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
                 </TabItem>
                 <!-- End of Item DealS Grid -->
+                <!-- ******************************* PRICE CHECKER ******************************* -->
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock FontSize="16" Text="Price Check" Foreground="Green" />
+                            <TextBlock FontSize="16" Text="Price Check" Foreground="Black" />
                         </StackPanel>
                     </TabItem.Header>
                     <Grid x:Name="PriceCheckerBody" Background="#a09f99" VerticalAlignment="Stretch">
@@ -123,14 +79,36 @@
                         </DockPanel>
                         <TextBlock x:Name="PriceCheckerMessageBox" Margin="10,10,0,10" Text="Enter a Skin Name to Price Check it" FontSize="18" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="WrapWithOverflow" FontWeight="DemiBold" Grid.Row="2"/>
                         <ScrollViewer x:Name="PriceCheckerScrollBar" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True" Height="Auto" Grid.Row="3">
-                            <WrapPanel x:Name="PriceCheckGrid" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480">
-                                <Border HorizontalAlignment="Center">
-                                    <TextBlock>Items will appear here.</TextBlock>
-                                </Border>
-                            </WrapPanel>
+                            <ItemsControl x:Name="PriceCheckGrid" ItemsSource="{Binding DisplayedPriceChecks}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
                         </ScrollViewer>
                     </Grid>
                 </TabItem>
+                <!-- ******************************* INVESTMENT ******************************* -->
+                <TabItem IsEnabled="false">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="16" Text="Investments" Foreground="Black"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                </TabItem>
+                <!-- ******************************* ACTIVITY FEED ******************************* -->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="16" Text="Activity Feed" Foreground="Black"/>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Grid>
+                        <TextBlock x:Name="WebsocketTextBlock" TextWrapping="WrapWithOverflow">Ping pong motherfucker</TextBlock>
+                    </Grid>
+                </TabItem>
+                <!-- ******************************* SETTINGS ******************************* -->
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
@@ -229,6 +207,7 @@
                         </Border>
                     </ScrollViewer>
                 </TabItem>
+                <!-- ******************************* ABOUT ******************************* -->
                 <TabItem>
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
