@@ -83,7 +83,7 @@ namespace SkinHound
             if (response.IsSuccessStatusCode)
             {
                 string market = await response.Content.ReadAsStringAsync();
-                File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\{DateTime.Now.ToString("d")}-data.json", market);
+                File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\{DateTime.Now.ToString("d").Replace("/","-")}-data.json", market);
             }
             return;
         }
