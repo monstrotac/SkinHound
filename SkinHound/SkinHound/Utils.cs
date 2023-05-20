@@ -2,10 +2,12 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using System.Xml.Linq;
 using Windows.Media.Protection.PlayReady;
 
@@ -80,6 +82,40 @@ namespace SkinHound
                 default:
                     return 0.0f;
                     break;
+            }
+        }
+        public static string GetCurrencySymbol(string currency)
+        {
+            switch (currency)
+            {
+                case "CAD":
+                    return "$";
+                    break;
+                case "EUR":
+                    return "€";
+                    break;
+                case "USD":
+                    return "$";
+                    break;
+                default:
+                    return "$";
+                    break;
+            }
+        }
+        public static async Task<BitmapImage> ConvertBinaryToImage(string image)
+        {
+            byte[] imageBytes = Convert.FromBase64String(image);
+
+            using (MemoryStream ms = new MemoryStream(imageBytes))
+            {
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.StreamSource = ms;
+                bitmapImage.EndInit();
+
+                // Use the bitmapImage as needed
+                return bitmapImage;
             }
         }
     }

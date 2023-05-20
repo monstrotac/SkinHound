@@ -106,13 +106,12 @@
                     </TabItem.Header>
                     <Grid>
                         <ScrollViewer>
-                            <ItemsControl x:Name="ActivityFeed" ItemsSource="{Binding DisplayedActivityFeed}">
+                            <ItemsControl x:Name="ActivityFeed" ItemsSource="{Binding}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480"/>
+                                        <WrapPanel Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="500" ItemWidth="400"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
-                                <TextBlock x:Name="WebsocketTextBlock" TextWrapping="WrapWithOverflow">Ping pong</TextBlock>
                             </ItemsControl>
                         </ScrollViewer>
                     </Grid>

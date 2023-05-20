@@ -74,7 +74,7 @@ namespace SkinHound
         private Image loadingGif;
         private ScrollViewer dealScroll;
         private ScrollViewer priceCheckScroll;
-        private WsClient skinportWebSocket;
+        private WsClient SkinportWebSocket { get; set; }
         //The default content for the config file, in case it does not already exist.
         private const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
@@ -103,6 +103,11 @@ namespace SkinHound
             CSGOTradersPricesFactory.PrepareData();
             InitializeComponent();
             DataContext = this;
+            //Websocket Initialization and DataContext set
+            SkinportWebSocket = new WsClient();
+            //SkinportWebSocket.DisplayedSaleFeed.Add(new SaleFeedItem());
+            ActivityFeed.DataContext = SkinportWebSocket.DisplayedSaleFeed;
+            InitWebSocket();
             //We take a quick moment to Init the values of the settings.
             InitSettingsValue();
             //We update the value of the rates for money conversion later on since everything the Buff163 API returns is in CNY
@@ -114,13 +119,12 @@ namespace SkinHound
             //We start the timer which will automate the deals and refresh them on X configured basis.
             timeIntervalBetweenQuerries = 1000 * 60 * SkinHoundConfiguration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
-            InitWebSocket();
+
         }
         private async void InitWebSocket()
         {
-            skinportWebSocket = new WsClient(WebsocketTextBlock);
-            ActivityFeed.DataContext = skinportWebSocket;
-            await skinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
+
+            await SkinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
         }
         private void InitSettingsValue()
         {

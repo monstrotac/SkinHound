@@ -21,15 +21,15 @@ namespace SkinHound
     {
         private const int ReceiveBufferSize = 390108192;
         private const int PingIntervalSeconds = 20;
-
+        private const int MAX_ACTIVITY_DISPLAYED = 250;
         private ClientWebSocket webSocket;
         private CancellationTokenSource cancellationTokenSource;
         private TextBlock block;
         //This is used to handle null values.
         JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
         private List<SaleFeedActivity> saleFeed = new List<SaleFeedActivity>();
-        private ObservableCollection<SaleFeedActivity> _displayedSaleFeed;
-        public ObservableCollection<SaleFeedActivity> DisplayedSaleFeed
+        private ObservableCollection<SaleFeedItem> _displayedSaleFeed;
+        public ObservableCollection<SaleFeedItem> DisplayedSaleFeed
         {
             get { return _displayedSaleFeed; }
             set
@@ -43,9 +43,9 @@ namespace SkinHound
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public WsClient(TextBlock block)
+        public WsClient()
         {
-            this.block = block;
+            DisplayedSaleFeed = new ObservableCollection<SaleFeedItem>();
         }
 
         public async Task Connect(string url)
@@ -84,7 +84,7 @@ namespace SkinHound
                             break;
                         case "2":
                             // Received a ping frame (server's "2" ping frame)
-                            // Respond with a pong frame containing the same payload
+                            // Respond with a pong frame containing the payload "3"
                             var pongPayload = System.Text.Encoding.UTF8.GetBytes("3");
                             await webSocket.SendAsync(pongPayload, WebSocketMessageType.Text, true, CancellationToken.None);
                             break;
@@ -92,14 +92,15 @@ namespace SkinHound
                             break;
                         case "42":
                             if (message.Contains("\"operational\""))
-                                await SendMessage("42[\"saleFeedJoin\",{\"appid\":730,\"currency\":\"CAD\",\"locale\":\"en\"}]");
+                                await SendMessage($"42[\"saleFeedJoin\",{{\"appid\":730,\"currency\":\"{SkinHoundConfiguration.Currency}\",\"locale\":\"en\"}}]");
                             else if (message.Contains("saleFeed") && message != null)
                             {
                                 string formatedMsg = message;
                                 formatedMsg = formatedMsg.Remove(formatedMsg.Length - 1);
                                 formatedMsg = formatedMsg.Replace("42[\"saleFeed\",", "");
-                                saleFeed = JsonConvert.DeserializeObject<List<SaleFeedActivity>>(formatedMsg, settings);
-                                await UpdateSaleActivity(saleFeed);
+                                JObject obj = JObject.Parse(formatedMsg);
+                                saleFeed = JsonConvert.DeserializeObject<List<SaleFeedActivity>>(obj["sales"].ToString(), settings);
+                                await UpdateSaleActivity(saleFeed, obj["eventType"].ToString());
                             }
                             break;
                     }
@@ -107,21 +108,21 @@ namespace SkinHound
                 else if (receiveResult.MessageType == WebSocketMessageType.Close)
                 {
                     await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                    block.Text = ("Connection closed by the server.");
                     break;
                 }
             }
         }
         //This method takes care of handling the modifications made to the displayedSaleFeed
-        private async Task UpdateSaleActivity(List<SaleFeedActivity> saleFeed)
+        private async Task UpdateSaleActivity(List<SaleFeedActivity> saleFeed, string eventType)
         {
             foreach (SaleFeedActivity sale in saleFeed)
             {
-                if (DisplayedSaleFeed.Count == 50)
+                if (DisplayedSaleFeed.Count == MAX_ACTIVITY_DISPLAYED)
                 {
-                    DisplayedSaleFeed.RemoveAt(0);
+                    DisplayedSaleFeed.RemoveAt(MAX_ACTIVITY_DISPLAYED-1);
                 }
-                DisplayedSaleFeed.Add(sale);
+                sale.EventType = eventType;
+                DisplayedSaleFeed.Insert(0, new SaleFeedItem(sale));
             }
         }
 
@@ -136,5 +137,6 @@ namespace SkinHound
             cancellationTokenSource.Cancel();
             await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
         }
+
     }
 }

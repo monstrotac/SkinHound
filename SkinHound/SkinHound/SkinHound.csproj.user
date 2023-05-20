@@ -10,6 +10,9 @@
     <Compile Update="ItemDeal.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="SaleFeedItem.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Update="PriceCheckedItem.xaml">
@@ -19,6 +22,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="SaleFeedItem.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Themes\Generic.xaml">
