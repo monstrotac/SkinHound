@@ -1,6 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
@@ -14,16 +17,32 @@ using Windows.Storage.Streams;
 namespace SkinHound
 {
 
-    public class WsClient
+    public class WsClient : INotifyPropertyChanged
     {
         private const int ReceiveBufferSize = 390108192;
         private const int PingIntervalSeconds = 20;
 
         private ClientWebSocket webSocket;
         private CancellationTokenSource cancellationTokenSource;
-
         private TextBlock block;
-
+        //This is used to handle null values.
+        JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+        private List<SaleFeedActivity> saleFeed = new List<SaleFeedActivity>();
+        private ObservableCollection<SaleFeedActivity> _displayedSaleFeed;
+        public ObservableCollection<SaleFeedActivity> DisplayedSaleFeed
+        {
+            get { return _displayedSaleFeed; }
+            set
+            {
+                _displayedSaleFeed = value;
+                OnPropertyChanged(nameof(DisplayedSaleFeed));
+            }
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public WsClient(TextBlock block)
         {
             this.block = block;
@@ -48,7 +67,6 @@ namespace SkinHound
                 if (receiveResult.MessageType == WebSocketMessageType.Text)
                 {
                     var message = System.Text.Encoding.UTF8.GetString(buffer.Array, 0, receiveResult.Count);
-                    block.Text = ("Received message: " + message);
                     //We simply acquire the code in the string beforehand.
                     JObject activity;
                     string code = "";
@@ -66,7 +84,6 @@ namespace SkinHound
                             break;
                         case "2":
                             // Received a ping frame (server's "2" ping frame)
-                            block.Text = ("Received ping frame. Responding with pong frame.");
                             // Respond with a pong frame containing the same payload
                             var pongPayload = System.Text.Encoding.UTF8.GetBytes("3");
                             await webSocket.SendAsync(pongPayload, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -76,13 +93,13 @@ namespace SkinHound
                         case "42":
                             if (message.Contains("\"operational\""))
                                 await SendMessage("42[\"saleFeedJoin\",{\"appid\":730,\"currency\":\"CAD\",\"locale\":\"en\"}]");
-                            else if (message.Contains("saleFeed"))
+                            else if (message.Contains("saleFeed") && message != null)
                             {
                                 string formatedMsg = message;
                                 formatedMsg = formatedMsg.Remove(formatedMsg.Length - 1);
                                 formatedMsg = formatedMsg.Replace("42[\"saleFeed\",", "");
-                                activity = JObject.Parse(formatedMsg);
-                                //saleFeed.Add(activity);
+                                saleFeed = JsonConvert.DeserializeObject<List<SaleFeedActivity>>(formatedMsg, settings);
+                                await UpdateSaleActivity(saleFeed);
                             }
                             break;
                     }
@@ -93,6 +110,18 @@ namespace SkinHound
                     block.Text = ("Connection closed by the server.");
                     break;
                 }
+            }
+        }
+        //This method takes care of handling the modifications made to the displayedSaleFeed
+        private async Task UpdateSaleActivity(List<SaleFeedActivity> saleFeed)
+        {
+            foreach (SaleFeedActivity sale in saleFeed)
+            {
+                if (DisplayedSaleFeed.Count == 50)
+                {
+                    DisplayedSaleFeed.RemoveAt(0);
+                }
+                DisplayedSaleFeed.Add(sale);
             }
         }
 

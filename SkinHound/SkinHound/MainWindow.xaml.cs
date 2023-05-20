@@ -119,6 +119,7 @@ namespace SkinHound
         private async void InitWebSocket()
         {
             skinportWebSocket = new WsClient(WebsocketTextBlock);
+            ActivityFeed.DataContext = skinportWebSocket;
             await skinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
         }
         private void InitSettingsValue()
@@ -192,8 +193,8 @@ namespace SkinHound
             }
 
             //We update the Environment Variables, this data is stored in the environement for safety measures.
-            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password);
-            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password);
+            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password, EnvironmentVariableTarget.User);
+            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password, EnvironmentVariableTarget.User);
             //We do a bunch of string editing.
             string newSettings = "{" +
                 "\n\t\"desired_weapons_min_discount_threshold\": " + SettingsDesiredDiscountThreshold.Text + "," +
@@ -720,7 +721,6 @@ namespace SkinHound
             {
                 DisplayedDeals = newList;
             });
-            var o = 3;
             return;
         }
         enum DealsFilterType 

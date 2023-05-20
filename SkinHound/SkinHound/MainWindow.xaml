@@ -105,7 +105,16 @@
                         </StackPanel>
                     </TabItem.Header>
                     <Grid>
-                        <TextBlock x:Name="WebsocketTextBlock" TextWrapping="WrapWithOverflow">Ping pong motherfucker</TextBlock>
+                        <ScrollViewer>
+                            <ItemsControl x:Name="ActivityFeed" ItemsSource="{Binding DisplayedActivityFeed}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Margin="10" HorizontalAlignment="Center" VerticalAlignment="Top" ItemHeight="350" ItemWidth="480"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <TextBlock x:Name="WebsocketTextBlock" TextWrapping="WrapWithOverflow">Ping pong</TextBlock>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </Grid>
                 </TabItem>
                 <!-- ******************************* SETTINGS ******************************* -->

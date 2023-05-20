@@ -42,7 +42,7 @@ namespace SkinHound
             PriceCheckedXItemName.Text = product.Market_Hash_Name;
             PriceCheckedButtonX.Tag = product.Item_Page;
             PriceCheckedXSkinportDiscount.Text = $"{product.Percentage_Off}%";
-            PriceCheckedXSkinportDiscount.Text = $"{product.Min_Price.ToString("0.00")}{currencySymbol}";
+            PriceCheckedXSkinportPrice.Text = $"{product.Min_Price.ToString("0.00")}{currencySymbol}";
             PriceCheckedXSkinportVolumeSoldLast30Days.Text = $"{product.productMarketHistory.Last_30_days.Volume}";
             PriceCheckedXSkinportMedianSoldLast30Days.Text = $"{product.productMarketHistory.Last_30_days.Median.ToString("0.00")}{currencySymbol}";
             PriceCheckedXBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
