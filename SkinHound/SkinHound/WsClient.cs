@@ -25,6 +25,8 @@ namespace SkinHound
         private ClientWebSocket webSocket;
         private CancellationTokenSource cancellationTokenSource;
         private TextBlock block;
+        private string webSocketString;
+        private bool currentlyListening = false;
         //This is used to handle null values.
         JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
         private List<SaleFeedActivity> saleFeed = new List<SaleFeedActivity>();
@@ -43,13 +45,15 @@ namespace SkinHound
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public WsClient()
+        public WsClient(TextBlock textBlock)
         {
+            block = textBlock;
             DisplayedSaleFeed = new ObservableCollection<SaleFeedItem>();
         }
 
         public async Task Connect(string url)
         {
+            webSocketString = url;
             webSocket = new ClientWebSocket();
             await webSocket.ConnectAsync(new Uri(url), CancellationToken.None);
 
@@ -81,18 +85,24 @@ namespace SkinHound
                     {
                         case "0":
                             await SendMessage("40");
+                            block.Text = "Connection established";
                             break;
                         case "2":
                             // Received a ping frame (server's "2" ping frame)
                             // Respond with a pong frame containing the payload "3"
                             var pongPayload = System.Text.Encoding.UTF8.GetBytes("3");
+                            block.Text = "Ping received, responding with Pong";
                             await webSocket.SendAsync(pongPayload, WebSocketMessageType.Text, true, CancellationToken.None);
                             break;
                         case "40":
                             break;
                         case "42":
                             if (message.Contains("\"operational\""))
+                            {
+                                block.Text = "Steam status operational, now listening";
                                 await SendMessage($"42[\"saleFeedJoin\",{{\"appid\":730,\"currency\":\"{SkinHoundConfiguration.Currency}\",\"locale\":\"en\"}}]");
+                                currentlyListening = true;
+                            }
                             else if (message.Contains("saleFeed") && message != null)
                             {
                                 string formatedMsg = message;
@@ -136,7 +146,9 @@ namespace SkinHound
         {
             cancellationTokenSource.Cancel();
             await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+            block.Text = "Connection to WebSocket lost, attempting to reconnect";
+            await Connect(webSocketString);
+            currentlyListening = false;
         }
-
     }
 }

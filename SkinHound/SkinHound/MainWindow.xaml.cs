@@ -104,7 +104,7 @@ namespace SkinHound
             InitializeComponent();
             DataContext = this;
             //Websocket Initialization and DataContext set
-            SkinportWebSocket = new WsClient();
+            SkinportWebSocket = new WsClient(ActivityFeedStatus);
             //SkinportWebSocket.DisplayedSaleFeed.Add(new SaleFeedItem());
             ActivityFeed.DataContext = SkinportWebSocket.DisplayedSaleFeed;
             InitWebSocket();
@@ -123,7 +123,6 @@ namespace SkinHound
         }
         private async void InitWebSocket()
         {
-
             await SkinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
         }
         private void InitSettingsValue()
