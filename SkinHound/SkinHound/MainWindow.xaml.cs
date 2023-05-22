@@ -149,7 +149,7 @@ namespace SkinHound
                 SettingsSkinportClientId.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR);
             if (Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR) != null)
                 SettingsSkinportClientSecret.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR);
-            SettingsMinWorthValue.Text = SkinHoundConfiguration.Minimum_Worth_Value.ToString();
+            SettingsMinWorthValue.Text = SkinHoundConfiguration.Minimum_Worth_Value.ToString("0.00");
             SettingsMinutesBetweenQuerries.Text = SkinHoundConfiguration.Minutes_Between_Queries.ToString();
             SettingsCurrencyList.SelectedIndex = currencyIndex;
             //Deals section
