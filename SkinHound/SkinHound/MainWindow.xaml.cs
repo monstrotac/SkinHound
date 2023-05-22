@@ -74,7 +74,7 @@ namespace SkinHound
         private Image loadingGif;
         private ScrollViewer dealScroll;
         private ScrollViewer priceCheckScroll;
-        private WsClient skinportWebSocket;
+        private WsClient SkinportWebSocket { get; set; }
         //The default content for the config file, in case it does not already exist.
         private const string DEFAULT_CONFIG_FILE_CONTENT = "{" +
           "\n\t\"desired_weapons_min_discount_threshold\": 22.0," +
@@ -103,6 +103,11 @@ namespace SkinHound
             CSGOTradersPricesFactory.PrepareData();
             InitializeComponent();
             DataContext = this;
+            //Websocket Initialization and DataContext set
+            SkinportWebSocket = new WsClient(ActivityFeedStatus);
+            //SkinportWebSocket.DisplayedSaleFeed.Add(new SaleFeedItem());
+            ActivityFeed.DataContext = SkinportWebSocket.DisplayedSaleFeed;
+            InitWebSocket();
             //We take a quick moment to Init the values of the settings.
             InitSettingsValue();
             //We update the value of the rates for money conversion later on since everything the Buff163 API returns is in CNY
@@ -114,12 +119,11 @@ namespace SkinHound
             //We start the timer which will automate the deals and refresh them on X configured basis.
             timeIntervalBetweenQuerries = 1000 * 60 * SkinHoundConfiguration.Minutes_Between_Queries;
             refreshProcess = new Timer(DealsGridHandler, null, 0, timeIntervalBetweenQuerries);
-            InitWebSocket();
+
         }
         private async void InitWebSocket()
         {
-            skinportWebSocket = new WsClient(WebsocketTextBlock);
-            await skinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
+            await SkinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
         }
         private void InitSettingsValue()
         {
@@ -145,7 +149,7 @@ namespace SkinHound
                 SettingsSkinportClientId.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR);
             if (Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR) != null)
                 SettingsSkinportClientSecret.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR);
-            SettingsMinWorthValue.Text = SkinHoundConfiguration.Minimum_Worth_Value.ToString();
+            SettingsMinWorthValue.Text = SkinHoundConfiguration.Minimum_Worth_Value.ToString("0.00");
             SettingsMinutesBetweenQuerries.Text = SkinHoundConfiguration.Minutes_Between_Queries.ToString();
             SettingsCurrencyList.SelectedIndex = currencyIndex;
             //Deals section
@@ -192,8 +196,8 @@ namespace SkinHound
             }
 
             //We update the Environment Variables, this data is stored in the environement for safety measures.
-            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password);
-            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password);
+            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password, EnvironmentVariableTarget.User);
+            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password, EnvironmentVariableTarget.User);
             //We do a bunch of string editing.
             string newSettings = "{" +
                 "\n\t\"desired_weapons_min_discount_threshold\": " + SettingsDesiredDiscountThreshold.Text + "," +
@@ -720,7 +724,6 @@ namespace SkinHound
             {
                 DisplayedDeals = newList;
             });
-            var o = 3;
             return;
         }
         enum DealsFilterType 

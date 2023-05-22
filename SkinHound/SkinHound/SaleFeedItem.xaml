@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="SkinHound.SaleFeedItem"
+          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+          xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+          xmlns:local="clr-namespace:SkinHound"
+          xmlns:gif="http://wpfanimatedgif.codeplex.com"
+          mc:Ignorable="d" 
+          d:DesignHeight="550" d:DesignWidth="400">
+    <!-- Area where the price cheked items are inserted/created -->
+    <Border BorderBrush="Black" BorderThickness="1" Margin="2.5">
+        <Button Background="LightGray" Name="FeedButtonX" DockPanel.Dock="Top" Click="FeedClicked" Tag="https://skinport.com/">
+            <DockPanel x:Name="FeedXBody" HorizontalAlignment="Center">
+                <!-- Items -->
+                <Label x:Name="FeedXEventType" HorizontalAlignment="Center"  DockPanel.Dock="Top" FontWeight="Bold" FontSize="24">Listed</Label>
+                <TextBlock x:Name="FeedXSaleType" HorizontalAlignment="Center"  DockPanel.Dock="Top" FontWeight="DemiBold" FontSize="16">Public</TextBlock>
+                <Image x:Name="FeedXImage" Source="resources/images/SkinhoundLogo.png" HorizontalAlignment="Center" DockPanel.Dock="Top" Height="200"/>
+                <TextBlock x:Name="FeedXName" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="DemiBold" DockPanel.Dock="Top" FontSize="18" TextWrapping="WrapWithOverflow">Desert Eagle</TextBlock>
+                <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top">
+                    <Label FontWeight="DemiBold" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14">Pattern:</Label>
+                    <TextBlock x:Name="FeedXPattern" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="14" TextWrapping="WrapWithOverflow">3012</TextBlock>
+                </DockPanel>
+                <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top">
+                    <Label FontWeight="DemiBold" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14">Version:</Label>
+                    <TextBlock x:Name="FeedXVersion" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="14" TextWrapping="WrapWithOverflow">X</TextBlock>
+                </DockPanel>
+                <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top">
+                    <Label FontWeight="DemiBold" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14">Float:</Label>
+                    <TextBlock x:Name="FeedXWear" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="14" TextWrapping="WrapWithOverflow">0.0</TextBlock>
+                </DockPanel>
+                <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top">
+                    <Label FontWeight="DemiBold" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14">Sale Price:</Label>
+                    <TextBlock x:Name="FeedXSalePrice" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="14" TextWrapping="WrapWithOverflow">X</TextBlock>
+                </DockPanel>
+                <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top">
+                    <Label FontWeight="DemiBold" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14">Recommended Price:</Label>
+                    <TextBlock x:Name="FeedXRecommendedPrice" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="14" TextWrapping="WrapWithOverflow">X</TextBlock>
+                </DockPanel>
+                <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top">
+                    <Label FontWeight="DemiBold" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="14">Discount:</Label>
+                    <TextBlock x:Name="FeedXDiscount" HorizontalAlignment="Left" VerticalAlignment="Center" FontWeight="DemiBold" FontSize="14" TextWrapping="WrapWithOverflow">X</TextBlock>
+                </DockPanel>
+            </DockPanel>
+        </Button>
+    </Border>
+</UserControl>

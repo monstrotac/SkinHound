@@ -1,22 +1,8 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Windows.Storage.Pickers;
 
 namespace SkinHound
 {
@@ -42,7 +28,7 @@ namespace SkinHound
             PriceCheckedXItemName.Text = product.Market_Hash_Name;
             PriceCheckedButtonX.Tag = product.Item_Page;
             PriceCheckedXSkinportDiscount.Text = $"{product.Percentage_Off}%";
-            PriceCheckedXSkinportDiscount.Text = $"{product.Min_Price.ToString("0.00")}{currencySymbol}";
+            PriceCheckedXSkinportPrice.Text = $"{product.Min_Price.ToString("0.00")}{currencySymbol}";
             PriceCheckedXSkinportVolumeSoldLast30Days.Text = $"{product.productMarketHistory.Last_30_days.Volume}";
             PriceCheckedXSkinportMedianSoldLast30Days.Text = $"{product.productMarketHistory.Last_30_days.Median.ToString("0.00")}{currencySymbol}";
             PriceCheckedXBuffStartingAt.Text = $"{(curItemGlobalData.Buff163.Starting_At * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
@@ -50,7 +36,7 @@ namespace SkinHound
             PriceCheckedXSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
             PriceCheckedXSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
             PriceCheckedXRecommendedDiscount.Text = $"{product.recommendedDiscount}";
-            PriceCheckedXRecommendedSalePrice.Text = $"{product.recommendedResellPrice}{currencySymbol}";
+            PriceCheckedXRecommendedSalePrice.Text = $"{product.recommendedResellPrice}";
             PriceCheckedXProfitPOnResale.Text = $"{product.profitPercentageOnResellPrice}";
             PriceCheckedXProfitCOnResale.Text = $"{product.profitMoneyOnResellPrice}{currencySymbol}";
             PriceCheckedXLTII.Text = $"{await product.productMarketHistory.GetLongTermPercentageProfit()}%";
