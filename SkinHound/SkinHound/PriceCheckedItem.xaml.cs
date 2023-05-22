@@ -36,7 +36,7 @@ namespace SkinHound
             PriceCheckedXSteamLast7Days.Text = $"{(curItemGlobalData.Steam.Last_7d * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
             PriceCheckedXSteamLast30Days.Text = $"{(curItemGlobalData.Steam.Last_30d * Utils.GetCurrencyRateFromUSD(SkinHoundConfiguration.Currency)).ToString("0.00")}{currencySymbol}";
             PriceCheckedXRecommendedDiscount.Text = $"{product.recommendedDiscount}";
-            PriceCheckedXRecommendedSalePrice.Text = $"{product.recommendedResellPrice}{currencySymbol}";
+            PriceCheckedXRecommendedSalePrice.Text = $"{product.recommendedResellPrice}";
             PriceCheckedXProfitPOnResale.Text = $"{product.profitPercentageOnResellPrice}";
             PriceCheckedXProfitCOnResale.Text = $"{product.profitMoneyOnResellPrice}{currencySymbol}";
             PriceCheckedXLTII.Text = $"{await product.productMarketHistory.GetLongTermPercentageProfit()}%";
