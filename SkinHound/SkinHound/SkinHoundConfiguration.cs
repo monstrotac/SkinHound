@@ -35,7 +35,7 @@ namespace SkinHound
         //Outstanding discounts are discounts that rarely happen. 
         public static double Outstanding_Discount_Threshold { get; set; }
         //Any item with a value lower than the min desired price will not be shown even if they have a great discount.
-        public static decimal Minimum_Worth_Value { get; set; }
+        public static double Minimum_Worth_Value { get; set; }
         //This var dictates at which interval (in minutes) we make calls to Skinport to refresh the store.
         public static int Minutes_Between_Queries { get; set; }
         //Having this set to true will make it so that you will receive notifications for all desired weapons above or equal the Desired_Weapons_Min_Discount_Threshold.
