@@ -127,7 +127,7 @@ namespace SkinHound
             //These variables are used to determine what type of notification we will be sending.
             bool VerificationsPassed = false;
             //Before anything, we check if the current Suggested_Price corresponds to what we're looking for.
-            if (product.Suggested_Price <= SkinHoundConfiguration.Minimum_Worth_Value)
+            if ((double)product.Suggested_Price <= SkinHoundConfiguration.Minimum_Worth_Value)
                 return null;
             //We force the product to update its percentage off to make sure it is up to date and already calculated.
             product.UpdatePercentageOff();
