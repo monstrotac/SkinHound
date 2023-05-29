@@ -8,8 +8,19 @@
           mc:Ignorable="d" 
           d:DesignHeight="550" d:DesignWidth="400">
     <!-- Area where the price cheked items are inserted/created -->
-    <Border BorderBrush="Black" BorderThickness="1" Margin="2.5">
+    <Border x:Name="FeedXBorder" BorderBrush="Black" BorderThickness="1" Margin="2.5" MaxHeight="5">
         <Button Background="LightGray" Name="FeedButtonX" DockPanel.Dock="Top" Click="FeedClicked" Tag="https://skinport.com/">
+            <Button.Triggers>
+                <EventTrigger RoutedEvent="Button.Loaded">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="FeedXBorder" Storyboard.TargetProperty="(Border.MaxHeight)" To="1500" Duration="0:0:01">
+                                
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Button.Triggers>
             <DockPanel x:Name="FeedXBody" HorizontalAlignment="Center">
                 <!-- Items -->
                 <Label x:Name="FeedXEventType" HorizontalAlignment="Center"  DockPanel.Dock="Top" FontWeight="Bold" FontSize="24">Listed</Label>

@@ -21,7 +21,7 @@ namespace SkinHound
     {
         private const int ReceiveBufferSize = 390108192;
         private const int PingIntervalSeconds = 20;
-        private const int MAX_ACTIVITY_DISPLAYED = 1000;
+        private const int MAX_ACTIVITY_DISPLAYED = 500;
         private ClientWebSocket webSocket;
         private CancellationTokenSource cancellationTokenSource;
         private TextBlock block;
