@@ -44,16 +44,18 @@ namespace SkinHound
             //FeedXImage.Source = await Utils.ConvertBinaryToImage(activity.Image);
             FeedXSaleType.Text = activity.SaleType;
             FeedXWear.Text = $"{activity.Wear}";
-            if(activity.IsDesired)
-                if(((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Outstanding_Discount_Threshold)
+            if (activity.IsDesired)
+            {
+                if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Outstanding_Discount_Threshold)
                     FeedButtonX.Background = Brushes.HotPink;
-                else if(((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Great_Discount_Threshold)
+                else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Great_Discount_Threshold)
                     FeedButtonX.Background = Brushes.AliceBlue;
                 else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Good_Discount_Threshold)
                     FeedButtonX.Background = Brushes.Cyan;
                 else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold)
                     FeedButtonX.Background = Brushes.LightBlue;
-                else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Outstanding_Discount_Threshold && activity.SuggestedPrice/100 >= (double)SkinHoundConfiguration.Minimum_Worth_Value)
+            }
+            else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Outstanding_Discount_Threshold && activity.SuggestedPrice / 100 >= (double)SkinHoundConfiguration.Minimum_Worth_Value)
                 FeedButtonX.Background = Brushes.LightGreen;
             else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Great_Discount_Threshold && activity.SuggestedPrice/100 >= (double)SkinHoundConfiguration.Minimum_Worth_Value)
                 FeedButtonX.Background = Brushes.LightYellow;

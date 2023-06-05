@@ -194,13 +194,13 @@ namespace SkinHound
                 if((eventType.Contains("sold") && salesOn) || (eventType.Contains("listed") && listingOn))
                 {
                     if(await Utils.VerifyIfDesired(sale.MarketHashName, 0))
-                        if(desiredOn)
+                    {
+                        if (desiredOn && ((1 - sale.SalePrice / sale.SuggestedPrice) * 100) >= SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold)
                         {
                             sale.IsDesired = true;
                             DisplayedSaleFeed.Insert(0, new SaleFeedItem(sale));
                         }
-                    if (((1 - sale.SalePrice / sale.SuggestedPrice) * 100) >= SkinHoundConfiguration.Good_Discount_Threshold && sale.SalePrice >= SkinHoundConfiguration.Minimum_Worth_Value)
-                    {
+                    } else if (((1 - sale.SalePrice / sale.SuggestedPrice) * 100 >= SkinHoundConfiguration.Good_Discount_Threshold) && sale.SuggestedPrice/100 >= SkinHoundConfiguration.Minimum_Worth_Value) {
                         if (dealsOn)
                             DisplayedSaleFeed.Insert(0, new SaleFeedItem(sale));
                     } else if (untrackedOn)
