@@ -26,5 +26,6 @@ namespace SkinHound
         public string Url { get; set; }
         public float Wear { get; set; }
         public int SaleId { get; set; }
+        public bool IsDesired { get; set; }
     }
 }

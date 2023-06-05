@@ -44,7 +44,7 @@ namespace SkinHound
         public static bool Notifications_Enabled { get; set; }
         //In what currency should the prices be shown?
         public static string Currency { get; set; }
-        public static void SetNewConfig(ConfigurationObject obj)
+        public async static Task SetNewConfig(ConfigurationObject obj)
         {
             Desired_Weapons = obj.Desired_Weapons;
             Desired_Weapons_Min_Discount_Threshold = obj.Desired_Weapons_Min_Discount_Threshold;
@@ -56,6 +56,7 @@ namespace SkinHound
             Notify_On_All_Desired_Weapons = obj.Notify_On_All_Desired_Weapons;
             Notifications_Enabled = obj.Notifications_Enabled;
             Currency = obj.Currency;
+            return;
         }
     }
     //This class is used to quickly and effortlessly set a new config.
