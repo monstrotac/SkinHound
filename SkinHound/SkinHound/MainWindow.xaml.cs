@@ -105,8 +105,14 @@ namespace SkinHound
             DataContext = this;
             //Websocket Initialization and DataContext set
             SkinportWebSocket = new WsClient(ActivityFeedStatus);
-            //SkinportWebSocket.DisplayedSaleFeed.Add(new SaleFeedItem());
             ActivityFeed.DataContext = SkinportWebSocket.DisplayedSaleFeed;
+
+            ActivityFeedUntrackedCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedListingCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedSalesCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedGoodDealsCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedDesiredWeaponsCheckBox.DataContext = SkinportWebSocket;
+
             InitWebSocket();
             //We take a quick moment to Init the values of the settings.
             InitSettingsValue();
