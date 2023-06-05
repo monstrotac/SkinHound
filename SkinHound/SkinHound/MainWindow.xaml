@@ -107,10 +107,23 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="30"/>
+                            <RowDefinition Height="40"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <TextBlock x:Name="ActivityFeedStatus" FontSize="12" Grid.Row="0" HorizontalAlignment="Center" Margin="5" TextAlignment="Center">Initializing WebSocket . . .</TextBlock>
-                        <ScrollViewer Grid.Row="1">
+                        <DockPanel x:Name="ActivityFeedFilterBox" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                            <CheckBox x:Name="ActivityFeedUntrackedCheckBox" VerticalAlignment="Center" IsChecked="{Binding Path=UntrackedOn}"/>
+                            <Label Target="{Binding ElementName=ActivityFeedUntrackedCheckBox}" FontWeight="DemiBold">Show Untracked</Label>
+                            <CheckBox x:Name="ActivityFeedDesiredWeaponsCheckBox" VerticalAlignment="Center" IsChecked="{Binding Path=DesiredOn}"/>
+                            <Label Target="{Binding ElementName=ActivityFeedDesiredWeaponsCheckBox}" FontWeight="DemiBold">Show Desired</Label>
+                            <CheckBox x:Name="ActivityFeedGoodDealsCheckBox" VerticalAlignment="Center" IsChecked="{Binding Path=DealsOn}"/>
+                            <Label Target="{Binding ElementName=ActivityFeedGoodDealsCheckBox}" FontWeight="DemiBold">Show Deals</Label>
+                            <CheckBox x:Name="ActivityFeedSalesCheckBox" VerticalAlignment="Center" IsChecked="{Binding Path=SalesOn}"/>
+                            <Label Target="{Binding ElementName=ActivityFeedSalesCheckBox}" FontWeight="DemiBold">Show Sales</Label>
+                            <CheckBox x:Name="ActivityFeedListingCheckBox" VerticalAlignment="Center" IsChecked="{Binding Path=ListingOn}"/>
+                            <Label Target="{Binding ElementName=ActivityFeedListingCheckBox}" FontWeight="DemiBold">Show Listings</Label>
+                        </DockPanel>
+                        <ScrollViewer Grid.Row="2">
                             <ItemsControl x:Name="ActivityFeed" ItemsSource="{Binding}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
