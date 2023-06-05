@@ -105,8 +105,14 @@ namespace SkinHound
             DataContext = this;
             //Websocket Initialization and DataContext set
             SkinportWebSocket = new WsClient(ActivityFeedStatus);
-            //SkinportWebSocket.DisplayedSaleFeed.Add(new SaleFeedItem());
             ActivityFeed.DataContext = SkinportWebSocket.DisplayedSaleFeed;
+
+            ActivityFeedUntrackedCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedListingCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedSalesCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedGoodDealsCheckBox.DataContext = SkinportWebSocket;
+            ActivityFeedDesiredWeaponsCheckBox.DataContext = SkinportWebSocket;
+
             InitWebSocket();
             //We take a quick moment to Init the values of the settings.
             InitSettingsValue();
@@ -125,7 +131,7 @@ namespace SkinHound
         {
             await SkinportWebSocket.Connect("wss://skinport.com/socket.io/?EIO=4&transport=websocket");
         }
-        private void InitSettingsValue()
+        private async Task InitSettingsValue()
         {
             //Check which index represents the currency
             int currencyIndex = 0;
@@ -160,9 +166,10 @@ namespace SkinHound
             SettingsGoodDiscountThreshold.Text = SkinHoundConfiguration.Good_Discount_Threshold.ToString();
             SettingsGreatDiscountThreshold.Text = SkinHoundConfiguration.Great_Discount_Threshold.ToString();
             SettingsOutstandingDiscountThreshold.Text = SkinHoundConfiguration.Outstanding_Discount_Threshold.ToString();
+            return;
         }
         //This function is needed to update what symbol we're showing on the UI depending on the currency.
-        private void UpdateCurrencySymbol()
+        private async Task UpdateCurrencySymbol()
         {
             switch (SkinHoundConfiguration.Currency)
             {
@@ -176,11 +183,13 @@ namespace SkinHound
                     currencySymbol = "$";
                     break;
             }
+            return;
         }
-        private void SaveSettings(object sender, RoutedEventArgs e)
+        private async void SaveSettings(object sender, RoutedEventArgs e)
         {
-            if (!HandleSavingErrors())
+            if (!await HandleSavingErrors())
                 return;
+            SettingsErrorText.Text = "Saving ...";
             string currencyString = SkinHoundConfiguration.Currency;
             switch (SettingsCurrencyList.SelectedIndex)
             {
@@ -196,8 +205,10 @@ namespace SkinHound
             }
 
             //We update the Environment Variables, this data is stored in the environement for safety measures.
-            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password, EnvironmentVariableTarget.User);
-            Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password, EnvironmentVariableTarget.User);
+            await Task.Run(()=>{
+                Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password, EnvironmentVariableTarget.User);
+                Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password, EnvironmentVariableTarget.User);
+            });
             //We do a bunch of string editing.
             string newSettings = "{" +
                 "\n\t\"desired_weapons_min_discount_threshold\": " + SettingsDesiredDiscountThreshold.Text + "," +
@@ -221,29 +232,29 @@ namespace SkinHound
             "\n}";
             //We overwrite the current Config File with our new settings.
             File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", newSettings);
-            SkinHoundConfiguration.SetNewConfig(JsonConvert.DeserializeObject<ConfigurationObject>(newSettings));
+            await SkinHoundConfiguration.SetNewConfig(JsonConvert.DeserializeObject<ConfigurationObject>(newSettings));
             //We check if the timer changed, if so we order an update
             if (timeIntervalBetweenQuerries != int.Parse(SettingsMinutesBetweenQuerries.Text))
-                ChangeRefreshIntervals(int.Parse(SettingsMinutesBetweenQuerries.Text));
+                await ChangeRefreshIntervals(int.Parse(SettingsMinutesBetweenQuerries.Text));
             //We update the currency symbol
-            UpdateCurrencySymbol();
+            await UpdateCurrencySymbol();
             //We Notify the user if the operation was a success.
             SettingsErrorText.Text = "Settings saved.";
         }
-        private void ResetSettings(object sender, RoutedEventArgs e)
+        private async void ResetSettings(object sender, RoutedEventArgs e)
         {
             //We overwrite the current Config File with the Default settings.
             File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", DEFAULT_CONFIG_FILE_CONTENT);
-            SkinHoundConfiguration.SetNewConfig(JsonConvert.DeserializeObject<ConfigurationObject>(DEFAULT_CONFIG_FILE_CONTENT));
+            await SkinHoundConfiguration.SetNewConfig(JsonConvert.DeserializeObject<ConfigurationObject>(DEFAULT_CONFIG_FILE_CONTENT));
             //We check if the timer changed, if so we order an update
             if (timeIntervalBetweenQuerries != 2)
-                ChangeRefreshIntervals(2);
+                await ChangeRefreshIntervals(2);
             //We update the currency symbol
-            UpdateCurrencySymbol();
+            await UpdateCurrencySymbol();
             //Since we are resetting everything we reinit the settings Value
-            InitSettingsValue();
+            await InitSettingsValue();
         }
-        private bool HandleSavingErrors()
+        private async Task<bool> HandleSavingErrors()
         {
             //We make sure that if any of the variables we have can't be parsed, it won't allow it.
             double doubleTester;
@@ -288,7 +299,7 @@ namespace SkinHound
         {
             skinNamesList = await skinportApiFactory.GetItemsNameList();
         }
-        public void ChangeRefreshIntervals(int period)
+        public async Task ChangeRefreshIntervals(int period)
         {
             timeIntervalBetweenQuerries = period * 60 * 1000;
             refreshProcess.Change(3000, timeIntervalBetweenQuerries);

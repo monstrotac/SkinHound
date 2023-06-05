@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
@@ -27,6 +28,62 @@ namespace SkinHound
         private TextBlock block;
         private string webSocketString;
         private bool currentlyListening = false;
+        //Filters determined by the checkbox
+        private bool untrackedOn = true;
+        private bool dealsOn = true;
+        private bool desiredOn = true;
+        private bool salesOn = true;
+        private bool listingOn = true;
+        public bool UntrackedOn
+        {
+            get { return untrackedOn; }
+            set
+            {
+                untrackedOn = value;
+                block.Text = $"Showing untracked: {value}";
+                OnPropertyChanged(nameof(untrackedOn));
+            }
+        }
+        public bool DealsOn
+        {
+            get { return dealsOn; }
+            set
+            {
+                dealsOn = value;
+                block.Text = $"Showing deals: {value}";
+                OnPropertyChanged(nameof(dealsOn));
+            }
+        }
+        public bool DesiredOn
+        {
+            get { return desiredOn; }
+            set
+            {
+                desiredOn = value;
+                block.Text = $"Showing desired: {value}";
+                OnPropertyChanged(nameof(desiredOn));
+            }
+        }
+        public bool SalesOn
+        {
+            get { return salesOn; }
+            set
+            {
+                salesOn = value;
+                block.Text = $"Showing sales: {value}";
+                OnPropertyChanged(nameof(salesOn));
+            }
+        }
+        public bool ListingOn
+        {
+            get { return listingOn; }
+            set
+            {
+                listingOn = value;
+                block.Text = $"Showing listings: {value}";
+                OnPropertyChanged(nameof(listingOn));
+            }
+        }
         //This is used to handle null values.
         JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
         private List<SaleFeedActivity> saleFeed = new List<SaleFeedActivity>();
@@ -40,6 +97,7 @@ namespace SkinHound
                 OnPropertyChanged(nameof(DisplayedSaleFeed));
             }
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)
         {
@@ -132,7 +190,22 @@ namespace SkinHound
                     DisplayedSaleFeed.RemoveAt(MAX_ACTIVITY_DISPLAYED-1);
                 }
                 sale.EventType = eventType;
-                DisplayedSaleFeed.Insert(0, new SaleFeedItem(sale));
+                //We process verifications here before inserting the newest activity.
+                if((eventType.Contains("sold") && salesOn) || (eventType.Contains("listed") && listingOn))
+                {
+                    if(await Utils.VerifyIfDesired(sale.MarketHashName, 0))
+                    {
+                        if (desiredOn && ((1 - sale.SalePrice / sale.SuggestedPrice) * 100) >= SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold)
+                        {
+                            sale.IsDesired = true;
+                            DisplayedSaleFeed.Insert(0, new SaleFeedItem(sale));
+                        }
+                    } else if (((1 - sale.SalePrice / sale.SuggestedPrice) * 100 >= SkinHoundConfiguration.Good_Discount_Threshold) && sale.SuggestedPrice/100 >= SkinHoundConfiguration.Minimum_Worth_Value) {
+                        if (dealsOn)
+                            DisplayedSaleFeed.Insert(0, new SaleFeedItem(sale));
+                    } else if (untrackedOn)
+                        DisplayedSaleFeed.Insert(0, new SaleFeedItem(sale));
+                }
             }
         }
 
@@ -141,7 +214,11 @@ namespace SkinHound
             var buffer = new ArraySegment<byte>(System.Text.Encoding.UTF8.GetBytes(message));
             await webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
         }
-
+        public async Task UpdateFilters()
+        {
+            DisplayedSaleFeed.Clear();
+            return;
+        }
         public async Task CloseConnection()
         {
             cancellationTokenSource.Cancel();

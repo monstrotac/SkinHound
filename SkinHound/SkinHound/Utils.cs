@@ -118,5 +118,16 @@ namespace SkinHound
                 return bitmapImage;
             }
         }
+        //Allows us to verify if a weapon is desired
+        public async static Task<bool> VerifyIfDesired(string itemName, int i = 0)
+        {
+            if (SkinHoundConfiguration.Desired_Weapons.Count == 0)
+                return false;
+            if (itemName.ToLower().Contains($"{SkinHoundConfiguration.Desired_Weapons.ElementAt(i).ToLower()}"))
+                return true;
+            else if (SkinHoundConfiguration.Desired_Weapons.Count - 1 > i)
+                return VerifyIfDesired(itemName, i + 1).Result;
+            return false;
+        }
     }
 }

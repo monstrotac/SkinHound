@@ -139,7 +139,7 @@ namespace SkinHound
                 await AcquireMarketHistory();
             double recommendedDiscount = 0;
             //Before anything happens, we start by verfying if it's a desired weapon.
-            if (VerifyIfDesired(product.Market_Hash_Name) && product.Percentage_Off > SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold)
+            if (await VerifyIfDesired(product.Market_Hash_Name) && product.Percentage_Off > SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold)
             {
                 ProductMarketHistory productMarketHistory = await GetProductMarketHistory(product.Market_Hash_Name);
                 product.productMarketHistory = productMarketHistory;
@@ -246,14 +246,14 @@ namespace SkinHound
         }
 
         //This method is used to verify if the item is desired by looping through the elements inside of the list of desired weapons, if it isn't, it returns false.
-        private static bool VerifyIfDesired(string itemName, int i = 0)
+        private async static Task<bool> VerifyIfDesired(string itemName, int i = 0)
         {
             if (SkinHoundConfiguration.Desired_Weapons.Count == 0)
                 return false;
             if (itemName.ToLower().Contains($"{SkinHoundConfiguration.Desired_Weapons.ElementAt(i).ToLower()}"))
                 return true;
             else if (SkinHoundConfiguration.Desired_Weapons.Count - 1 > i)
-                return VerifyIfDesired(itemName, i + 1);
+                return VerifyIfDesired(itemName, i + 1).Result;
             return false;
         }
         //Gets the global product list which has little details to it.
