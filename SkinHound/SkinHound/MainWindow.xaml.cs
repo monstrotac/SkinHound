@@ -189,6 +189,7 @@ namespace SkinHound
         {
             if (!await HandleSavingErrors())
                 return;
+            SettingsErrorText.Text = "Saving ...";
             string currencyString = SkinHoundConfiguration.Currency;
             switch (SettingsCurrencyList.SelectedIndex)
             {
@@ -206,8 +207,6 @@ namespace SkinHound
             //We update the Environment Variables, this data is stored in the environement for safety measures.
             await Task.Run(()=>{
                 Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password, EnvironmentVariableTarget.User);
-            });
-            await Task.Run(() => {
                 Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password, EnvironmentVariableTarget.User);
             });
             //We do a bunch of string editing.

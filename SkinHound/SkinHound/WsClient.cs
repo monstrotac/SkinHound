@@ -40,6 +40,7 @@ namespace SkinHound
             set
             {
                 untrackedOn = value;
+                _displayedSaleFeed.Clear();
                 OnPropertyChanged(nameof(untrackedOn));
             }
         }
@@ -49,6 +50,7 @@ namespace SkinHound
             set
             {
                 dealsOn = value;
+                _displayedSaleFeed.Clear();
                 OnPropertyChanged(nameof(dealsOn));
             }
         }
@@ -58,6 +60,7 @@ namespace SkinHound
             set
             {
                 desiredOn = value;
+                _displayedSaleFeed.Clear();
                 OnPropertyChanged(nameof(desiredOn));
             }
         }
@@ -67,6 +70,7 @@ namespace SkinHound
             set
             {
                 salesOn = value;
+                _displayedSaleFeed.Clear();
                 OnPropertyChanged(nameof(salesOn));
             }
         }
@@ -76,6 +80,7 @@ namespace SkinHound
             set
             {
                 listingOn = value;
+                _displayedSaleFeed.Clear();
                 OnPropertyChanged(nameof(listingOn));
             }
         }
