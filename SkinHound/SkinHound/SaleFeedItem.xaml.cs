@@ -42,7 +42,7 @@ namespace SkinHound
 
             //Need to implement a request to an API which will show images, apparently the Base64 code is used for such thing and not for generating an image.
             //FeedXImage.Source = await Utils.ConvertBinaryToImage(activity.Image);
-            FeedXSaleType.Text = activity.SaleType;
+            FeedXSaleTime.Text = $"{activity.ActivityTime.ToString("HH:mm:ss")}";
             FeedXWear.Text = $"{activity.Wear}";
             if (activity.IsDesired)
             {

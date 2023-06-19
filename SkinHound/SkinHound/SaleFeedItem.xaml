@@ -24,7 +24,7 @@
             <DockPanel x:Name="FeedXBody" HorizontalAlignment="Center">
                 <!-- Items -->
                 <Label x:Name="FeedXEventType" HorizontalAlignment="Center"  DockPanel.Dock="Top" FontWeight="Bold" FontSize="24">Listed</Label>
-                <TextBlock x:Name="FeedXSaleType" HorizontalAlignment="Center"  DockPanel.Dock="Top" FontWeight="DemiBold" FontSize="16">Public</TextBlock>
+                <TextBlock x:Name="FeedXSaleTime" HorizontalAlignment="Center"  DockPanel.Dock="Top" FontWeight="DemiBold" FontSize="16">HH:mm:ss</TextBlock>
                 <Image x:Name="FeedXImage" Source="resources/images/SkinhoundLogo.png" HorizontalAlignment="Center" DockPanel.Dock="Top" Height="200"/>
                 <TextBlock x:Name="FeedXName" HorizontalAlignment="Center" TextAlignment="Center" FontWeight="DemiBold" DockPanel.Dock="Top" FontSize="18" TextWrapping="WrapWithOverflow">Desert Eagle</TextBlock>
                 <DockPanel HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top">
