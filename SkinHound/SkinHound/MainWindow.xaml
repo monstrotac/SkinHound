@@ -23,6 +23,7 @@
                     <Grid VerticalAlignment="Stretch" Margin="0,5,0,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="25"/>
+                            <RowDefinition Height="30"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <DockPanel Grid.Row="0">
@@ -43,7 +44,15 @@
                                 </ComboBox>
                             </DockPanel>
                         </DockPanel>
-                        <ScrollViewer x:Name="DealScrollBar" Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Height="Auto" Margin="0,5,0,5" CanContentScroll="True">
+                        <DockPanel Grid.Row="1" LastChildFill="False" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,5,0,0">
+                            <!--Dynamic paging-->
+                            <Button x:Name="PagingFirstButton" FontSize="14" Content="&lt;&lt;" Click="PagingFirstButton_Click"/>
+                            <Button x:Name="PagingPrevButton" FontSize="14" Content="&lt;" Margin="5,0,5,0" Click="PagingPrevButton_Click"/>
+                            <TextBlock x:Name="PagingIndexText" FontSize="14" Margin="5,0,5,0" VerticalAlignment="Center" Text="Page X of X"/>
+                            <Button x:Name="PagingNextButton" FontSize="14" Content=">" Margin="5,0,5,0" Click="PagingNextButton_Click"/>
+                            <Button x:Name="PagingLastButton" FontSize="14" Content=">>" Click="PagingLastButton_Click"/>
+                        </DockPanel>
+                        <ScrollViewer x:Name="DealScrollBar" Grid.Row="2" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Height="Auto" Margin="0,0,0,5" CanContentScroll="True">
                             <ItemsControl x:Name="DealsGrid" ItemsSource="{Binding DisplayedDeals, Mode=TwoWay}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
