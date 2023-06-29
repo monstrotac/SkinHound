@@ -42,18 +42,18 @@ namespace SkinHound
 
             //Need to implement a request to an API which will show images, apparently the Base64 code is used for such thing and not for generating an image.
             //FeedXImage.Source = await Utils.ConvertBinaryToImage(activity.Image);
-            FeedXSaleType.Text = activity.SaleType;
+            FeedXSaleTime.Text = $"{activity.ActivityTime.ToString("HH:mm:ss")}";
             FeedXWear.Text = $"{activity.Wear}";
             if (activity.IsDesired)
             {
                 if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Outstanding_Discount_Threshold)
                     FeedButtonX.Background = Brushes.HotPink;
                 else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Great_Discount_Threshold)
-                    FeedButtonX.Background = Brushes.AliceBlue;
+                    FeedButtonX.Background = Brushes.DodgerBlue;
                 else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Good_Discount_Threshold)
-                    FeedButtonX.Background = Brushes.Cyan;
+                    FeedButtonX.Background = Brushes.SkyBlue;
                 else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold)
-                    FeedButtonX.Background = Brushes.LightBlue;
+                    FeedButtonX.Background = Brushes.CadetBlue;
             }
             else if (((1 - activity.SalePrice / activity.SuggestedPrice) * 100) >= SkinHoundConfiguration.Outstanding_Discount_Threshold && activity.SuggestedPrice / 100 >= (double)SkinHoundConfiguration.Minimum_Worth_Value)
                 FeedButtonX.Background = Brushes.LightGreen;

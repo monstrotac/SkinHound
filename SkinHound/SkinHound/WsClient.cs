@@ -193,7 +193,8 @@ namespace SkinHound
                 //We process verifications here before inserting the newest activity.
                 if((eventType.Contains("sold") && salesOn) || (eventType.Contains("listed") && listingOn))
                 {
-                    if(await Utils.VerifyIfDesired(sale.MarketHashName, 0))
+                    sale.ActivityTime = DateTime.Now;
+                    if (await Utils.VerifyIfDesired(sale.MarketHashName, 0))
                     {
                         if (desiredOn && ((1 - sale.SalePrice / sale.SuggestedPrice) * 100) >= SkinHoundConfiguration.Desired_Weapons_Min_Discount_Threshold)
                         {

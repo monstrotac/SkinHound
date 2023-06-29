@@ -27,7 +27,7 @@ namespace SkinHound
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    
+
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         //Private fields
@@ -40,6 +40,10 @@ namespace SkinHound
         private string currencySymbol = "$";
         //lock object for synchronization;
         private static object _syncLock = new object();
+        //Pagination related
+        private int pagination_index = 0;
+        private const int PAGINATION_SIZE = 10;
+        private List<ItemDeal> dealsList = new List<ItemDeal>();
         //Suggestion TextBox related fields
         private List<string> skinNamesList = new List<string>();
         private ObservableCollection<string> desiredWeaponsList = new ObservableCollection<string>();
@@ -151,7 +155,7 @@ namespace SkinHound
             SettingsNotificationsEnabled.IsChecked = SkinHoundConfiguration.Notifications_Enabled;
             SettingsNotifyOnAllDesiredWeapons.IsChecked = SkinHoundConfiguration.Notify_On_All_Desired_Weapons;
             //General section
-            if(Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR) != null)
+            if (Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR) != null)
                 SettingsSkinportClientId.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR);
             if (Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR) != null)
                 SettingsSkinportClientSecret.Password = Environment.GetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR);
@@ -205,7 +209,7 @@ namespace SkinHound
             }
 
             //We update the Environment Variables, this data is stored in the environement for safety measures.
-            await Task.Run(()=>{
+            await Task.Run(() => {
                 Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_SECRET_ENV_VAR, SettingsSkinportClientSecret.Password, EnvironmentVariableTarget.User);
                 Environment.SetEnvironmentVariable(SkinportApiFactory.SKINPORT_TOKEN_CLIENT_ENV_VAR, SettingsSkinportClientId.Password, EnvironmentVariableTarget.User);
             });
@@ -218,7 +222,7 @@ namespace SkinHound
                 "\n\t\"minimum_worth_value\": " + SettingsMinWorthValue.Text + "," +
                 "\n\t\"minutes_between_queries\": " + SettingsMinutesBetweenQuerries.Text + "," +
                 "\n\t\"desired_weapons\":[";
-            if(desiredWeaponsList.Count > 0)
+            if (desiredWeaponsList.Count > 0)
                 for (int i = 0; i < desiredWeaponsList.Count; i++)
                 {
                     newSettings += "\"" + desiredWeaponsList[i] + "\"";
@@ -226,9 +230,9 @@ namespace SkinHound
                         newSettings += ",";
                 }
             newSettings += "\n\t]," +
-            "\n\t\"notify_on_all_desired_weapons\":"+SettingsNotifyOnAllDesiredWeapons.IsChecked.ToString().ToLower()+"," +
-            "\n\t\"notifications_enabled\":"+SettingsNotificationsEnabled.IsChecked.ToString().ToLower()+ "," +
-            "\n\t\"currency\":\""+ currencyString +"\"" +
+            "\n\t\"notify_on_all_desired_weapons\":" + SettingsNotifyOnAllDesiredWeapons.IsChecked.ToString().ToLower() + "," +
+            "\n\t\"notifications_enabled\":" + SettingsNotificationsEnabled.IsChecked.ToString().ToLower() + "," +
+            "\n\t\"currency\":\"" + currencyString + "\"" +
             "\n}";
             //We overwrite the current Config File with our new settings.
             File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\SkinHound\\config.json", newSettings);
@@ -259,12 +263,12 @@ namespace SkinHound
             //We make sure that if any of the variables we have can't be parsed, it won't allow it.
             double doubleTester;
             int intTester;
-            if(!int.TryParse(SettingsMinutesBetweenQuerries.Text, out intTester) ||!double.TryParse(SettingsMinWorthValue.Text, out doubleTester)||!double.TryParse(SettingsGoodDiscountThreshold.Text, out doubleTester) ||!double.TryParse(SettingsGreatDiscountThreshold.Text, out doubleTester) ||!double.TryParse(SettingsOutstandingDiscountThreshold.Text, out doubleTester) || double.TryParse(SettingsDesiredDiscountThreshold.Text, out doubleTester))
-            if (SettingsMinutesBetweenQuerries.Text == "" || SettingsMinWorthValue.Text == "" || SettingsGoodDiscountThreshold.Text == "" || SettingsGreatDiscountThreshold.Text == "" || SettingsOutstandingDiscountThreshold.Text == "" || SettingsDesiredDiscountThreshold.Text == "")
-            {
-                SettingsErrorText.Text = "Error: One of these values is Invalid: MinWorth, MinutesBetweenQuerries, GoodDiscountThreshold, GreatDiscountThreshold, OutstandingDiscountThreshold, DesiredDiscountThreshold.";
-                return false;
-            }
+            if (!int.TryParse(SettingsMinutesBetweenQuerries.Text, out intTester) || !double.TryParse(SettingsMinWorthValue.Text, out doubleTester) || !double.TryParse(SettingsGoodDiscountThreshold.Text, out doubleTester) || !double.TryParse(SettingsGreatDiscountThreshold.Text, out doubleTester) || !double.TryParse(SettingsOutstandingDiscountThreshold.Text, out doubleTester) || double.TryParse(SettingsDesiredDiscountThreshold.Text, out doubleTester))
+                if (SettingsMinutesBetweenQuerries.Text == "" || SettingsMinWorthValue.Text == "" || SettingsGoodDiscountThreshold.Text == "" || SettingsGreatDiscountThreshold.Text == "" || SettingsOutstandingDiscountThreshold.Text == "" || SettingsDesiredDiscountThreshold.Text == "")
+                {
+                    SettingsErrorText.Text = "Error: One of these values is Invalid: MinWorth, MinutesBetweenQuerries, GoodDiscountThreshold, GreatDiscountThreshold, OutstandingDiscountThreshold, DesiredDiscountThreshold.";
+                    return false;
+                }
             //Error handling to make sure required values aren't null
             if (SettingsMinutesBetweenQuerries.Text == "" || SettingsMinWorthValue.Text == "" || SettingsGoodDiscountThreshold.Text == "" || SettingsGreatDiscountThreshold.Text == "" || SettingsOutstandingDiscountThreshold.Text == "" || SettingsDesiredDiscountThreshold.Text == "")
             {
@@ -308,7 +312,7 @@ namespace SkinHound
         {
             RefreshDeals().GetAwaiter().GetResult();
             //We initialize the SuggetionLists if it's empty
-            if(skinNamesList.Count == 0)
+            if (skinNamesList.Count == 0)
                 InitializeSuggestionLists();
         }
         private async Task RefreshDeals()
@@ -320,7 +324,7 @@ namespace SkinHound
             });
             //We acquire the product list.
             List<Product> list = await skinportApiFactory.AcquireProductList();
-            if(list != null)
+            if (list != null)
             {
                 await this.Dispatcher.Invoke(async () =>
                 {
@@ -333,21 +337,24 @@ namespace SkinHound
         }
         private async Task RemoveDeals()
         {
-            DisplayedDeals.Clear();
             return;
         }
         //This Task takes care of updating the deals for the user and formats them with the values which have been placed inside of it.
         private async Task ShowDeals(List<Product> productQueue)
         {
-            await Application.Current.Dispatcher.InvokeAsync( async () =>
+            await Application.Current.Dispatcher.InvokeAsync(async () =>
             {
+                List<ItemDeal> tempList = new List<ItemDeal>();
                 if (productQueue != null || productQueue.Count > 0)
                 {
-                    foreach(Product product in productQueue)
+                    foreach (Product product in productQueue)
                     {
                         ItemDeal curDeal = new ItemDeal(dealScroll, product, currencySymbol);
-                        DisplayedDeals.Add(curDeal);
+                        tempList.Add(curDeal);
                     }
+                    //We update our deals list and then set the pagination, which then takes care of setting the X size of deals that'll be displayed in the page.
+                    dealsList = tempList;
+                    await SetPaginationIndex(pagination_index);
                     return;
                 }
                 else
@@ -392,9 +399,9 @@ namespace SkinHound
                 return;
             }
             // Check if the new text has a decimal point that is not at the beginning and is not preceded by another decimal point
-            if (e.Text == "." && (decimalIndex == 0 || newText.Split(".").Length-1 > 1))
+            if (e.Text == "." && (decimalIndex == 0 || newText.Split(".").Length - 1 > 1))
             {
-                e.Handled= true;
+                e.Handled = true;
                 return;
             }
             //Make sure that we don't exceed the double Max Value to avoir breaking the app.
@@ -460,17 +467,17 @@ namespace SkinHound
                 Console.Write(ex);
                 return;
             }
-            
+
         }
         private void SettingsSuggestionList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
                 if (this.SettingsSuggestionList.SelectedIndex <= -1)
-                { 
+                {
                     this.CloseSettingsAutoSkinSuggestionBox();
                     return;
-                }  
+                }
                 this.CloseSettingsAutoSkinSuggestionBox();
                 this.SettingsSuggestingTextBox.Text = this.SettingsSuggestionList.SelectedItem.ToString();
                 this.SettingsSuggestionList.SelectedIndex = -1;
@@ -617,12 +624,12 @@ namespace SkinHound
             PriceCheckerMessageBox.Text = "Enter a Skin Name to Price Check it";
             //Then we make a request to our factory and find out soon enough if the Skin exists.
             List<Product> productsToDisplay = await skinportApiFactory.PriceCheck(PriceCheckerSuggestingTextBox.Text);
-            if(productsToDisplay == null)
+            if (productsToDisplay == null)
             {
                 PriceCheckerMessageBox.Text = $"An error occured searching for \"{PriceCheckerSuggestingTextBox.Text}\", please wait a few seconds and try again.";
                 return;
             }
-            if(productsToDisplay.Count == 0)
+            if (productsToDisplay.Count == 0)
             {
                 PriceCheckerMessageBox.Text = $"Couldn't find any skins with the name \"{PriceCheckerSuggestingTextBox.Text}\"";
                 return;
@@ -635,7 +642,7 @@ namespace SkinHound
         {
             if (productList == null || productList.Count > 0)
             {
-                foreach(Product product in productList)
+                foreach (Product product in productList)
                 {
                     PriceCheckedItem curPriceCheckedProduct = new PriceCheckedItem(priceCheckScroll, product, currencySymbol);
                     DisplayedPriceChecks.Add(curPriceCheckedProduct);
@@ -691,53 +698,54 @@ namespace SkinHound
         }
         private async Task FilterDealList()
         {
-            ObservableCollection<ItemDeal> newList;
+            List<ItemDeal> newList;
             switch (dealsFilterType)
             {
                 case DealsFilterType.PriceAsc:
-                     newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.Min_Price).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderBy(item => item.product.Min_Price).ToList());
                     break;
                 case DealsFilterType.PriceDesc:
-                    newList= new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.Min_Price).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderByDescending(item => item.product.Min_Price).ToList());
                     break;
                 case DealsFilterType.Newest:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.isNew).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderByDescending(item => item.product.isNew).ToList());
                     break;
                 case DealsFilterType.DesiredDeals:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.isDesired).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderByDescending(item => item.product.isDesired).ToList());
                     break;
                 case DealsFilterType.QualityAsc:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => (int)item.product.dealType).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderBy(item => (int)item.product.dealType).ToList());
                     break;
                 case DealsFilterType.QualityDesc:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => (int)item.product.dealType).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderByDescending(item => (int)item.product.dealType).ToList());
                     break;
                 case DealsFilterType.Name:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.Market_Hash_Name).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderBy(item => item.product.Market_Hash_Name).ToList());
                     break;
                 case DealsFilterType.InvestmentValueAsc:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.InvestmentValue).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderBy(item => item.product.InvestmentValue).ToList());
                     break;
                 case DealsFilterType.InvestmentValueDesc:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.InvestmentValue).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderByDescending(item => item.product.InvestmentValue).ToList());
                     break;
                 case DealsFilterType.LtiiAsc:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.LongTermInvestmentIndicator).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderBy(item => item.product.LongTermInvestmentIndicator).ToList());
                     break;
                 case DealsFilterType.LtiiDesc:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderByDescending(item => item.product.LongTermInvestmentIndicator).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderByDescending(item => item.product.LongTermInvestmentIndicator).ToList());
                     break;
                 default:
-                    newList = new ObservableCollection<ItemDeal>(DisplayedDeals.OrderBy(item => item.product.Min_Price).ToList());
+                    newList = new List<ItemDeal>(dealsList.OrderBy(item => item.product.Min_Price).ToList());
                     break;
             }
-            Application.Current.Dispatcher.Invoke(() =>
+            await Application.Current.Dispatcher.Invoke(async () =>
             {
-                DisplayedDeals = newList;
+                dealsList = newList;
+                await SetPaginationIndex(pagination_index);
             });
             return;
         }
-        enum DealsFilterType 
+        enum DealsFilterType
         {
             PriceAsc = 0,
             PriceDesc = 1,
@@ -750,6 +758,56 @@ namespace SkinHound
             InvestmentValueDesc = 8,
             LtiiAsc = 9,
             LtiiDesc = 10
+        }
+        //Section for the pagination of the deals section, this helps keep the application optimized.
+        private async void PagingLastButton_Click(object sender, RoutedEventArgs e)
+        {
+            await SetPaginationIndex(await GetPaginationPagesAmount());
+        }
+        private async void PagingNextButton_Click(object sender, RoutedEventArgs e)
+        {
+            await SetPaginationIndex(pagination_index + 1);
+        }
+        private async void PagingPrevButton_Click(object sender, RoutedEventArgs e)
+        {
+            await SetPaginationIndex(pagination_index - 1);
+        }
+        private async void PagingFirstButton_Click(object sender, RoutedEventArgs e)
+        {
+            await SetPaginationIndex(0);
+        }
+        public async Task SetPaginationIndex(int index)
+        {
+            if (index < 0)
+                index = 0;
+            else if (index > await GetPaginationPagesAmount())
+                index = await GetPaginationPagesAmount();
+            else
+                pagination_index=index;
+            
+            await SetDisplayedDealsPage();
+        }
+        private async Task <int> GetPaginationPagesAmount()
+        {
+            decimal pages = Math.Ceiling((decimal)dealsList.Count / (decimal)PAGINATION_SIZE);
+            return (int)pages-1;
+        }
+        private async Task SetDisplayedDealsPage()
+        {
+            DisplayedDeals.Clear();
+            if (dealsList.Count - 1 < 0)
+                return;
+            if ((PAGINATION_SIZE) * (pagination_index + 1) > dealsList.Count - 1)
+            {
+                DisplayedDeals = new ObservableCollection<ItemDeal>(dealsList.GetRange((PAGINATION_SIZE) * pagination_index, dealsList.Count - (PAGINATION_SIZE * pagination_index)));
+            }
+            else
+            {
+                DisplayedDeals = new ObservableCollection<ItemDeal>(dealsList.GetRange((PAGINATION_SIZE) * pagination_index, (PAGINATION_SIZE)));
+            }
+
+            PagingIndexText.Text = $"Page {pagination_index+1} of {await GetPaginationPagesAmount()+1}";
+            return;
         }
     }
 }
