@@ -13,10 +13,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageReleaseNotes>First official release of the project, added currency options and the info tab.</PackageReleaseNotes>
     <NeutralLanguage>en-CA</NeutralLanguage>
-    <FileVersion>1.0.1.0</FileVersion>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.6.0</FileVersion>
+    <AssemblyVersion>1.0.6.0</AssemblyVersion>
     <Title>Skinhound</Title>
-    <Version>1.0.1</Version>
+    <Version>1.0.6</Version>
   </PropertyGroup>
 
   <ItemGroup>
