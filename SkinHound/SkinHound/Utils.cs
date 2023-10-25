@@ -15,9 +15,8 @@ namespace SkinHound
 {
     internal class Utils
     {
-        private const string USD_TO_CAD_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDCAD";
-        private const string USD_TO_CNY_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDCNY";
-        private const string USD_TO_EUR_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDEUR";
+        //For documentation on the API used for the exchange rate between currencies use the following link: https://www.exchangerate-api.com/docs/free
+        private const string USD_CONVERSION_RATE_PATH = "https://open.er-api.com/v6/latest/USD";
         private static HttpClient client = new HttpClient();
         public static float usdToCnyRate;
         public static float usdToCadRate;
@@ -40,30 +39,16 @@ namespace SkinHound
         {
             //This is used to handle null values.
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-            //The list that we will eventually return.
-            string conversionUsdCad;
-            HttpResponseMessage responseCad = await client.GetAsync(USD_TO_CAD_PATH);
-            if (responseCad.IsSuccessStatusCode)
+            //New Revamped Version of Acquiring Rate due to the old API disappearing off the map.
+            string usdRateResponse;
+            HttpResponseMessage usdRateRequest = await client.GetAsync(USD_CONVERSION_RATE_PATH);
+            if (usdRateRequest.IsSuccessStatusCode)
             {
-                conversionUsdCad = await responseCad.Content.ReadAsStringAsync();
-                JObject obj = JObject.Parse(conversionUsdCad);
-                usdToCadRate = (float)obj["rates"]["USDCAD"]["rate"];
-            }
-            string conversionUsdCny;
-            HttpResponseMessage responseCny = await client.GetAsync(USD_TO_CNY_PATH);
-            if (responseCny.IsSuccessStatusCode)
-            {
-                conversionUsdCny = await responseCny.Content.ReadAsStringAsync();
-                JObject obj = JObject.Parse(conversionUsdCny);
-                usdToCnyRate = (float)obj["rates"]["USDCNY"]["rate"];
-            }
-            string conversionUsdEur;
-            HttpResponseMessage responseEur = await client.GetAsync(USD_TO_EUR_PATH);
-            if (responseEur.IsSuccessStatusCode)
-            {
-                conversionUsdEur = await responseEur.Content.ReadAsStringAsync();
-                JObject obj = JObject.Parse(conversionUsdEur);
-                usdToEurRate = (float)obj["rates"]["USDEUR"]["rate"];
+                usdRateResponse = await usdRateRequest.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(usdRateResponse);
+                usdToCadRate = (float)obj["rates"]["CAD"];
+                usdToCnyRate = (float)obj["rates"]["CNY"];
+                usdToEurRate = (float)obj["rates"]["EUR"];
             }
         }
         public static float GetCurrencyRateFromUSD(string currency)
