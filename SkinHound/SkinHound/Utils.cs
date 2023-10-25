@@ -18,6 +18,7 @@ namespace SkinHound
         private const string USD_TO_CAD_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDCAD";
         private const string USD_TO_CNY_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDCNY";
         private const string USD_TO_EUR_PATH = $"https://www.freeforexapi.com/api/live?pairs=USDEUR";
+        private const string USD_CONVERSION_RATE_PATH = "https://open.er-api.com/v6/latest/USD";
         private static HttpClient client = new HttpClient();
         public static float usdToCnyRate;
         public static float usdToCadRate;
@@ -38,8 +39,22 @@ namespace SkinHound
         }
         public static async void UpdateRates()
         {
+
+
             //This is used to handle null values.
             JsonSerializerSettings settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            //New Revamped Version of Acquiring Rate due to the old API disappearing off the map.
+            string usdRateResponse;
+            HttpResponseMessage usdRateRequest = await client.GetAsync(USD_CONVERSION_RATE_PATH);
+            if (usdRateRequest.IsSuccessStatusCode)
+            {
+                usdRateResponse = await usdRateRequest.Content.ReadAsStringAsync();
+                JObject obj = JObject.Parse(usdRateResponse);
+                usdToCadRate = (float)obj["rates"]["CAD"];
+                usdToCnyRate = (float)obj["rates"]["CNY"];
+                usdToEurRate = (float)obj["rates"]["EUR"];
+            }
+            /* Code that is currently deprecated
             //The list that we will eventually return.
             string conversionUsdCad;
             HttpResponseMessage responseCad = await client.GetAsync(USD_TO_CAD_PATH);
@@ -65,6 +80,7 @@ namespace SkinHound
                 JObject obj = JObject.Parse(conversionUsdEur);
                 usdToEurRate = (float)obj["rates"]["USDEUR"]["rate"];
             }
+            */
         }
         public static float GetCurrencyRateFromUSD(string currency)
         {

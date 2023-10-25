@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>resources\SkinHound.ico</ApplicationIcon>
     <Authors>Calvery</Authors>
-    <Description>Skinhoud is a powerful CS:GO price checking tool which can notify you when good deals are placed on the market, this way you're the first on the scene.</Description>
+    <Description>Skinhound is a powerful CS:GO price checking tool which can notify you when good deals are placed on the market, this way you're the first on the scene.</Description>
     <Copyright>Calvery</Copyright>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
